@@ -1,0 +1,213 @@
+{
+  "categories": [
+    {
+      "title": "General",
+      "questions": [
+        {
+          "id": "mmt-lld-001",
+          "title": "Vending Machine — State Pattern + Thread Safety",
+          "freq": "high",
+          "tags": [
+            "LLD"
+          ],
+          "category": "General",
+          "body": "Use State pattern. Concurrency: ReentrantLock per machine. Shown above in Design Patterns section — here's the complete flow with dispensing state.",
+          "answer": null,
+          "solutions": [
+            {
+              "lang": "java",
+              "label": "Java",
+              "code": "interface VendingState {\n    void insertCoin(VendingMachine vm, double amount);\n    void selectItem(VendingMachine vm, String code);\n    void dispense(VendingMachine vm);\n    void cancel(VendingMachine vm);\n}\n\nclass IdleState implements VendingState {\n    public void insertCoin(VendingMachine vm, double amt) {\n        vm.setBalance(amt);\n        vm.setState(new HasMoneyState());\n    }\n    public void selectItem(VendingMachine vm, String c){ System.out.println(\"Insert coin first\"); }\n    public void dispense(VendingMachine vm) {}\n    public void cancel(VendingMachine vm) {}\n}\n\nclass HasMoneyState implements VendingState {\n    public void insertCoin(VendingMachine vm, double amt) { vm.addBalance(amt); }\n    public void selectItem(VendingMachine vm, String code) {\n        Item item = vm.getInventory().get(code);\n        if (item == null || item.getQuantity() == 0) { System.out.println(\"Out of stock\"); return; }\n        if (vm.getBalance() < item.getPrice()) { System.out.println(\"Insufficient funds\"); return; }\n        vm.setSelectedItem(code);\n        vm.setState(new DispensingState());\n        vm.dispense();\n    }\n    public void cancel(VendingMachine vm) { vm.refund(); vm.setState(new IdleState()); }\n    public void dispense(VendingMachine vm) { System.out.println(\"Select item first\"); }\n}\n\nclass VendingMachine {    // Singleton\n    private static final VendingMachine INSTANCE = new VendingMachine();\n    private VendingState state = new IdleState();\n    private final ReentrantLock lock = new ReentrantLock();\n    private Map<String, Item> inventory = new ConcurrentHashMap<>();\n    private double balance; private String selectedItem;\n\n    public void insertCoin(double amount) {\n        lock.lock(); try { state.insertCoin(this, amount); } finally { lock.unlock(); }\n    }\n    // selectItem, dispense, cancel similarly lock-protected\n}"
+            }
+          ],
+          "links": [],
+          "source": "Reported: SDE-2 LeetCode 2025, CodingKaro Java Developer"
+        },
+        {
+          "id": "mmt-lld-002",
+          "title": "Rate Limiter — Sliding Window (Redis-backed in production)",
+          "freq": "high",
+          "tags": [
+            "LLD"
+          ],
+          "category": "General",
+          "body": "",
+          "answer": null,
+          "solutions": [
+            {
+              "lang": "java",
+              "label": "Java",
+              "code": "class RateLimiter {\n    private final int maxRequests;\n    private final long windowMs;\n    private final Map<String, Deque<Long>> userTimestamps = new ConcurrentHashMap<>();\n\n    RateLimiter(int max, long windowMs) { this.maxRequests=max; this.windowMs=windowMs; }\n\n    public synchronized boolean isAllowed(String userId) {\n        long now = System.currentTimeMillis();\n        userTimestamps.putIfAbsent(userId, new ArrayDeque<>());\n        Deque<Long> timestamps = userTimestamps.get(userId);\n        // evict old timestamps outside window\n        while (!timestamps.isEmpty() && now - timestamps.peekFirst() > windowMs)\n            timestamps.pollFirst();\n        if (timestamps.size() < maxRequests) {\n            timestamps.addLast(now);\n            return true;   // allowed\n        }\n        return false;   // rate limited → return 429\n    }\n}\n\n// Production: replace with Redis ZADD/ZREMRANGEBYSCORE in Lua script (atomic)\n// Spring Boot: @RateLimiter(name=\"api\") from Resilience4j\n// or Bucket4j with Redis backend for distributed rate limiting"
+            }
+          ],
+          "links": [],
+          "source": "Reported: SDE-2 Code360 May 2022"
+        },
+        {
+          "id": "mmt-lld-003",
+          "title": "URL Shortener — Spring Boot with Redis cache",
+          "freq": "high",
+          "tags": [
+            "LLD + HLD"
+          ],
+          "category": "General",
+          "body": "",
+          "answer": null,
+          "solutions": [
+            {
+              "lang": "java",
+              "label": "Java",
+              "code": "// Entity\n@Entity @Table(name=\"urls\")\nclass UrlMapping {\n    @Id @GeneratedValue Long id;\n    @Column(unique=true) String shortCode;\n    String longUrl;\n    Long userId;         // for auth check\n    LocalDateTime expiry;\n}\n\n// Service\n@Service class UrlShortenerService {\n    private static final String CHARS = \"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789\";\n\n    @Autowired UrlRepository repo;\n    @Autowired RedisTemplate<String,String> redis;\n\n    public String shorten(String longUrl, Long userId) {\n        String code = toBase62(repo.save(new UrlMapping(longUrl, userId)).getId());\n        redis.opsForValue().set(\"url:\"+code, longUrl, 7, TimeUnit.DAYS);\n        return \"https://mmt.to/\" + code;\n    }\n\n    public String resolve(String code, Long requestUserId) {\n        String cached = redis.opsForValue().get(\"url:\"+code);\n        if (cached != null) return cached;\n        UrlMapping mapping = repo.findByShortCode(code)\n            .orElseThrow(() -> new NotFoundException());\n        if (!mapping.getUserId().equals(requestUserId)) throw new ForbiddenException();\n        return mapping.getLongUrl();\n    }\n\n    private String toBase62(long n) {\n        StringBuilder sb = new StringBuilder();\n        while (n > 0) { sb.append(CHARS.charAt((int)(n%62))); n/=62; }\n        return sb.reverse().toString();\n    }\n}"
+            }
+          ],
+          "links": [],
+          "source": "Reported: Senior SDE GFG 2019, SDE/SSE-2 Oct 2024"
+        },
+        {
+          "id": "mmt-lld-004",
+          "title": "Banking System — Thread-safe REST APIs (In-memory)",
+          "freq": "med",
+          "tags": [
+            "Machine Coding"
+          ],
+          "category": "General",
+          "body": "",
+          "answer": null,
+          "solutions": [
+            {
+              "lang": "java",
+              "label": "Java",
+              "code": "@Service class BankService {\n    private final Map<Long, Account> accounts = new ConcurrentHashMap<>();\n\n    public Account createAccount(String owner) {\n        Account acc = new Account(idGen.incrementAndGet(), owner);\n        accounts.put(acc.getId(), acc);\n        return acc;\n    }\n\n    public void deposit(long id, double amount) {\n        Account acc = getOrThrow(id);\n        synchronized(acc) { acc.setBalance(acc.getBalance() + amount); }\n    }\n\n    public void withdraw(long id, double amount) {\n        Account acc = getOrThrow(id);\n        synchronized(acc) {\n            if (acc.getBalance() < amount) throw new InsufficientFundsException();\n            acc.setBalance(acc.getBalance() - amount);\n        }\n    }\n\n    public void transfer(long fromId, long toId, double amount) {\n        // Lock in consistent order to prevent deadlock\n        Account first  = fromId < toId ? getOrThrow(fromId) : getOrThrow(toId);\n        Account second = fromId < toId ? getOrThrow(toId)   : getOrThrow(fromId);\n        synchronized(first) {\n            synchronized(second) {\n                withdraw(fromId, amount);\n                deposit(toId, amount);\n            }\n        }\n    }\n}"
+            }
+          ],
+          "links": [],
+          "source": "Reported: GFG 2019 Machine Coding Round"
+        },
+        {
+          "id": "mmt-lld-005",
+          "title": "FizzBuzz — SOLID / Open-Closed extensible design",
+          "freq": "low",
+          "tags": [
+            "LLD"
+          ],
+          "category": "General",
+          "body": "The naive if-else version is wrong here. MMT wants you to use OCP: new rules should be addable without modifying existing code.",
+          "answer": null,
+          "solutions": [
+            {
+              "lang": "java",
+              "label": "Java",
+              "code": "interface FizzBuzzRule {\n    boolean matches(int n);\n    String output();\n}\n\nclass FizzRule    implements FizzBuzzRule { public boolean matches(int n){ return n%3==0; } public String output(){ return \"Fizz\"; } }\nclass BuzzRule    implements FizzBuzzRule { public boolean matches(int n){ return n%5==0; } public String output(){ return \"Buzz\"; } }\nclass WoofRule    implements FizzBuzzRule { public boolean matches(int n){ return n%7==0; } public String output(){ return \"Woof\"; } }\n\nclass FizzBuzzEngine {\n    private final List<FizzBuzzRule> rules;\n    FizzBuzzEngine(List<FizzBuzzRule> rules) { this.rules = rules; }\n\n    public String evaluate(int n) {\n        String result = rules.stream()\n            .filter(r -> r.matches(n))\n            .map(FizzBuzzRule::output)\n            .collect(Collectors.joining());\n        return result.isEmpty() ? String.valueOf(n) : result;\n    }\n}\n// Add new rule (e.g. Woof for 7) without touching existing code ✓"
+            }
+          ],
+          "links": [],
+          "source": "Reported: SSE-2 LeetCode Discuss Nov 2023"
+        },
+        {
+          "id": "mmt-lld-006",
+          "title": "Food Search Across Restaurants — Adapter Pattern",
+          "freq": "low",
+          "tags": [
+            "LLD"
+          ],
+          "category": "General",
+          "body": "",
+          "answer": null,
+          "solutions": [
+            {
+              "lang": "java",
+              "label": "Java",
+              "code": "// Unified interface\ninterface RestaurantAdapter {\n    List<MenuItem> search(String query);\n}\n\n// Restaurant 1 has different response format\nclass Restaurant1Adapter implements RestaurantAdapter {\n    private Restaurant1Client client;\n    public List<MenuItem> search(String query) {\n        Restaurant1Response resp = client.getMenu(new Restaurant1Request(query));\n        return resp.getDishes().stream()\n            .map(d -> new MenuItem(d.getName(), d.getCost(), \"Restaurant1\"))\n            .collect(Collectors.toList());\n    }\n}\n\n// Facade aggregating all adapters\n@Service class FoodSearchService {\n    private final List<RestaurantAdapter> adapters;\n\n    public List<MenuItem> search(String query) {\n        return adapters.parallelStream()   // parallel for latency\n            .flatMap(a -> a.search(query).stream())\n            .collect(Collectors.toList());\n    }\n}"
+            }
+          ],
+          "links": [],
+          "source": "Reported: SDE-2 GFG 4 years exp"
+        },
+        {
+          "id": "mmt-lld-007",
+          "title": "Thread-Safe Builder Pattern (running two threads on it)",
+          "freq": "high",
+          "tags": [
+            "LLD"
+          ],
+          "category": "General",
+          "body": "SDE/SSE-2 Round 2 (LeetCode Discuss Oct 2024). Implement Builder pattern, spin up 2 threads running it. Key: synchronized is blocking — use AtomicReference or make builder immutable (each .withX() returns new builder).",
+          "answer": "<p>Immutable builder approach: each setter returns a new builder with the updated field. Thread-safe because no shared mutable state. For mutable: use AtomicReference<T> on the final object.</p>",
+          "solutions": [],
+          "links": [],
+          "source": "Reported: SDE/SSE-2 LeetCode Discuss Oct 2024"
+        },
+        {
+          "id": "mmt-lld-008",
+          "title": "Library Management System (Spring Boot)",
+          "freq": "med",
+          "tags": [
+            "Machine Coding"
+          ],
+          "category": "General",
+          "body": "Java machine coding (Glassdoor, Bangalore office, 7-round experience). Design using Spring Boot. REST APIs for borrow, return, catalogue. Discussion on the design choices made.",
+          "answer": null,
+          "solutions": [],
+          "links": [],
+          "source": "Reported: Glassdoor Bangalore Java Developer"
+        },
+        {
+          "id": "mmt-lld-009",
+          "title": "Alerting System — Trigger on 4xx/5xx thresholds",
+          "freq": "low",
+          "tags": [
+            "LLD/HLD hybrid"
+          ],
+          "category": "General",
+          "body": "SSE BLR Offer (LeetCode Discuss 2022). Open-ended design. Approach: time-series DB for error events → Grafana/Prometheus for threshold alerting → Slack/ServiceNow/Email notification. Interviewer added other notification channels mid-discussion.",
+          "answer": null,
+          "solutions": [],
+          "links": [],
+          "source": "Reported: SSE BLR LeetCode Discuss 2022"
+        },
+        {
+          "id": "mmt-lld-010",
+          "title": "AB Testing System — Button color weights (50% Red, 30% Green, 20% Blue)",
+          "freq": "low",
+          "tags": [
+            "LLD"
+          ],
+          "category": "General",
+          "body": "Senior SDE Round 2 (GFG 2019). Distribute incoming web requests per weight without knowing total count. Multiple approaches expected.",
+          "answer": "<p>Approach: maintain cumulative thresholds [0,50), [50,80), [80,100). Generate random 0-99, find bucket. Alternatively: modulo counters.</p>",
+          "solutions": [],
+          "links": [],
+          "source": "Reported: Senior SDE GFG 2019"
+        },
+        {
+          "id": "mmt-lld-011",
+          "title": "Engineer Class Hierarchy — Multiple specialisations (coding + robotics)",
+          "freq": "low",
+          "tags": [
+            "LLD/OOP"
+          ],
+          "category": "General",
+          "body": "SDE-2 (4 years exp) Round 2 (GFG). Engineer has common method communicate(). Specialised skills: doCoding(), makeRobot(). Design class diagram for an engineer who can do both. Tests multiple inheritance via interfaces.",
+          "answer": "<p>Engineer implements Communicable, Coder, Roboticist (interfaces). Use Java interfaces for mixin-style composition.</p>",
+          "solutions": [],
+          "links": [],
+          "source": "Reported: SDE-2 GFG 4 years exp"
+        },
+        {
+          "id": "mmt-lld-012",
+          "title": "Commodity Exchange — OOP + networking protocols (MQTT, CQRS)",
+          "freq": "low",
+          "tags": [
+            "LLD"
+          ],
+          "category": "General",
+          "body": "Naukri Code360 SDE-1 campus (Oct 2022). Design a commodity exchange using OOP. Discuss networking protocols — MQTT for real-time price feeds, CQRS for separating reads/writes.",
+          "answer": null,
+          "solutions": [],
+          "links": [],
+          "source": "Reported: Naukri Code360 Oct 2022"
+        }
+      ]
+    }
+  ]
+}

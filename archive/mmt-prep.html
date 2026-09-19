@@ -1,0 +1,1598 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MakeMyTrip Interview Prep — DSA & Backend</title>
+<style>
+  :root {
+    --bg: #0d1117;
+    --surface: #161b22;
+    --surface2: #1c2128;
+    --border: #30363d;
+    --accent: #f78166;
+    --accent2: #79c0ff;
+    --accent3: #56d364;
+    --text: #e6edf3;
+    --muted: #8b949e;
+    --tag-bg: #21262d;
+    --high: #f85149;
+    --med: #d29922;
+    --low: #3fb950;
+    --pill-dsa: #1f3a5f;
+    --pill-dsa-text: #79c0ff;
+    --pill-backend: #1f3d2a;
+    --pill-backend-text: #56d364;
+    --pill-lld: #3d2a1f;
+    --pill-lld-text: #f0883e;
+    --pill-hld: #3a1f3d;
+    --pill-hld-text: #bc8cff;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    font-size: 14px;
+    line-height: 1.6;
+  }
+
+  /* NAV */
+  nav {
+    position: sticky; top: 0; z-index: 100;
+    background: rgba(13,17,23,0.96);
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid var(--border);
+    padding: 0 24px;
+    display: flex; align-items: center; gap: 0;
+  }
+  .nav-logo {
+    font-size: 15px; font-weight: 700;
+    color: var(--accent); padding: 14px 24px 14px 0;
+    border-right: 1px solid var(--border);
+    margin-right: 8px;
+    white-space: nowrap;
+  }
+  .nav-tabs { display: flex; gap: 0; overflow-x: auto; scrollbar-width: none; }
+  .nav-tabs::-webkit-scrollbar { display: none; }
+  .nav-tab {
+    padding: 14px 18px;
+    color: var(--muted); font-size: 13px; font-weight: 500;
+    cursor: pointer; border: none; background: none;
+    border-bottom: 2px solid transparent;
+    transition: color 0.15s, border-color 0.15s;
+    white-space: nowrap;
+  }
+  .nav-tab:hover { color: var(--text); }
+  .nav-tab.active { color: var(--text); border-bottom-color: var(--accent); }
+
+  /* SECTIONS */
+  section { display: none; padding: 28px 24px; max-width: 1100px; margin: 0 auto; }
+  section.active { display: block; }
+
+  /* HEADERS */
+  h1 { font-size: 22px; font-weight: 700; color: var(--text); margin-bottom: 6px; }
+  h2 { font-size: 16px; font-weight: 700; color: var(--text); margin: 28px 0 14px; display: flex; align-items: center; gap: 8px; }
+  h2::before { content: ''; display: block; width: 3px; height: 18px; border-radius: 2px; background: var(--accent); flex-shrink: 0; }
+  h3 { font-size: 13px; font-weight: 600; color: var(--accent2); margin: 16px 0 8px; text-transform: uppercase; letter-spacing: 0.04em; }
+
+  .page-intro {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent);
+    border-radius: 6px;
+    padding: 16px 20px;
+    margin-bottom: 24px;
+    color: var(--muted);
+    font-size: 13px;
+    line-height: 1.7;
+  }
+  .page-intro strong { color: var(--text); }
+
+  /* FREQ BADGES */
+  .freq {
+    display: inline-block; font-size: 11px; font-weight: 600;
+    padding: 2px 8px; border-radius: 20px; flex-shrink: 0;
+  }
+  .freq-high { background: rgba(248,81,73,0.15); color: var(--high); border: 1px solid rgba(248,81,73,0.3); }
+  .freq-med  { background: rgba(210,153,34,0.15); color: var(--med);  border: 1px solid rgba(210,153,34,0.3); }
+  .freq-low  { background: rgba(63,185,80,0.15);  color: var(--low);  border: 1px solid rgba(63,185,80,0.3); }
+
+  /* TYPE PILLS */
+  .pill {
+    display: inline-block; font-size: 11px; font-weight: 600;
+    padding: 2px 9px; border-radius: 20px;
+  }
+  .pill-dsa     { background: var(--pill-dsa);     color: var(--pill-dsa-text); }
+  .pill-backend { background: var(--pill-backend); color: var(--pill-backend-text); }
+  .pill-lld     { background: var(--pill-lld);     color: var(--pill-lld-text); }
+  .pill-hld     { background: var(--pill-hld);     color: var(--pill-hld-text); }
+
+  /* QUESTION CARDS */
+  .q-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    margin-bottom: 10px;
+    overflow: hidden;
+    transition: border-color 0.15s;
+  }
+  .q-card:hover { border-color: #484f58; }
+  .q-header {
+    display: flex; align-items: flex-start; gap: 12px;
+    padding: 14px 16px; cursor: pointer;
+  }
+  .q-num {
+    font-size: 12px; font-weight: 700;
+    color: var(--muted); min-width: 28px; padding-top: 1px;
+  }
+  .q-title { flex: 1; font-size: 13.5px; font-weight: 500; color: var(--text); line-height: 1.5; }
+  .q-meta { display: flex; gap: 6px; align-items: center; flex-shrink: 0; flex-wrap: wrap; }
+  .q-expand {
+    font-size: 16px; color: var(--muted);
+    transition: transform 0.2s; flex-shrink: 0; padding-top: 1px;
+  }
+  .q-card.open .q-expand { transform: rotate(180deg); }
+  .q-body {
+    display: none; padding: 0 16px 16px 56px;
+    border-top: 1px solid var(--border);
+  }
+  .q-card.open .q-body { display: block; }
+  .q-body p { color: var(--muted); font-size: 13px; margin-top: 10px; line-height: 1.7; }
+  .q-body .lc-link {
+    display: inline-flex; align-items: center; gap: 5px;
+    font-size: 12px; color: var(--accent2); text-decoration: none;
+    margin-top: 8px;
+    background: rgba(121,192,255,0.08); padding: 3px 10px;
+    border-radius: 4px; border: 1px solid rgba(121,192,255,0.2);
+  }
+  .q-body .lc-link:hover { background: rgba(121,192,255,0.15); }
+  .q-body .hint {
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 6px; padding: 10px 14px; margin-top: 10px;
+    font-size: 12.5px; color: var(--muted); font-family: monospace;
+  }
+  .q-body .source-tag {
+    display: inline-block; font-size: 11px; color: var(--muted);
+    background: var(--tag-bg); padding: 2px 8px; border-radius: 4px;
+    margin-top: 8px;
+  }
+
+  /* CATEGORY SECTION */
+  .cat-header {
+    display: flex; align-items: center; gap: 12px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px 16px;
+    margin: 20px 0 12px;
+  }
+  .cat-icon { font-size: 20px; }
+  .cat-title { font-size: 15px; font-weight: 700; color: var(--text); }
+  .cat-count { font-size: 12px; color: var(--muted); margin-left: auto; }
+
+  /* BACKEND TOPIC CARDS */
+  .topic-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px;
+    margin-bottom: 12px;
+  }
+  .topic-title {
+    font-size: 13px; font-weight: 700; color: var(--text);
+    margin-bottom: 10px; display: flex; align-items: center; gap: 8px;
+  }
+  .topic-questions { list-style: none; }
+  .topic-questions li {
+    padding: 5px 0;
+    color: var(--muted); font-size: 13px;
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: flex-start; gap: 8px;
+    line-height: 1.5;
+  }
+  .topic-questions li:last-child { border-bottom: none; }
+  .topic-questions li::before {
+    content: '›'; color: var(--accent); font-weight: 700;
+    flex-shrink: 0; margin-top: 0px;
+  }
+
+  /* ROUND BADGE */
+  .round-badge {
+    display: inline-block; font-size: 11px; font-weight: 600;
+    padding: 2px 9px; border-radius: 20px;
+    background: rgba(188,140,255,0.12); color: #bc8cff;
+    border: 1px solid rgba(188,140,255,0.25);
+  }
+
+  /* PROCESS BOX */
+  .process-timeline {
+    display: grid; gap: 10px; margin: 14px 0;
+  }
+  .process-step {
+    display: flex; align-items: flex-start; gap: 14px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px 16px;
+  }
+  .step-num {
+    font-size: 18px; font-weight: 800;
+    color: var(--accent); min-width: 32px; flex-shrink: 0;
+    font-variant-numeric: tabular-nums;
+  }
+  .step-content .step-title {
+    font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 4px;
+  }
+  .step-content .step-desc { font-size: 12.5px; color: var(--muted); line-height: 1.6; }
+
+  /* STATS GRID */
+  .stats-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 12px; margin: 14px 0 24px;
+  }
+  .stat-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px 16px;
+    text-align: center;
+  }
+  .stat-num { font-size: 26px; font-weight: 800; color: var(--accent); }
+  .stat-label { font-size: 12px; color: var(--muted); margin-top: 2px; }
+
+  /* SEARCH */
+  .search-box {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 14px;
+    color: var(--text);
+    font-size: 13px;
+    width: 100%;
+    margin-bottom: 16px;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+  .search-box:focus { border-color: var(--accent2); }
+  .search-box::placeholder { color: var(--muted); }
+
+  /* TIPS */
+  .tip-box {
+    background: rgba(56,211,100,0.06);
+    border: 1px solid rgba(56,211,100,0.2);
+    border-radius: 8px;
+    padding: 14px 16px;
+    margin: 16px 0;
+    font-size: 13px;
+    color: var(--muted);
+  }
+  .tip-box .tip-title {
+    font-size: 12px; font-weight: 700; color: var(--accent3);
+    text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 6px;
+  }
+
+  .warn-box {
+    background: rgba(247,129,102,0.06);
+    border: 1px solid rgba(247,129,102,0.25);
+    border-radius: 8px;
+    padding: 14px 16px;
+    margin: 14px 0;
+    font-size: 13px; color: var(--muted);
+  }
+  .warn-box .tip-title { color: var(--accent); }
+
+  @media (max-width: 600px) {
+    nav { padding: 0 12px; }
+    section { padding: 20px 14px; }
+    .q-header { flex-wrap: wrap; }
+    .q-meta { order: 2; }
+    .q-body { padding-left: 16px; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-logo">MMT Prep 🎯</div>
+  <div class="nav-tabs">
+    <button class="nav-tab active" onclick="showTab('overview')">Overview</button>
+    <button class="nav-tab" onclick="showTab('dsa')">DSA Questions</button>
+    <button class="nav-tab" onclick="showTab('backend')">Backend Questions</button>
+    <button class="nav-tab" onclick="showTab('lld')">LLD Questions</button>
+    <button class="nav-tab" onclick="showTab('hld')">HLD / System Design</button>
+    <button class="nav-tab" onclick="showTab('tips')">Strategy & Tips</button>
+  </div>
+</nav>
+
+<!-- OVERVIEW -->
+<section id="overview" class="active">
+  <h1>MakeMyTrip Technical Interview — Complete Prep Guide</h1>
+  <p style="color:var(--muted); font-size:13px; margin-bottom:20px;">Compiled from GFG, LeetCode Discuss, Glassdoor, Naukri Code360, CodingKaro &amp; Medium — 2019–2025. Filtered for SDE-1 / SDE-2 / SSE / SSE-2 / SDE-3 backend roles.</p>
+
+  <div class="stats-grid">
+    <div class="stat-card"><div class="stat-num">50+</div><div class="stat-label">Unique DSA Qs</div></div>
+    <div class="stat-card"><div class="stat-num">40+</div><div class="stat-label">Backend Qs</div></div>
+    <div class="stat-card"><div class="stat-num">12+</div><div class="stat-label">LLD Problems</div></div>
+    <div class="stat-card"><div class="stat-num">10+</div><div class="stat-label">HLD Problems</div></div>
+    <div class="stat-card"><div class="stat-num">3–5</div><div class="stat-label">Interview Rounds</div></div>
+  </div>
+
+  <h2>Interview Process at MMT</h2>
+  <div class="process-timeline">
+    <div class="process-step">
+      <div class="step-num">0</div>
+      <div class="step-content">
+        <div class="step-title">Online Assessment (HackerEarth / HackerRank)</div>
+        <div class="step-desc">22 questions = 2 algorithmic coding + 20 MCQs on DBMS, OS, CN, Java OOP, SQL, aptitude. Medium difficulty. Used for campus &amp; off-campus. Platform varies by batch.</div>
+      </div>
+    </div>
+    <div class="process-step">
+      <div class="step-num">1</div>
+      <div class="step-content">
+        <div class="step-title">DSA / Problem Solving Round (60 min)</div>
+        <div class="step-desc">2 coding questions on arrays, linked lists, trees, DP, graphs. Expect LeetCode Easy–Medium. Clean working code required with dry-run and complexity analysis. For SSE-2+, may have 2 full DSA rounds.</div>
+      </div>
+    </div>
+    <div class="process-step">
+      <div class="step-num">2</div>
+      <div class="step-content">
+        <div class="step-title">LLD / Machine Coding Round (60 min)</div>
+        <div class="step-desc">Design and code a real-world system with OOP. SOLID principles, design patterns (State, Builder, Strategy, Singleton), and concurrency handling are critical. MMT heavily emphasises Java — hard requirement.</div>
+      </div>
+    </div>
+    <div class="process-step">
+      <div class="step-num">3</div>
+      <div class="step-content">
+        <div class="step-title">HLD / System Design Round (60–90 min)</div>
+        <div class="step-desc">Design a distributed, travel-domain-relevant system. DB schema + SQL, scalability, concurrency, caching, API design, microservices. For senior roles this is the most gruelling round.</div>
+      </div>
+    </div>
+    <div class="process-step">
+      <div class="step-num">4</div>
+      <div class="step-content">
+        <div class="step-title">Managerial / Bar Raiser (for SDE-2+)</div>
+        <div class="step-desc">Project depth, innovative contributions, latency/scaling problems you have solved, architecture decisions. Director of Engineering sometimes takes this. Prepare STAR stories from your production work.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="warn-box">
+    <div class="tip-title">⚠️ MMT-Specific Signals</div>
+    Java is a <strong>hard requirement</strong> at MMT — even if you're allowed Python/C++ in DSA, expect Java-specific follow-ups (records, generics, streams, concurrency). SOLID principles and design patterns are tested hands-on in LLD, not just theory. Idempotency and double-payment prevention are very commonly asked in HLD for the travel/payments domain.
+  </div>
+</section>
+
+<!-- DSA QUESTIONS -->
+<section id="dsa">
+  <h1>DSA Questions — Exhaustive List</h1>
+  <div class="page-intro">
+    Ordered by <strong>frequency</strong> (how many times the same or near-identical problem appeared across multiple candidates). Source dates range 2019–2025. Problems in <span style="color:var(--high)">RED</span> = reported 3+ times, <span style="color:var(--med)">YELLOW</span> = 2 times, <span style="color:var(--low)">GREEN</span> = once.
+  </div>
+
+  <input class="search-box" type="text" id="dsa-search" placeholder="Filter questions…" oninput="filterCards('dsa-search', 'dsa-list')">
+
+  <div id="dsa-list">
+
+    <!-- ARRAYS & STRINGS -->
+    <div class="cat-header">
+      <span class="cat-icon">📦</span>
+      <span class="cat-title">Arrays &amp; Strings</span>
+      <span class="cat-count">12 problems</span>
+    </div>
+
+    <div class="q-card" onclick="toggle(this)">
+      <div class="q-header">
+        <div class="q-num">#1</div>
+        <div class="q-title">Minimum Window Substring — Find the smallest substring in A containing all characters of B</div>
+        <div class="q-meta"><span class="freq freq-high">🔥 High</span><span class="pill pill-dsa">Sliding Window</span></div>
+        <div class="q-expand">▾</div>
+      </div>
+      <div class="q-body">
+        <p>Given strings A and B, find the smallest substring in A which contains all characters in B. This is the classic Minimum Window Substring problem. MMT specifically asked candidates to <strong>code it in Java</strong> and explicitly noted Java hard requirement after this question.</p>
+        <a class="lc-link" href="https://leetcode.com/problems/minimum-window-substring/" target="_blank">🔗 LeetCode #76 — Minimum Window Substring</a>
+        <div class="hint">Approach: Use two pointers + frequency map. O(N+M) time, O(k) space where k = charset.</div>
+        <span class="source-tag">Reported: SDE-2 GFG 2021, MMT Campus Round, Naukri Code360 2022</span>
+      </div>
+    </div>
+
+    <div class="q-card" onclick="toggle(this)">
+      <div class="q-header">
+        <div class="q-num">#2</div>
+        <div class="q-title">Subarray with Sum Zero — Find any subarray with sum = 0</div>
+        <div class="q-meta"><span class="freq freq-high">🔥 High</span><span class="pill pill-dsa">HashMap</span></div>
+        <div class="q-expand">▾</div>
+      </div>
+      <div class="q-body">
+        <p>Given an array, find any subarray which has a sum of 0. Asked in the SDE/SSE-2 DSA round (LeetCode Discuss, Oct 2024).</p>
+        <div class="hint">Approach: Prefix sum + HashMap. If same prefix sum appears twice, the subarray between them sums to 0.</div>
+        <a class="lc-link" href="https://leetcode.com/problems/subarray-sum-equals-k/" target="_blank">🔗 LeetCode #560 — Subarray Sum Equals K (generalisation)</a>
+        <span class="source-tag">Reported: SDE/SSE-2 Round 1, LeetCode Discuss Oct 2024</span>
+      </div>
+    </div>
+
+    <div class="q-card" onclick="toggle(this)">
+      <div class="q-header">
+        <div class="q-num">#3</div>
+        <div class="q-title">Merge Two / K Sorted Arrays or Linked Lists</div>
+        <div class="q-meta"><span class="freq freq-high">🔥 High</span><span class="pill pill-dsa">Merge/Heap</span></div>
+        <div class="q-expand">▾</div>
+      </div>
+      <div class="q-body">
+        <p>Merge 2 sorted arrays <em>and</em> Merge K sorted linked lists appeared together in a single SDE-2 Round 1. Union of two sorted arrays (SDE-1 Aug 2024) is a variant. All test in-place merge, heap-based K-way merge.</p>
+        <a class="lc-link" href="https://leetcode.com/problems/merge-k-sorted-lists/" target="_blank">🔗 LeetCode #23 — Merge K Sorted Lists</a>
+        <div class="hint">K-way: Use a min-heap of size K. O(N log K) time.</div>
+        <span class="source-tag">Reported: SDE-2 GFG 2021, SDE-1 Naukri Aug 2024</span>
+      </div>
+    </div>
+
+    <div class="q-card" onclick="toggle(this)">
+      <div class="q-header">
+        <div class="q-num">#4</div>
+        <div class="q-title">Jump Game I &amp; II — Reach end / minimum jumps</div>
+        <div class="q-meta"><span class="freq freq-high">🔥 High</span><span class="pill pill-dsa">Greedy</span></div>
+        <div class="q-expand">▾</div>
+      </div>
+      <div class="q-body">
+        <p>Both Jump Game and its sequel (minimum jumps) appeared in MMT SSE-2 Round 2 (Nov 2023) and a second SSE-2 round — with a variation requiring returning the actual <strong>indexes of the jumps</strong>.</p>
+        <a class="lc-link" href="https://leetcode.com/problems/jump-game-ii/" target="_blank">🔗 LeetCode #45 — Jump Game II</a>
+        <div class="hint">Greedy: Track furthest reachable, increment jumps when current position hits last jump boundary.</div>
+        <span class="source-tag">Reported: SSE-2 LeetCode Discuss Nov 2023, CodingKaro Sep/Oct</span>
+      </div>
+    </div>
+
+    <div class="q-card" onclick="toggle(this)">
+      <div class="q-header">
+        <div class="q-num">#5</div>
+        <div class="q-title">Overlapping Intervals — Merge all overlapping intervals</div>
+        <div class="q-meta"><span class="freq freq-high">🔥 High</span><span class="pill pill-dsa">Sorting</span></div>
+        <div class="q-expand">▾</div>
+      </div>
+      <div class="q-body">
+        <p>Explicitly listed as the first question in SDE-2 Round 1 (GFG 2021). Sort + merge sweep pattern.</p>
+        <a class="lc-link" href="https://leetcode.com/problems/merge-intervals/" target="_blank">🔗 LeetCode #56 — Merge Intervals</a>
+        <span class="source-tag">Reported: SDE-2 GFG 2021</span>
+      </div>
+    </div>
+
+    <div class="q-card" onclick="toggle(this)">
+      <div class="q-header">
+        <div class="q-num">#6</div>
+        <div class="q-title">Multiply Two Large Integers Represented as Strings</div>
+        <div class="q-meta"><span class="freq freq-med">⚡ Med</span><span class="pill pill-dsa">String/Math</span></div>
+        <div class="q-expand">▾</div>
+      </div>
+      <div class="q-body">
+        <p>SDE-2 Round 1 (LeetCode Discuss 2025). Candidate was allowed Python. Long multiplication simulation.</p>
+        <a class="lc-link" href="https://leetcode.com/problems/multiply-strings/" target="_blank">🔗 LeetCode #43 — Multiply Strings</a>
+        <span class="source-tag">Reported: SDE-2 LeetCode Discuss 2025</span>
+      </div>
+    </div>
+
+    <div class="q-card" onclick="toggle(this)">
+      <div class="q-header">
+        <div class="q-num">#7</div>
+        <div class="q-title">Find All Pairs with Given Sum in Two Arrays</div>
+        <div class="q-meta"><span class="freq freq-med">⚡ Med</span><span class="pill pill-dsa">HashMap</span></div>
+        <div class="q-expand">▾</div>
+      </div>
+      <div class="q-body">
+        <p>Given two arrays, print all pairs that sum to K. Technical Round 1 (Software Engineer, 2020). Hashmap approach to O(N).</p>
+        <a class="lc-link" href="https://leetcode.com/problems/two-sum/" target="_blank">🔗 LeetCode #1 — Two Sum (base problem)</a>
+        <span class="source-tag">Reported: SDE GFG 2020</span>
+      </div>
+    </div>
+
+    <div class="q-card" onclick="toggle(this)">
+      <div class="q-header">
+        <div class="q-num">#8</div>
+        <div class="q-title">Increasing Triplet Subsequence</div>
+        <div class="q-meta"><span class="freq freq-med">⚡ Med</span><span class="pill pill-dsa">Greedy</span></div>
+        <div class="q-expand">▾</div>
+      </div>
+      <div class="q-body">
+        <p>Appeared in SSE-2 Round 2 alongside Jump Game II (Nov 2023, IIT candidate).</p>
+        <a class="lc-link" href="https://leetcode.com/problems/increasing-triplet-subsequence/" target="_blank">🔗 LeetCode #334 — Increasing Triplet Subsequence</a>
+        <span class="source-tag">Reported: SSE-2 LeetCode Discuss Nov 2023</span>
+      </div>
+    </div>
+
+    <div class="q-card" onclick="toggle(this)">
+      <div class="q-header">
+        <div class="q-num">#9</div>
+        <div class="q-title">Maximum j–i such that arr[j] &gt; arr[i]</div>
+        <div class="q-meta"><span class="freq freq-low">🟢 Once</span><span class="pill pill-dsa">Array</span></div>
+        <div class="q-expand">▾</div>
+      </div>
+      <div class="q-body">
+        <p>Technical Round 2 (Software Engineer 2020). O(n) time, O(n) space approach using prefix min array and suffix max array.</p>
+        <div class="hint">Pre-compute leftMin[] and rightMax[], then use two-pointer to find max (j-i).</div>
+        <span class="source-tag">Reported: SDE GFG 2020</span>
+      </div>
+    </div>
+
+    <div class="q-card" onclick="toggle(this)">
+      <div class="q-header">
+        <div class="q-num">#10</div>
+        <div class="q-title">Maximize Sum Picking K Elements from Either Side of Array</div>
+        <div class="q-meta"><span class="freq freq-low">🟢 Once</span><span class="pill pill-dsa">Sliding Window</span></div>
+        <div class="q-expand">▾</div>
+      </div>
+      <div class="q-body">
+        <p>SSE BLR 2022 (Offer received). Pick exactly K elements from left or right ends, maximize sum. Sliding window of size (n-k) on the complement.</p>
+        <a class="lc-link" href="https://leetcode.com/problems/maximum-points-you-can-obtain-from-cards/" target="_blank">🔗 LeetCode #1423 — Maximum Points You Can Obtain from Cards</a>
+        <span class="source-tag">Reported: MMT SSE BLR LeetCode Discuss 2022</span>
+      </div>
+    </div>
+
+    <div class="q-card" onclick="toggle(this)">
+      <div class="q-header">
+        <div class="q-num">#11</div>
+        <div class="q-title">Sort Array by Frequency of Elements</div>
+        <div class="q-meta"><span class="freq freq-low">🟢 Once</span><span class="pill pill-dsa">HashMap+Sort</span></div>
+        <div class="q-expand">▾</div>
+      </div>
+      <div class="q-body">
+        <p>Glassdoor Java Developer interview: given array with duplicates, sort by occurrence count.</p>
+        <span class="source-tag">Reported: Java Developer interview Glassdoor</span>
+      </div>
+    </div>
+
+    <div class="q-card" onclick="toggle(this)">
+      <div class="q-header">
+        <div class="q-num">#12</div>
+        <div class="q-title">Find First and Last Position of Element in Sorted Array</div>
+        <div class="q-meta"><span class="freq freq-low">🟢 Once</span><span class="pill pill-dsa">Binary Search</span></div>
+        <div class="q-expand">▾</div>
+      </div>
+      <div class="q-body">
+        <p>SSE-2 Round 1, Nov 2023 (IIT candidate). Standard binary search for left boundary and right boundary.</p>
+        <a class="lc-link" href="https://leetcode.com/problems/find-first-and-last-position-of-element-in-sorted-array/" target="_blank">🔗 LeetCode #34</a>
+        <span class="source-tag">Reported: SSE-2 LeetCode Discuss Nov 2023</span>
+      </div>
+    </div>
+
+    <!-- LINKED LIST -->
+    <div class="cat-header">
+      <span class="cat-icon">🔗</span>
+      <span class="cat-title">Linked Lists</span>
+      <span class="cat-count">5 problems</span>
+    </div>
+
+    <div class="q-card" onclick="toggle(this)">
+      <div class="q-header">
+        <div class="q-num">#13</div>
+        <div class="q-title">Reverse Linked List in Groups of N</div>
+        <div class="q-meta"><span class="freq freq-high">🔥 High</span><span class="pill pill-dsa">Linked List</span></div>
+        <div class="q-expand">▾</div>
+      </div>
+      <div class="q-body">
+        <p>Reverse Nodes in K-Group appeared in MMT Set-4 older rounds and in SSE-2 Round 1 (Nov 2023).</p>
+        <a class="lc-link" href="https://leetcode.com/problems/reverse-nodes-in-k-group/" target="_blank">🔗 LeetCode #25 — Reverse Nodes in K-Group</a>
+        <span class="source-tag">Reported: MMT Set-4 GFG, SSE-2 Nov 2023</span>
+      </div>
+    </div>
+
+    <div class="q-card" onclick="toggle(this)">
+      <div class="q-header">
+        <div class="q-num">#14</div>
+        <div class="q-title">Clone a Linked List with Next and Random Pointers</div>
+        <div class="q-meta"><span class="freq freq-med">⚡ Med</span><span class="pill pill-dsa">Linked List</span></div>
+        <div class="q-expand">▾</div>
+      </div>
+      <div class="q-body">
+        <p>F2F Round in MMT Set-4. Deep copy with both next and arbitrary pointers in O(n) time and O(1) extra space.</p>
+        <a class="lc-link" href="https://leetcode.com/problems/copy-list-with-random-pointer/" target="_blank">🔗 LeetCode #138 — Copy List with Random Pointer</a>
+        <span class="source-tag">Reported: MMT Set-4 GFG</span>
+      </div>
+    </div>
+
+    <div class="q-card" onclick="toggle(this)">
+      <div class="q-header">
+        <div class="q-num">#15</div>
+        <div class="q-title">Populate Next Right Pointers in Each Node</div>
+        <div class="q-meta"><span class="freq freq-low">🟢 Once</span><span class="pill pill-dsa">Tree/LL</span></div>
+        <div class="q-expand">▾</div>
+      </div>
+      <div class="q-body">
+        <p>SDE-2 Round 1 (LeetCode Discuss 2025). Candidate was told O(log N) space solution also exists beyond O(N).</p>
+        <a class="lc-link" href="https://leetcode.com/problems/populating-next-right-pointers-in-each-node/" target="_blank">🔗 LeetCode #116</a>
+        <span class="source-tag">Reported: SDE-2 LeetCode Discuss 2025</span>
+      </div>
+    </div>
+
+    <div class="q-card" onclick="toggle(this)">
+      <div class="q-header">
+        <div class="q-num">#16</div>
+        <div class="q-title">Find Merging Point of Two Linked Lists</div>
+        <div class="q-meta"><span class="freq freq-low">🟢 Once</span><span class="pill pill-dsa">Two Pointer</span></div>
+        <div class="q-expand">▾</div>
+      </div>
+      <div class="q-body">
+        <p>F2F Round 3 (MMT Set-4 GFG).</p>
+        <a class="lc-link" href="https://leetcode.com/problems/intersection-of-two-linked-lists/" target="_blank">🔗 LeetCode #160 — Intersection of Two Linked Lists</a>
+        <span class="source-tag">Reported: MMT Set-4 GFG</span>
+      </div>
+    </div>
+
+    <div class="q-card" onclick="toggle(this)">
+      <div class="q-header">
+        <div class="q-num">#17</div>
+        <div class="q-title">Reverse the Second Half of a Linked List</div>
+        <div class="q-meta"><span class="freq freq-low">🟢 Once</span><span class="pill pill-dsa">Linked List</span></div>
+        <div class="q-expand">▾</div>
+      </div>
+      <div class="q-body">
+        <p>F2F Round 3 (MMT Set-4 GFG). In most efficient way (in-place).</p>
+        <span class="source-tag">Reported: MMT Set-4 GFG</span>
+      </div>
+    </div>
+
+    <!-- TREES -->
+    <div class="cat-header">
+      <span class="cat-icon">🌳</span>
+      <span class="cat-title">Trees &amp; Graphs</span>
+      <span class="cat-count">9 problems</span>
+    </div>
+
+    <div class="q-card" onclick="toggle(this)">
+      <div class="q-header">
+        <div class="q-num">#18</div>
+        <div class="q-title">Lowest Common Ancestor (LCA) — Common Manager of Two Employees</div>
+        <div class="q-meta"><span class="freq freq-high">🔥 High</span><span class="pill pill-dsa">Tree</span></div>
+        <div class="q-expand">▾</div>
+      </div>
+      <div class="q-body">
+        <p>Disguised as a real-world problem: "return the closest common manager of two employees". You can design the Emp class — the key insight is it's an LCA problem on a general tree, not necessarily a BST. MMT SDE/SSE-2 Round 1, Oct 2024. Also asked in campus rounds as standard binary tree LCA.</p>
+        <a class="lc-link" href="https://leetcode.com/problems/lowest-common-ancestor-of-a-binary-tree/" target="_blank">🔗 LeetCode #236 — LCA of Binary Tree</a>
+        <div class="hint">For general tree with parent pointers: walk both nodes to root, collect ancestors, find first common one.</div>
+        <span class="source-tag">Reported: SDE/SSE-2 LeetCode Discuss Oct 2024, Naukri Code360 Oct 2022</span>
+      </div>
+    </div>
+
+    <div class="q-card" onclick="toggle(this)">
+      <div class="q-header">
+        <div class="q-num">#19</div>
+        <div class="q-title">Check if Binary Tree is a Valid BST</div>
+        <div class="q-meta"><span class="freq freq-med">⚡ Med</span><span class="pill pill-dsa">BST</span></div>
+        <div class="q-expand">▾</div>
+      </div>
+      <div class="q-body">
+        <p>Technical Interview Round 1 (Software Engineer, 2020). Classic range-based DFS validation.</p>
+        <a class="lc-link" href="https://leetcode.com/problems/validate-binary-search-tree/" target="_blank">🔗 LeetCode #98 — Validate Binary Search Tree</a>
+        <span class="source-tag">Reported: SDE GFG 2020</span>
+      </div>
+    </div>
+
+    <div class="q-card" onclick="toggle(this)">
+      <div class="q-header">
+        <div class="q-num">#20</div>
+        <div class="q-title">Print Left View of Binary Tree</div>
+        <div class="q-meta"><span class="freq freq-low">🟢 Once</span><span class="pill pill-dsa">Tree BFS</span></div>
+        <div class="q-expand">▾</div>
+      </div>
+      <div class="q-body">
+        <p>Senior Software Engineer interview (GFG 2019). Recursive level-based approach.</p>
+        <a class="lc-link" href="https://leetcode.com/problems/binary-tree-left-side-view/" target="_blank">🔗 LeetCode equivalent</a>
+        <span class="source-tag">Reported: Senior SDE GFG 2019</span>
+      </div>
+    </div>
+
+    <div class="q-card" onclick="toggle(this)">
+      <div class="q-header">
+        <div class="q-num">#21</div>
+        <div class="q-title">Vertical Level Order Traversal of Tree</div>
+        <div class="q-meta"><span class="freq freq-low">🟢 Once</span><span class="pill pill-dsa">Tree</span></div>
+        <div class="q-expand">▾</div>
+      </div>
+      <div class="q-body">
+        <p>F2F Round 3 (MMT Set-4 GFG).</p>
+        <a class="lc-link" href="https://leetcode.com/problems/vertical-order-traversal-of-a-binary-tree/" target="_blank">🔗 LeetCode #987</a>
+        <span class="source-tag">Reported: MMT Set-4 GFG</span>
+      </div>
+    </div>
+
+    <div class="q-card" onclick="toggle(this)">
+      <div class="q-header">
+        <div class="q-num">#22</div>
+        <div class="q-title">Path Finding in Binary Matrix (Backtracking)</div>
+        <div class="q-meta"><span class="freq freq-low">🟢 Once</span><span class="pill pill-dsa">Backtracking</span></div>
+        <div class="q-expand">▾</div>
+      </div>
+      <div class="q-body">
+        <p>Technical Interview Round 1 (Software Engineer, 2020). Rat-in-a-maze style — find any path or longest path in binary matrix with walls.</p>
+        <span class="source-tag">Reported: SDE GFG 2020</span>
+      </div>
+    </div>
+
+    <div class="q-card" onclick="toggle(this)">
+      <div class="q-header">
+        <div class="q-num">#23</div>
+        <div class="q-title">Cut the Tree — Divide tree by edge to minimise sum difference</div>
+        <div class="q-meta"><span class="freq freq-low">🟢 Once</span><span class="pill pill-dsa">Tree DP</span></div>
+        <div class="q-expand">▾</div>
+      </div>
+      <div class="q-body">
+        <p>OA Round 2 (Software Engineer 2020). N nodes, N-1 edges. Each node has a value. Find edge to cut minimising |sum1 - sum2|.</p>
+        <a class="lc-link" href="https://www.hackerrank.com/challenges/cut-the-tree/problem" target="_blank">🔗 HackerRank — Cut the Tree</a>
+        <div class="hint">DFS to compute subtree sums, then iterate over edges.</div>
+        <span class="source-tag">Reported: SDE GFG 2020 OA</span>
+      </div>
+    </div>
+
+    <div class="q-card" onclick="toggle(this)">
+      <div class="q-header">
+        <div class="q-num">#24</div>
+        <div class="q-title">Critical Connections in a Network (Bridges)</div>
+        <div class="q-meta"><span class="freq freq-low">🟢 Once</span><span class="pill pill-dsa">Graph/Tarjan</span></div>
+        <div class="q-expand">▾</div>
+      </div>
+      <div class="q-body">
+        <p>Naukri Code360 — SDE-1 campus (Sep/Oct 2022). Find all critical edges whose removal disconnects the network.</p>
+        <a class="lc-link" href="https://leetcode.com/problems/critical-connections-in-a-network/" target="_blank">🔗 LeetCode #1192 — Critical Connections</a>
+        <div class="hint">Tarjan's bridge-finding algorithm. O(V+E) time.</div>
+        <span class="source-tag">Reported: Naukri Code360 Campus 2022</span>
+      </div>
+    </div>
+
+    <div class="q-card" onclick="toggle(this)">
+      <div class="q-header">
+        <div class="q-num">#25</div>
+        <div class="q-title">Shortest Path Problem (Graph) — Glassdoor reports</div>
+        <div class="q-meta"><span class="freq freq-low">🟢 Once</span><span class="pill pill-dsa">Graph BFS/Dijkstra</span></div>
+        <div class="q-expand">▾</div>
+      </div>
+      <div class="q-body">
+        <p>Multiple Glassdoor reviews (Sep 2023 on-campus) mentioned "Graph question, Shortest Path Problem" as a DSA round question.</p>
+        <span class="source-tag">Reported: Glassdoor Sep 2023</span>
+      </div>
+    </div>
+
+    <div class="q-card" onclick="toggle(this)">
+      <div class="q-header">
+        <div class="q-num">#26</div>
+        <div class="q-title">Coordinate Reachability Check Using GCD</div>
+        <div class="q-meta"><span class="freq freq-low">🟢 Once</span><span class="pill pill-dsa">Math</span></div>
+        <div class="q-expand">▾</div>
+      </div>
+      <div class="q-body">
+        <p>OA Round 1 (Software Engineer 2020). Starting from (1,1), move to (a+b,b) or (a,a+b). Check if (x,y) is reachable. Hint: gcd(x,y) must equal 1.</p>
+        <span class="source-tag">Reported: SDE GFG 2020 HackerEarth OA</span>
+      </div>
+    </div>
+
+    <!-- DP -->
+    <div class="cat-header">
+      <span class="cat-icon">🧮</span>
+      <span class="cat-title">Dynamic Programming</span>
+      <span class="cat-count">6 problems</span>
+    </div>
+
+    <div class="q-card" onclick="toggle(this)">
+      <div class="q-header">
+        <div class="q-num">#27</div>
+        <div class="q-title">Maximum Sum Increasing Subsequence</div>
+        <div class="q-meta"><span class="freq freq-med">⚡ Med</span><span class="pill pill-dsa">DP</span></div>
+        <div class="q-expand">▾</div>
+      </div>
+      <div class="q-body">
+        <p>SDE-2 (4 years exp) GFG — Round 1. Classic DP similar to LIS but maximising sum instead of length.</p>
+        <div class="hint">dp[i] = max sum increasing subsequence ending at i. O(N²) naive, O(N log N) with BIT.</div>
+        <span class="source-tag">Reported: SDE-2 GFG Round 1</span>
+      </div>
+    </div>
+
+    <div class="q-card" onclick="toggle(this)">
+      <div class="q-header">
+        <div class="q-num">#28</div>
+        <div class="q-title">Longest Consecutive Sequence</div>
+        <div class="q-meta"><span class="freq freq-high">🔥 High</span><span class="pill pill-dsa">HashSet</span></div>
+        <div class="q-expand">▾</div>
+      </div>
+      <div class="q-body">
+        <p>SDE-1 Backend (GFG 2022, 2024). Given an unsorted array, find the longest consecutive sequence. O(N) HashSet approach expected.</p>
+        <a class="lc-link" href="https://leetcode.com/problems/longest-consecutive-sequence/" target="_blank">🔗 LeetCode #128 — Longest Consecutive Sequence</a>
+        <span class="source-tag">Reported: SDE-1 GFG 2022, SDE-1 GFG 2024</span>
+      </div>
+    </div>
+
+    <div class="q-card" onclick="toggle(this)">
+      <div class="q-header">
+        <div class="q-num">#29</div>
+        <div class="q-title">Generate All Permutations of a String</div>
+        <div class="q-meta"><span class="freq freq-high">🔥 High</span><span class="pill pill-dsa">Backtracking</span></div>
+        <div class="q-expand">▾</div>
+      </div>
+      <div class="q-body">
+        <p>SDE-1 Managerial round (GFG 2022 — selected). Recursive approach, recursion tree dry-run. Follow-up: handle duplicates using a Set.</p>
+        <span class="source-tag">Reported: SDE-1 Managerial Round GFG 2022</span>
+      </div>
+    </div>
+
+    <div class="q-card" onclick="toggle(this)">
+      <div class="q-header">
+        <div class="q-num">#30</div>
+        <div class="q-title">Dice Throw — Count ways to get target sum with D dice F faces</div>
+        <div class="q-meta"><span class="freq freq-low">🟢 Once</span><span class="pill pill-dsa">DP</span></div>
+        <div class="q-expand">▾</div>
+      </div>
+      <div class="q-body">
+        <p>Campus interview (Naukri Code360 Sep 2022). 2D DP problem.</p>
+        <span class="source-tag">Reported: Naukri Code360 Campus Sep 2022</span>
+      </div>
+    </div>
+
+    <div class="q-card" onclick="toggle(this)">
+      <div class="q-header">
+        <div class="q-num">#31</div>
+        <div class="q-title">Generate N Pairs of Balanced Parentheses</div>
+        <div class="q-meta"><span class="freq freq-low">🟢 Once</span><span class="pill pill-dsa">Backtracking</span></div>
+        <div class="q-expand">▾</div>
+      </div>
+      <div class="q-body">
+        <p>F2F Round 3 (MMT Set-4 GFG). Classic recursion/backtracking problem.</p>
+        <a class="lc-link" href="https://leetcode.com/problems/generate-parentheses/" target="_blank">🔗 LeetCode #22 — Generate Parentheses</a>
+        <span class="source-tag">Reported: MMT Set-4 GFG</span>
+      </div>
+    </div>
+
+    <div class="q-card" onclick="toggle(this)">
+      <div class="q-header">
+        <div class="q-num">#32</div>
+        <div class="q-title">Longest Repeating Non-Overlapping Substring</div>
+        <div class="q-meta"><span class="freq freq-low">🟢 Once</span><span class="pill pill-dsa">DP/HashMap</span></div>
+        <div class="q-expand">▾</div>
+      </div>
+      <div class="q-body">
+        <p>Technical Round 2 (Software Engineer, 2020). Brute force → HashSet optimisation.</p>
+        <span class="source-tag">Reported: SDE GFG 2020</span>
+      </div>
+    </div>
+
+    <!-- STACKS / QUEUES / HEAPS -->
+    <div class="cat-header">
+      <span class="cat-icon">📚</span>
+      <span class="cat-title">Stacks, Queues &amp; Heaps</span>
+      <span class="cat-count">4 problems</span>
+    </div>
+
+    <div class="q-card" onclick="toggle(this)">
+      <div class="q-header">
+        <div class="q-num">#33</div>
+        <div class="q-title">Maximum Frequency Stack (FreqStack)</div>
+        <div class="q-meta"><span class="freq freq-high">🔥 High</span><span class="pill pill-dsa">Stack/HashMap</span></div>
+        <div class="q-expand">▾</div>
+      </div>
+      <div class="q-body">
+        <p>SDE-1 Round 2 (GFG 2022, 2024). Design a stack that returns the most frequently pushed element. Complex data structure design using HashMap of stacks.</p>
+        <a class="lc-link" href="https://leetcode.com/problems/maximum-frequency-stack/" target="_blank">🔗 LeetCode #895 — Maximum Frequency Stack</a>
+        <span class="source-tag">Reported: SDE-1 GFG 2022, 2024</span>
+      </div>
+    </div>
+
+    <div class="q-card" onclick="toggle(this)">
+      <div class="q-header">
+        <div class="q-num">#34</div>
+        <div class="q-title">Kth Largest Element in an Array / Stream</div>
+        <div class="q-meta"><span class="freq freq-med">⚡ Med</span><span class="pill pill-dsa">Heap</span></div>
+        <div class="q-expand">▾</div>
+      </div>
+      <div class="q-body">
+        <p>SDE-2 Round 1 (Naukri Code360 May 2022). Min-heap of size K approach. Also mentioned in a billion-numbers stream variant (MMT Set-4).</p>
+        <a class="lc-link" href="https://leetcode.com/problems/kth-largest-element-in-an-array/" target="_blank">🔗 LeetCode #215 — Kth Largest Element</a>
+        <span class="source-tag">Reported: SDE-2 Naukri May 2022, MMT Set-4</span>
+      </div>
+    </div>
+
+    <div class="q-card" onclick="toggle(this)">
+      <div class="q-header">
+        <div class="q-num">#35</div>
+        <div class="q-title">Implement LRU Cache</div>
+        <div class="q-meta"><span class="freq freq-high">🔥 High</span><span class="pill pill-dsa">Design</span></div>
+        <div class="q-expand">▾</div>
+      </div>
+      <div class="q-body">
+        <p>Naukri Code360 SDE-1 Aug 2024 F2F (pen &amp; paper round). Doubly linked list + HashMap. O(1) get and put.</p>
+        <a class="lc-link" href="https://leetcode.com/problems/lru-cache/" target="_blank">🔗 LeetCode #146 — LRU Cache</a>
+        <span class="source-tag">Reported: SDE-1 Naukri Code360 Aug 2024</span>
+      </div>
+    </div>
+
+    <div class="q-card" onclick="toggle(this)">
+      <div class="q-header">
+        <div class="q-num">#36</div>
+        <div class="q-title">Stack Using Queue / Queue Using Stack</div>
+        <div class="q-meta"><span class="freq freq-low">🟢 Once</span><span class="pill pill-dsa">Stack/Queue</span></div>
+        <div class="q-expand">▾</div>
+      </div>
+      <div class="q-body">
+        <p>Naukri Code360 SDE-1 campus Oct 2022.</p>
+        <a class="lc-link" href="https://leetcode.com/problems/implement-stack-using-queues/" target="_blank">🔗 LeetCode #225</a>
+        <span class="source-tag">Reported: Naukri Code360 Oct 2022</span>
+      </div>
+    </div>
+
+    <!-- CONCURRENCY / MULTITHREADING DSA -->
+    <div class="cat-header">
+      <span class="cat-icon">⚙️</span>
+      <span class="cat-title">Concurrency Coding (DSA adjacent)</span>
+      <span class="cat-count">3 problems</span>
+    </div>
+
+    <div class="q-card" onclick="toggle(this)">
+      <div class="q-header">
+        <div class="q-num">#37</div>
+        <div class="q-title">Implement HashMap from Scratch — Thread-Safe Version</div>
+        <div class="q-meta"><span class="freq freq-high">🔥 High</span><span class="pill pill-dsa">Design+Concurrency</span></div>
+        <div class="q-expand">▾</div>
+      </div>
+      <div class="q-body">
+        <p>Senior Engineer Round 2 (GFG 2019) and Glassdoor Java Developer. Design put(), hashCode/equals, collision handling (chaining), then make put() thread-safe using synchronized. Follow-up: why default capacity is 16 (power of 2 for fast modulo via bitmask).</p>
+        <div class="hint">Thread-safe: synchronized block on bucket, or use ConcurrentHashMap segment-level locking as inspiration.</div>
+        <span class="source-tag">Reported: Senior SDE GFG 2019, Glassdoor Java Developer</span>
+      </div>
+    </div>
+
+    <div class="q-card" onclick="toggle(this)">
+      <div class="q-header">
+        <div class="q-num">#38</div>
+        <div class="q-title">Multi-threaded HTML Word Counter — Download pages concurrently, count string occurrences</div>
+        <div class="q-meta"><span class="freq freq-low">🟢 Once</span><span class="pill pill-dsa">Threading</span></div>
+        <div class="q-expand">▾</div>
+      </div>
+      <div class="q-body">
+        <p>Tech Lead on-site round (LeetCode Discuss, Jul 2024). Download HTML of URLs using multiple threads, count occurrences of a string, ensure thread communication. Output: [url, string, count].</p>
+        <div class="hint">Use ExecutorService + Callable/Future, or CompletableFuture. Shared counter with AtomicInteger or synchronized.</div>
+        <span class="source-tag">Reported: Tech Lead LeetCode Discuss Jul 2024</span>
+      </div>
+    </div>
+
+    <div class="q-card" onclick="toggle(this)">
+      <div class="q-header">
+        <div class="q-num">#39</div>
+        <div class="q-title">Thread-Safe Builder Pattern with Atomic Variables</div>
+        <div class="q-meta"><span class="freq freq-low">🟢 Once</span><span class="pill pill-dsa">Concurrency</span></div>
+        <div class="q-expand">▾</div>
+      </div>
+      <div class="q-body">
+        <p>SDE/SSE-2 Round 2 LLD (LeetCode Discuss Oct 2024). Implement builder pattern, create 2 threads and run it. Interviewer was dissatisfied with synchronized (blocking), expected AtomicReference/volatile-based solution.</p>
+        <div class="hint">Use AtomicReference for the object being built; alternatively use immutable builder where each setter returns a new builder object.</div>
+        <span class="source-tag">Reported: SDE/SSE-2 LeetCode Discuss Oct 2024</span>
+      </div>
+    </div>
+
+    <!-- MISC PROBLEMS FROM OA -->
+    <div class="cat-header">
+      <span class="cat-icon">📝</span>
+      <span class="cat-title">Other Reported OA / Classic Problems</span>
+      <span class="cat-count">5 problems</span>
+    </div>
+
+    <div class="q-card" onclick="toggle(this)">
+      <div class="q-header">
+        <div class="q-num">#40</div>
+        <div class="q-title">Tower of Hanoi</div>
+        <div class="q-meta"><span class="freq freq-low">🟢 Once</span><span class="pill pill-dsa">Recursion</span></div>
+        <div class="q-expand">▾</div>
+      </div>
+      <div class="q-body"><p>On-campus technical round (SDE GFG). Classic recursion.</p><span class="source-tag">Reported: SDE On-Campus GFG</span></div>
+    </div>
+
+    <div class="q-card" onclick="toggle(this)">
+      <div class="q-header">
+        <div class="q-num">#41</div>
+        <div class="q-title">Minimum Length Unsorted Subarray — Sorting which makes array sorted</div>
+        <div class="q-meta"><span class="freq freq-low">🟢 Once</span><span class="pill pill-dsa">Array</span></div>
+        <div class="q-expand">▾</div>
+      </div>
+      <div class="q-body">
+        <p>On-campus technical round. Find the length of the smallest subarray which when sorted makes the whole array sorted.</p>
+        <a class="lc-link" href="https://leetcode.com/problems/shortest-unsorted-continuous-subarray/" target="_blank">🔗 LeetCode #581</a>
+        <span class="source-tag">Reported: SDE On-Campus GFG</span>
+      </div>
+    </div>
+
+    <div class="q-card" onclick="toggle(this)">
+      <div class="q-header">
+        <div class="q-num">#42</div>
+        <div class="q-title">Circular Array — Remove Kth element, find last remaining</div>
+        <div class="q-meta"><span class="freq freq-low">🟢 Once</span><span class="pill pill-dsa">Math</span></div>
+        <div class="q-expand">▾</div>
+      </div>
+      <div class="q-body">
+        <p>CodingKaro SSE/SDE Round 1. Josephus Problem variant.</p>
+        <div class="hint">Josephus formula: f(n,k) = (f(n-1,k) + k) % n where f(1,k)=0, then +1 for 1-indexed.</div>
+        <span class="source-tag">Reported: CodingKaro SSE/SDE</span>
+      </div>
+    </div>
+
+    <div class="q-card" onclick="toggle(this)">
+      <div class="q-header">
+        <div class="q-num">#43</div>
+        <div class="q-title">Prisoner Wall Jump Problem (Logical)</div>
+        <div class="q-meta"><span class="freq freq-low">🟢 Once</span><span class="pill pill-dsa">Math/Logic</span></div>
+        <div class="q-expand">▾</div>
+      </div>
+      <div class="q-body">
+        <p>Online coding round (MMT Campus). N walls each with height h[i]. Max jump height = H. Rainy day — slips down l units after each jump. Count total jumps to escape.</p>
+        <span class="source-tag">Reported: MMT Campus GFG</span>
+      </div>
+    </div>
+
+    <div class="q-card" onclick="toggle(this)">
+      <div class="q-header">
+        <div class="q-num">#44</div>
+        <div class="q-title">Open/Close Store Timing — Store opening check (Implementation)</div>
+        <div class="q-meta"><span class="freq freq-low">🟢 Once</span><span class="pill pill-dsa">Implementation</span></div>
+        <div class="q-expand">▾</div>
+      </div>
+      <div class="q-body">
+        <p>Tech Lead Coding Round 1 (LeetCode Discuss, Jul 2024). Given open and close time arrays of a store, implement availability check. Easy-level implementation question.</p>
+        <span class="source-tag">Reported: Tech Lead LeetCode Discuss Jul 2024</span>
+      </div>
+    </div>
+
+  </div><!-- /dsa-list -->
+</section>
+
+<!-- BACKEND QUESTIONS -->
+<section id="backend">
+  <h1>Backend-Specific Interview Questions</h1>
+  <div class="page-intro">
+    These were explicitly asked as verbal/discussion questions in MMT technical rounds — covering Java internals, Spring, databases, OS, and distributed systems concepts. MMT has a <strong>hard Java requirement</strong> for backend roles.
+  </div>
+
+  <input class="search-box" type="text" id="backend-search" placeholder="Filter questions…" oninput="filterCards('backend-search', 'backend-list')">
+
+  <div id="backend-list">
+
+    <div class="topic-card">
+      <div class="topic-title"><span>☕</span> Core Java — Reported Questions</div>
+      <ul class="topic-questions">
+        <li>What is a Record in Java? How does it differ from a POJO? (Explicitly asked after candidate used it in DSA code)</li>
+        <li>Why is the default capacity of HashMap 16? Why a power of 2? (Bitmask trick: hash &amp; (n-1))</li>
+        <li>Java 8 features: why use Streams? What's the advantage over for-loops?</li>
+        <li>What are immutable classes? How do you implement one? Why are they important for concurrency?</li>
+        <li>Java Generics — how does type erasure work?</li>
+        <li>equals() and hashCode() contract — what breaks if you override only one?</li>
+        <li>Difference between ArrayList and LinkedList internals</li>
+        <li>String pool, intern(), difference between == and .equals() for Strings</li>
+        <li>What is a static inner class? Static method? When to use them? (Candidate lost marks on this)</li>
+        <li>What is a functional interface? Give 3 examples from java.util.function</li>
+        <li>Optional — when and why to use it vs. null checks</li>
+        <li>What are volatile, synchronized, and Atomic variables? When would you use each?</li>
+        <li>What happens when you create more threads than CPU cores? (Context switching overhead)</li>
+        <li>Explain ExecutorService, ThreadPoolExecutor, and CompletableFuture</li>
+      </ul>
+    </div>
+
+    <div class="topic-card">
+      <div class="topic-title"><span>🌱</span> Spring / Spring Boot — Reported Questions</div>
+      <ul class="topic-questions">
+        <li>What is an Interceptor in Spring? Why do we need it? (Spring HandlerInterceptor vs Filter)</li>
+        <li>Spring Boot auto-configuration — how does @EnableAutoConfiguration work under the hood?</li>
+        <li>What is @Transactional? What is propagation = REQUIRES_NEW vs REQUIRED?</li>
+        <li>Explain Dependency Injection types (constructor vs field vs setter) — pros/cons</li>
+        <li>What is AOP? Give a real use case (logging, metrics, security)</li>
+        <li>What are Spring Profiles? How do you switch configurations between environments?</li>
+        <li>Difference between @Component, @Service, @Repository, @Controller</li>
+        <li>Bean lifecycle in Spring — init, post-construct, pre-destroy callbacks</li>
+        <li>Spring MVC request lifecycle — DispatcherServlet → HandlerMapping → Controller → ViewResolver</li>
+        <li>How does Spring Security work? How would you implement JWT-based auth?</li>
+        <li>What is Spring Cloud? How do you use service discovery with Eureka?</li>
+        <li>How would you implement a rate limiter in Spring? (Mentioned explicitly in SDE-2 round)</li>
+      </ul>
+    </div>
+
+    <div class="topic-card">
+      <div class="topic-title"><span>📡</span> Microservices &amp; Distributed Systems</div>
+      <ul class="topic-questions">
+        <li>How do microservices communicate? REST vs gRPC vs message queues — when to use which?</li>
+        <li>What is Circuit Breaker pattern? How does Resilience4j implement it?</li>
+        <li>How do you ensure idempotency in a distributed system? (Explicitly asked at Tech Lead level)</li>
+        <li>How would you prevent double payment when the same request is made twice? (SDE/SSE-2 explicit question)</li>
+        <li>What is the Saga pattern? Choreography vs Orchestration trade-offs?</li>
+        <li>Explain eventual consistency vs strong consistency. When would you sacrifice consistency?</li>
+        <li>How do you handle distributed transactions (2PC, Saga, Outbox pattern)?</li>
+        <li>What is an API Gateway? What does it handle vs microservices themselves?</li>
+        <li>How would you design service discovery in a K8s/cloud environment?</li>
+        <li>Biggest problem you solved with Redis and Kafka in your project (explicitly asked at Director level)</li>
+        <li>Discussion on Kafka: topics, partitions, consumer groups, offset management, exactly-once semantics</li>
+        <li>How do you reduce latency between two microservices? (Core Tech Lead question Jul 2024)</li>
+        <li>How do you handle very high QPS? (Core Tech Lead question Jul 2024)</li>
+      </ul>
+    </div>
+
+    <div class="topic-card">
+      <div class="topic-title"><span>💾</span> Databases — SQL, NoSQL, Caching</div>
+      <ul class="topic-questions">
+        <li>SQL vs NoSQL — when would you choose MongoDB over MySQL? (Explicitly asked multiple times)</li>
+        <li>In which language is MongoDB written? (C++)</li>
+        <li>DB schema design for IRCTC/railway ticketing system — trains, routes, seats, bookings</li>
+        <li>SQL queries to find routes between two stations without ORM syntax</li>
+        <li>How do you handle concurrent seat booking (optimistic vs pessimistic locking)?</li>
+        <li>What is an index? How does a B-tree index work? When does an index hurt performance?</li>
+        <li>Explain query optimisation — EXPLAIN plan, covering indexes, avoiding full table scans</li>
+        <li>What is database normalisation? When would you denormalise?</li>
+        <li>How does Redis work? What data structures does it support natively?</li>
+        <li>How did caching reduce API response time in your project? (Preparation: have a story ready)</li>
+        <li>What is cache invalidation? Write-through vs write-behind vs cache-aside patterns?</li>
+        <li>How do you handle cache stampede / thundering herd?</li>
+      </ul>
+    </div>
+
+    <div class="topic-card">
+      <div class="topic-title"><span>🔧</span> OS &amp; Computer Networks Concepts</div>
+      <ul class="topic-questions">
+        <li>Process vs Thread — what's the difference? Why is context switching expensive for processes?</li>
+        <li>What is a deadlock? Coffman's four conditions. How do you prevent/detect/recover?</li>
+        <li>Mutex vs Semaphore — when to use which?</li>
+        <li>What is the Critical Section Problem? Peterson's solution idea?</li>
+        <li>Synchronisation primitives in Java: synchronized, ReentrantLock, CountDownLatch, Semaphore</li>
+        <li>What is cache memory? L1/L2/L3 hierarchy and why it matters for performance</li>
+        <li>HTTP vs HTTPS — TLS handshake, certificate chain</li>
+        <li>What happens when you search "www.google.com"? (DNS, TCP, HTTP, rendering — full stack)</li>
+        <li>Different OSI/TCP layers — where does each protocol sit?</li>
+        <li>How would you secure an API? (Auth, rate limiting, HTTPS, input validation)</li>
+      </ul>
+    </div>
+
+    <div class="topic-card">
+      <div class="topic-title"><span>🎨</span> Design Patterns — Explicitly Verified at MMT</div>
+      <ul class="topic-questions">
+        <li>Singleton — implement thread-safe Singleton (double-checked locking, enum singleton)</li>
+        <li>Builder Pattern — implement with static inner class; then make it thread-safe (Atomic)</li>
+        <li>Factory / Abstract Factory — where have you used it in production?</li>
+        <li>Observer / Publisher-Subscriber — explain with event-driven microservices context</li>
+        <li>State Pattern — used in LLD of Vending Machine (explicit at MMT SDE-2)</li>
+        <li>Strategy Pattern — use for switching algorithms at runtime (e.g. pricing strategies)</li>
+        <li>Chain of Responsibility — for pipeline processing (cash denomination calculation)</li>
+        <li>Interceptor Pattern — for Spring-based middleware (request/response logging, auth)</li>
+        <li>MVC — how does Spring MVC implement it?</li>
+        <li>How many design patterns do you know? Name and briefly explain 5. (Explicitly asked at MMT)</li>
+      </ul>
+    </div>
+
+    <div class="topic-card">
+      <div class="topic-title"><span>🏗️</span> Resume / Project Deep-Dive Questions (SDE-2+)</div>
+      <ul class="topic-questions">
+        <li>Walk me through the biggest performance problem you solved in your current project</li>
+        <li>What innovative ideas have you contributed to your team's architecture?</li>
+        <li>Have you suggested any architecture changes? What was the outcome?</li>
+        <li>Discuss your use of Kafka in your current project — design decision rationale</li>
+        <li>Discuss your use of Redis — eviction policy, data structure chosen and why</li>
+        <li>How have you approached high-throughput API design? What bottlenecks have you seen?</li>
+        <li>Describe a latency problem you solved — root cause analysis approach</li>
+        <li>How do you ensure observability? (Kibana, Grafana, Prometheus, distributed tracing)</li>
+      </ul>
+    </div>
+
+  </div>
+</section>
+
+<!-- LLD -->
+<section id="lld">
+  <h1>LLD — Low Level Design Problems</h1>
+  <div class="page-intro">
+    MMT's LLD round expects <strong>working code</strong>, not just class diagrams. You'll be asked to code in IntelliJ/Eclipse live. Design patterns (State, Builder, Singleton, Strategy) are tested hands-on. Concurrency handling is a follow-up in almost every LLD.
+  </div>
+
+  <div class="tip-box">
+    <div class="tip-title">💡 MMT LLD Tips</div>
+    For every LLD: (1) Identify objects/entities first, (2) Define interfaces, (3) Apply the right design pattern, (4) Show how you handle concurrency (synchronized/AtomicXxx/ReentrantLock), (5) Make it extensible — the interviewer will add new requirements mid-round.
+  </div>
+
+  <div id="lld-list">
+
+    <div class="q-card" onclick="toggle(this)">
+      <div class="q-header">
+        <div class="q-num">#1</div>
+        <div class="q-title">Vending Machine — State-based LLD with concurrency handling</div>
+        <div class="q-meta"><span class="freq freq-high">🔥 High</span><span class="pill pill-lld">LLD</span></div>
+        <div class="q-expand">▾</div>
+      </div>
+      <div class="q-body">
+        <p>Explicitly reported twice (SDE-2 LeetCode Discuss 2025, CodingKaro). Use the <strong>State Design Pattern</strong> — MMT interviewers expect this approach. States: Idle, HasMoney, Dispensing, OutOfStock. Concurrency: how do you handle concurrent dispensing? (synchronized or lock per item slot).</p>
+        <div class="hint">State pattern: VendingMachineState interface → IdleState, HasMoneyState, DispensingState. VendingMachine holds currentState. Transitions on insertCoin(), selectItem(), dispense(), cancel().</div>
+        <span class="source-tag">Reported: SDE-2 LeetCode 2025, CodingKaro Java Developer</span>
+      </div>
+    </div>
+
+    <div class="q-card" onclick="toggle(this)">
+      <div class="q-header">
+        <div class="q-num">#2</div>
+        <div class="q-title">Thread-Safe Builder Pattern (running two threads on it)</div>
+        <div class="q-meta"><span class="freq freq-high">🔥 High</span><span class="pill pill-lld">LLD</span></div>
+        <div class="q-expand">▾</div>
+      </div>
+      <div class="q-body">
+        <p>SDE/SSE-2 Round 2 (LeetCode Discuss Oct 2024). Implement Builder pattern, spin up 2 threads running it. Key: synchronized is blocking — use AtomicReference or make builder immutable (each .withX() returns new builder).</p>
+        <div class="hint">Immutable builder approach: each setter returns a <em>new</em> builder with the updated field. Thread-safe because no shared mutable state. For mutable: use AtomicReference&lt;T&gt; on the final object.</div>
+        <span class="source-tag">Reported: SDE/SSE-2 LeetCode Discuss Oct 2024</span>
+      </div>
+    </div>
+
+    <div class="q-card" onclick="toggle(this)">
+      <div class="q-header">
+        <div class="q-num">#3</div>
+        <div class="q-title">URL Shortener (LLD/Machine Coding) — Production-ready</div>
+        <div class="q-meta"><span class="freq freq-high">🔥 High</span><span class="pill pill-lld">LLD</span></div>
+        <div class="q-expand">▾</div>
+      </div>
+      <div class="q-body">
+        <p>Senior SDE Round 3 / Director (GFG 2019). Not just design — write Spring controller, service methods, full method signatures, return types. Then DB schema. Discussion on SQL vs NoSQL, caching, load balancing. Also appeared in SSE round (LeetCode Discuss Oct 2024 — MMT booking URL variant with auth).</p>
+        <div class="hint">Key: base62 encoding of auto-incremented ID. Controller → ShortUrlService.shorten(longUrl) → UrlRepository.save() → return base62Code. GET /{code} → redirect. Cache hot URLs in Redis.</div>
+        <span class="source-tag">Reported: Senior SDE GFG 2019, SDE/SSE-2 Oct 2024</span>
+      </div>
+    </div>
+
+    <div class="q-card" onclick="toggle(this)">
+      <div class="q-header">
+        <div class="q-num">#4</div>
+        <div class="q-title">Rate Limiter — Single user, 5 requests per minute</div>
+        <div class="q-meta"><span class="freq freq-high">🔥 High</span><span class="pill pill-lld">LLD</span></div>
+        <div class="q-expand">▾</div>
+      </div>
+      <div class="q-body">
+        <p>SDE-2 Round 2 (Naukri Code360 May 2022). Design a rate limiter where a single user can make 5 requests per minute. If exceeded, return error message.</p>
+        <div class="hint">Sliding Window Log: store timestamps of requests in a queue. On each request, evict entries older than 60s, check count. Thread-safe with synchronized or ConcurrentLinkedQueue. Production: use Redis ZADD + ZREMRANGEBYSCORE.</div>
+        <span class="source-tag">Reported: SDE-2 Naukri Code360 May 2022</span>
+      </div>
+    </div>
+
+    <div class="q-card" onclick="toggle(this)">
+      <div class="q-header">
+        <div class="q-num">#5</div>
+        <div class="q-title">Banking System — REST APIs for deposit/withdraw/balance/deactivate</div>
+        <div class="q-meta"><span class="freq freq-med">⚡ Med</span><span class="pill pill-lld">Machine Coding</span></div>
+        <div class="q-expand">▾</div>
+      </div>
+      <div class="q-body">
+        <p>Machine Coding Round (GFG 2019, 1.5 hour). In-memory only (no DB). Expose REST APIs. Key discussion: how do you handle concurrent deposits/withdrawals? (synchronized on account, or Optimistic locking with compareAndSet).</p>
+        <div class="hint">Key class: Account with AtomicLong balance. Service layer with synchronized(account) for transfer operations to prevent race conditions.</div>
+        <span class="source-tag">Reported: GFG 2019 Machine Coding Round</span>
+      </div>
+    </div>
+
+    <div class="q-card" onclick="toggle(this)">
+      <div class="q-header">
+        <div class="q-num">#6</div>
+        <div class="q-title">Library Management System (Spring Boot)</div>
+        <div class="q-meta"><span class="freq freq-med">⚡ Med</span><span class="pill pill-lld">Machine Coding</span></div>
+        <div class="q-expand">▾</div>
+      </div>
+      <div class="q-body">
+        <p>Java machine coding (Glassdoor, Bangalore office, 7-round experience). Design using Spring Boot. REST APIs for borrow, return, catalogue. Discussion on the design choices made.</p>
+        <span class="source-tag">Reported: Glassdoor Bangalore Java Developer</span>
+      </div>
+    </div>
+
+    <div class="q-card" onclick="toggle(this)">
+      <div class="q-header">
+        <div class="q-num">#7</div>
+        <div class="q-title">Alerting System — Trigger on 4xx/5xx thresholds</div>
+        <div class="q-meta"><span class="freq freq-low">🟢 Once</span><span class="pill pill-lld">LLD/HLD hybrid</span></div>
+        <div class="q-expand">▾</div>
+      </div>
+      <div class="q-body">
+        <p>SSE BLR Offer (LeetCode Discuss 2022). Open-ended design. Approach: time-series DB for error events → Grafana/Prometheus for threshold alerting → Slack/ServiceNow/Email notification. Interviewer added other notification channels mid-discussion.</p>
+        <span class="source-tag">Reported: SSE BLR LeetCode Discuss 2022</span>
+      </div>
+    </div>
+
+    <div class="q-card" onclick="toggle(this)">
+      <div class="q-header">
+        <div class="q-num">#8</div>
+        <div class="q-title">AB Testing System — Button color weights (50% Red, 30% Green, 20% Blue)</div>
+        <div class="q-meta"><span class="freq freq-low">🟢 Once</span><span class="pill pill-lld">LLD</span></div>
+        <div class="q-expand">▾</div>
+      </div>
+      <div class="q-body">
+        <p>Senior SDE Round 2 (GFG 2019). Distribute incoming web requests per weight without knowing total count. Multiple approaches expected. </p>
+        <div class="hint">Approach: maintain cumulative thresholds [0,50), [50,80), [80,100). Generate random 0-99, find bucket. Alternatively: modulo counters.</div>
+        <span class="source-tag">Reported: Senior SDE GFG 2019</span>
+      </div>
+    </div>
+
+    <div class="q-card" onclick="toggle(this)">
+      <div class="q-header">
+        <div class="q-num">#9</div>
+        <div class="q-title">Food Search Across Multiple Restaurants — Adapter/Facade Pattern</div>
+        <div class="q-meta"><span class="freq freq-low">🟢 Once</span><span class="pill pill-dsa">LLD</span></div>
+        <div class="q-expand">▾</div>
+      </div>
+      <div class="q-body">
+        <p>SDE-2 (4 years exp) Round 2 (GFG). 3 restaurants with different getMenu() request/response formats. Expose single API to client returning unified item list. Key: Adapter pattern per restaurant.</p>
+        <div class="hint">Interface: RestaurantAdapter.search(query) → List&lt;Item&gt;. Concrete: Restaurant1Adapter, Restaurant2Adapter wrapping their respective clients. Facade: FoodSearchService aggregates all adapters.</div>
+        <span class="source-tag">Reported: SDE-2 GFG 4 years exp</span>
+      </div>
+    </div>
+
+    <div class="q-card" onclick="toggle(this)">
+      <div class="q-header">
+        <div class="q-num">#10</div>
+        <div class="q-title">Engineer Class Hierarchy — Multiple specialisations (coding + robotics)</div>
+        <div class="q-meta"><span class="freq freq-low">🟢 Once</span><span class="pill pill-lld">LLD/OOP</span></div>
+        <div class="q-expand">▾</div>
+      </div>
+      <div class="q-body">
+        <p>SDE-2 (4 years exp) Round 2 (GFG). Engineer has common method communicate(). Specialised skills: doCoding(), makeRobot(). Design class diagram for an engineer who can do both. Tests multiple inheritance via interfaces.</p>
+        <div class="hint">Engineer implements Communicable, Coder, Roboticist (interfaces). Use Java interfaces for mixin-style composition.</div>
+        <span class="source-tag">Reported: SDE-2 GFG 4 years exp</span>
+      </div>
+    </div>
+
+    <div class="q-card" onclick="toggle(this)">
+      <div class="q-header">
+        <div class="q-num">#11</div>
+        <div class="q-title">Commodity Exchange — OOP + networking protocols (MQTT, CQRS)</div>
+        <div class="q-meta"><span class="freq freq-low">🟢 Once</span><span class="pill pill-lld">LLD</span></div>
+        <div class="q-expand">▾</div>
+      </div>
+      <div class="q-body">
+        <p>Naukri Code360 SDE-1 campus (Oct 2022). Design a commodity exchange using OOP. Discuss networking protocols — MQTT for real-time price feeds, CQRS for separating reads/writes.</p>
+        <span class="source-tag">Reported: Naukri Code360 Oct 2022</span>
+      </div>
+    </div>
+
+    <div class="q-card" onclick="toggle(this)">
+      <div class="q-header">
+        <div class="q-num">#12</div>
+        <div class="q-title">FizzBuzz — Extensible/SOLID implementation (not just the simple version)</div>
+        <div class="q-meta"><span class="freq freq-low">🟢 Once</span><span class="pill pill-lld">LLD</span></div>
+        <div class="q-expand">▾</div>
+      </div>
+      <div class="q-body">
+        <p>SSE-2 LLD Round (LeetCode Discuss Nov 2023). Focus: SOLID principles, OOD, extensible code with working demo. Not just naive if-else — think OpenClosedPrinciple: Rule interface → FizzRule, BuzzRule, FizzBuzzRule.</p>
+        <div class="hint">Rule interface: boolean matches(int n); String output(). Rules are injected as a list. New rules added without modifying existing code.</div>
+        <span class="source-tag">Reported: SSE-2 LeetCode Discuss Nov 2023</span>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- HLD / SYSTEM DESIGN -->
+<section id="hld">
+  <h1>HLD — High Level / System Design Problems</h1>
+  <div class="page-intro">
+    MMT's HLD round is particularly focused on <strong>travel and payments domain</strong> problems — concurrency, ticketing, booking, idempotency. For senior roles expect the Director of Engineering to probe production-readiness of every design decision.
+  </div>
+
+  <div id="hld-list">
+
+    <div class="q-card" onclick="toggle(this)">
+      <div class="q-header">
+        <div class="q-num">#1</div>
+        <div class="q-title">IRCTC / Railway Ticketing System — DB schema + SQL + concurrent booking</div>
+        <div class="q-meta"><span class="freq freq-high">🔥 High</span><span class="pill pill-hld">HLD</span></div>
+        <div class="q-expand">▾</div>
+      </div>
+      <div class="q-body">
+        <p>SSE-2 Round 4 (LeetCode Nov 2023), Tech Lead Round 2 (Jul 2024). Covers: DB schema (trains, stations, routes, seats, bookings), SQL queries to find routes between cities, handling concurrent booking (optimistic locking / SELECT FOR UPDATE), scaling for high traffic.</p>
+        <div class="hint">Key tables: Station, Train, Schedule, Seat, Booking, User. Concurrency: SELECT ... FOR UPDATE on Seat row, or use Redis distributed lock for seat reservation flow.</div>
+        <span class="source-tag">Reported: SSE-2 LeetCode Nov 2023, Tech Lead Jul 2024</span>
+      </div>
+    </div>
+
+    <div class="q-card" onclick="toggle(this)">
+      <div class="q-header">
+        <div class="q-num">#2</div>
+        <div class="q-title">URL Shortener / TinyURL — Production design with auth</div>
+        <div class="q-meta"><span class="freq freq-high">🔥 High</span><span class="pill pill-hld">HLD</span></div>
+        <div class="q-expand">▾</div>
+      </div>
+      <div class="q-body">
+        <p>Senior SDE GFG 2019 + SDE/SSE-2 variant (Oct 2024 — shortened MMT booking URL only accessible by that user). Key additions: API design, DB schema, caching, load balancing, user-specific access control.</p>
+        <div class="hint">Base62 encoding. Short URL → Redis lookup → DB fallback. Auth: JWT session, short URL tied to userId, validate on redirect.</div>
+        <span class="source-tag">Reported: Senior SDE GFG 2019, SDE/SSE-2 Oct 2024</span>
+      </div>
+    </div>
+
+    <div class="q-card" onclick="toggle(this)">
+      <div class="q-header">
+        <div class="q-num">#3</div>
+        <div class="q-title">Idempotent Ticket Booking System — Prevent double booking</div>
+        <div class="q-meta"><span class="freq freq-high">🔥 High</span><span class="pill pill-hld">HLD</span></div>
+        <div class="q-expand">▾</div>
+      </div>
+      <div class="q-body">
+        <p>Tech Lead Round 3 on-site (Jul 2024). Designing a booking system where duplicate requests don't result in double charges or double bookings. Also mentioned as a verbal follow-up in SDE/SSE-2 round (Oct 2024): "How do you ensure double payment doesn't happen?"</p>
+        <div class="hint">Idempotency key (UUID per request), stored in a distributed store (Redis/DB with unique constraint). On duplicate key, return cached response. Outbox pattern for async payment events. Distributed lock via Redisson for the booking transaction window.</div>
+        <span class="source-tag">Reported: Tech Lead Jul 2024, SDE/SSE-2 Oct 2024</span>
+      </div>
+    </div>
+
+    <div class="q-card" onclick="toggle(this)">
+      <div class="q-header">
+        <div class="q-num">#4</div>
+        <div class="q-title">Scalable System for Very High QPS</div>
+        <div class="q-meta"><span class="freq freq-high">🔥 High</span><span class="pill pill-hld">HLD</span></div>
+        <div class="q-expand">▾</div>
+      </div>
+      <div class="q-body">
+        <p>Tech Lead on-site (Jul 2024). General question about architecting for extreme load. Covers: horizontal scaling, stateless services, load balancers (L4/L7), CDN, read replicas, partitioned caches, async processing via message queues.</p>
+        <div class="hint">Think in layers: Client → CDN → API Gateway → Service mesh → DB read replicas → async queues. Rate limiting at gateway. Circuit breakers for downstream services.</div>
+        <span class="source-tag">Reported: Tech Lead LeetCode Jul 2024</span>
+      </div>
+    </div>
+
+    <div class="q-card" onclick="toggle(this)">
+      <div class="q-header">
+        <div class="q-num">#5</div>
+        <div class="q-title">Reducing Latency Between Two Microservices</div>
+        <div class="q-meta"><span class="freq freq-high">🔥 High</span><span class="pill pill-hld">HLD</span></div>
+        <div class="q-expand">▾</div>
+      </div>
+      <div class="q-body">
+        <p>Tech Lead on-site (Jul 2024). Given two services with high latency between them, what are the approaches? Cover: async (Kafka/event), caching (Redis read-through), connection pooling, gRPC instead of REST, co-location, bulk/batch APIs, circuit breakers.</p>
+        <span class="source-tag">Reported: Tech Lead LeetCode Jul 2024</span>
+      </div>
+    </div>
+
+    <div class="q-card" onclick="toggle(this)">
+      <div class="q-header">
+        <div class="q-num">#6</div>
+        <div class="q-title">Chatbot System — Hotel/Flight booking queries routing</div>
+        <div class="q-meta"><span class="freq freq-med">⚡ Med</span><span class="pill pill-hld">HLD</span></div>
+        <div class="q-expand">▾</div>
+      </div>
+      <div class="q-body">
+        <p>SDE-2 (4 years exp) Round 3 (GFG). Chatbot for MMT: queries can be hotel or flight. Route to different internal APIs. Custom questions go to analytics for future training. Components: NLP classifier, intent router, internal API adapters, fallback/analytics pipeline.</p>
+        <span class="source-tag">Reported: SDE-2 GFG 4 years exp Round 3</span>
+      </div>
+    </div>
+
+    <div class="q-card" onclick="toggle(this)">
+      <div class="q-header">
+        <div class="q-num">#7</div>
+        <div class="q-title">Distributed Cache Design</div>
+        <div class="q-meta"><span class="freq freq-med">⚡ Med</span><span class="pill pill-hld">HLD</span></div>
+        <div class="q-expand">▾</div>
+      </div>
+      <div class="q-body">
+        <p>SDE-2 Round 3 (GFG 2021). Design a distributed cache — sharding, consistent hashing, replication, eviction policies, cache coherence in distributed setting.</p>
+        <div class="hint">Consistent hashing for key distribution. Each node has replicas. Eviction: LRU or LFU with TTL. Write strategy: write-through for consistency, write-behind for performance.</div>
+        <span class="source-tag">Reported: SDE-2 GFG 2021</span>
+      </div>
+    </div>
+
+    <div class="q-card" onclick="toggle(this)">
+      <div class="q-header">
+        <div class="q-num">#8</div>
+        <div class="q-title">Facebook Messenger / Chat System</div>
+        <div class="q-meta"><span class="freq freq-low">🟢 Once</span><span class="pill pill-hld">HLD</span></div>
+        <div class="q-expand">▾</div>
+      </div>
+      <div class="q-body">
+        <p>Naukri Code360 SDE-2 campus (Jul 2022). 1-on-1 + group chat, delivered/read receipts, offline message storage, push notifications, end-to-end encryption, media.</p>
+        <div class="hint">WebSocket for real-time. Fan-out on write for group chat. Message queue (Kafka) for delivery. Cassandra for message storage (wide column, time-series friendly).</div>
+        <span class="source-tag">Reported: Naukri Code360 Jul 2022</span>
+      </div>
+    </div>
+
+    <div class="q-card" onclick="toggle(this)">
+      <div class="q-header">
+        <div class="q-num">#9</div>
+        <div class="q-title">Uber Driver Allocation — LLD of Uber (verbal)</div>
+        <div class="q-meta"><span class="freq freq-low">🟢 Once</span><span class="pill pill-hld">HLD</span></div>
+        <div class="q-expand">▾</div>
+      </div>
+      <div class="q-body">
+        <p>CodingKaro SSE/SDE Round 2. Verbal explanation of algorithm to allocate nearest driver + some basic HLD follow-up questions.</p>
+        <div class="hint">Geospatial index (Redis Geo or PostGIS). Driver location updated via Kafka stream. Nearest driver: GEORADIUSBYMEMBER. Assignment: optimistic lock on driver availability flag.</div>
+        <span class="source-tag">Reported: CodingKaro SSE/SDE Round 2</span>
+      </div>
+    </div>
+
+    <div class="q-card" onclick="toggle(this)">
+      <div class="q-header">
+        <div class="q-num">#10</div>
+        <div class="q-title">Dream11 / Fantasy Sports Platform HLD (unexpected swap)</div>
+        <div class="q-meta"><span class="freq freq-low">🟢 Once</span><span class="pill pill-hld">HLD</span></div>
+        <div class="q-expand">▾</div>
+      </div>
+      <div class="q-body">
+        <p>CodingKaro SSE-2 — the LLD round unexpectedly turned into a full Dream11-style HLD. High concurrency (massive spike at contest start/end), leaderboard updates, team management.</p>
+        <span class="source-tag">Reported: CodingKaro SSE-2</span>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- TIPS -->
+<section id="tips">
+  <h1>Strategy &amp; Preparation Tips</h1>
+
+  <div class="tip-box">
+    <div class="tip-title">🎯 What MMT Actually Cares About (Backend)</div>
+    Based on patterns across 20+ interview experiences: (1) <strong>Java is non-negotiable</strong> — they will probe Java internals even if you code DSA in Python. (2) <strong>Concurrency</strong> appears in every single round — DSA, LLD, HLD. (3) <strong>SOLID principles</strong> and design patterns are tested live, not just verbally. (4) Production-readiness: every design decision must have a rationale and trade-offs explained.
+  </div>
+
+  <h2>DSA Strategy</h2>
+  <div class="topic-card">
+    <ul class="topic-questions">
+      <li><strong>Priority topics:</strong> Arrays+Strings (Sliding Window, Two Pointer), Linked Lists, Trees (BFS/DFS/LCA), DP (subsequence patterns), Graphs (BFS/Dijkstra/Bridges), Heaps</li>
+      <li>Solve 2 questions per round — expect 60 mins per coding round. Budget 25 mins per question.</li>
+      <li>Always start with brute force → then optimise. MMT interviewers appreciate the thought process over jumping to optimal.</li>
+      <li>Always analyse time and space complexity. Do a dry-run on a sample test case when asked.</li>
+      <li>For LeetCode prep: focus on Medium difficulty. Hard is rarely asked; Easy is used only as warmup at senior levels.</li>
+      <li>Recommended list: LeetCode Top 100 Liked + all problems tagged "MakeMyTrip" on LeetCode</li>
+    </ul>
+  </div>
+
+  <h2>Java Preparation Checklist</h2>
+  <div class="topic-card">
+    <ul class="topic-questions">
+      <li>✅ Java 8–17 features: Streams, Optional, Records (Java 16+), sealed classes</li>
+      <li>✅ HashMap internals: hashing, load factor, rehashing, why size is power of 2</li>
+      <li>✅ Concurrency: synchronized, volatile, AtomicXxx, ReentrantLock, Semaphore, CountDownLatch</li>
+      <li>✅ ExecutorService: ThreadPoolExecutor, CompletableFuture, ForkJoinPool</li>
+      <li>✅ Collections: ConcurrentHashMap vs HashMap, CopyOnWriteArrayList</li>
+      <li>✅ Garbage Collection: G1GC basics, when to worry about GC pauses</li>
+      <li>✅ Spring: bean lifecycle, @Transactional propagation, AOP, interceptors</li>
+      <li>✅ Practice coding design patterns live in Java — not just knowing them theoretically</li>
+    </ul>
+  </div>
+
+  <h2>System Design Preparation</h2>
+  <div class="topic-card">
+    <ul class="topic-questions">
+      <li>✅ Go deep on: Ticket Booking (concurrency, optimistic locking), URL Shortener, Rate Limiter, Distributed Cache</li>
+      <li>✅ Know the trade-offs: SQL vs NoSQL, REST vs gRPC vs Kafka, sync vs async</li>
+      <li>✅ Practice DB schema design: normalisation, indexing, query optimisation</li>
+      <li>✅ Idempotency keys, outbox pattern, and saga are table-stakes for payments/booking domain</li>
+      <li>✅ Be ready to defend every decision — Why this DB? Why this cache strategy? What breaks at 10x load?</li>
+    </ul>
+  </div>
+
+  <h2>MMT-Specific Resume Prep (SDE-2+)</h2>
+  <div class="topic-card">
+    <ul class="topic-questions">
+      <li>Prepare 3 STAR stories: one latency fix, one architecture change you proposed, one innovative feature you shipped</li>
+      <li>For every tech in your resume (Redis, Kafka, Elasticsearch): know why you chose it, what alternatives existed, what trade-offs were made</li>
+      <li>Quantify achievements: "reduced API response time by 98%" is exactly what MMT probes on</li>
+      <li>Know your Spring Boot microservice flow end-to-end: request → controller → service → repository → DB → cache</li>
+      <li>Be ready for: "Describe a production incident and how you debugged it" with Kibana/Grafana as tools</li>
+    </ul>
+  </div>
+
+  <div class="warn-box">
+    <div class="tip-title">⚠️ Common Failure Points at MMT</div>
+    <ul class="topic-questions" style="margin-top:8px">
+      <li>Using synchronized everywhere in LLD — interviewers want you to know about non-blocking alternatives (AtomicXxx, ConcurrentHashMap)</li>
+      <li>Skipping design patterns in LLD — they will notice and penalise</li>
+      <li>Not having a clear idempotency/double-payment answer ready (critical for travel/payments)</li>
+      <li>Weak on Java internals despite listing Spring Boot on resume</li>
+      <li>Not preparing STAR stories for the managerial/director round — this is where SDE-2 candidates often fail</li>
+    </ul>
+  </div>
+
+</section>
+
+<script>
+  function showTab(id) {
+    document.querySelectorAll('section').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    event.currentTarget.classList.add('active');
+  }
+
+  function toggle(card) {
+    card.classList.toggle('open');
+  }
+
+  function filterCards(inputId, listId) {
+    const query = document.getElementById(inputId).value.toLowerCase();
+    const cards = document.querySelectorAll('#' + listId + ' .q-card');
+    cards.forEach(card => {
+      const text = card.textContent.toLowerCase();
+      card.style.display = text.includes(query) ? '' : 'none';
+    });
+    const headers = document.querySelectorAll('#' + listId + ' .cat-header');
+    headers.forEach(h => { h.style.display = ''; });
+  }
+</script>
+</body>
+</html>

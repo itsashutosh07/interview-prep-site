@@ -1,0 +1,2262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MakeMyTrip Interview Prep — DSA & Backend</title>
+<style>
+  :root {
+    --bg:#0d1117;--surface:#161b22;--surface2:#1c2128;--border:#30363d;
+    --accent:#f78166;--accent2:#79c0ff;--accent3:#56d364;--text:#e6edf3;
+    --muted:#8b949e;--tag-bg:#21262d;
+    --high:#f85149;--med:#d29922;--low:#3fb950;
+    --pill-dsa:#1f3a5f;--pill-dsa-text:#79c0ff;
+    --pill-backend:#1f3d2a;--pill-backend-text:#56d364;
+    --pill-lld:#3d2a1f;--pill-lld-text:#f0883e;
+    --pill-hld:#3a1f3d;--pill-hld-text:#bc8cff;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,sans-serif;font-size:14px;line-height:1.6;}
+
+  nav{position:sticky;top:0;z-index:100;background:rgba(13,17,23,.96);backdrop-filter:blur(8px);border-bottom:1px solid var(--border);padding:0 20px;display:flex;align-items:center;}
+  .nav-logo{font-size:15px;font-weight:700;color:var(--accent);padding:13px 20px 13px 0;border-right:1px solid var(--border);margin-right:6px;white-space:nowrap;}
+  .nav-tabs{display:flex;overflow-x:auto;scrollbar-width:none;}
+  .nav-tabs::-webkit-scrollbar{display:none;}
+  .nav-tab{padding:13px 16px;color:var(--muted);font-size:13px;font-weight:500;cursor:pointer;border:none;background:none;border-bottom:2px solid transparent;transition:color .15s,border-color .15s;white-space:nowrap;}
+  .nav-tab:hover{color:var(--text);}
+  .nav-tab.active{color:var(--text);border-bottom-color:var(--accent);}
+
+  section{display:none;padding:24px 20px;max-width:1100px;margin:0 auto;}
+  section.active{display:block;}
+
+  h1{font-size:21px;font-weight:700;margin-bottom:6px;}
+  h2{font-size:15px;font-weight:700;margin:26px 0 12px;display:flex;align-items:center;gap:8px;}
+  h2::before{content:'';display:block;width:3px;height:17px;border-radius:2px;background:var(--accent);flex-shrink:0;}
+
+  .page-intro{background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--accent);border-radius:6px;padding:14px 18px;margin-bottom:20px;color:var(--muted);font-size:13px;line-height:1.7;}
+  .page-intro strong{color:var(--text);}
+
+  .freq{display:inline-block;font-size:11px;font-weight:600;padding:2px 8px;border-radius:20px;flex-shrink:0;}
+  .freq-high{background:rgba(248,81,73,.15);color:var(--high);border:1px solid rgba(248,81,73,.3);}
+  .freq-med{background:rgba(210,153,34,.15);color:var(--med);border:1px solid rgba(210,153,34,.3);}
+  .freq-low{background:rgba(63,185,80,.15);color:var(--low);border:1px solid rgba(63,185,80,.3);}
+
+  .pill{display:inline-block;font-size:11px;font-weight:600;padding:2px 9px;border-radius:20px;}
+  .pill-dsa{background:var(--pill-dsa);color:var(--pill-dsa-text);}
+  .pill-backend{background:var(--pill-backend);color:var(--pill-backend-text);}
+  .pill-lld{background:var(--pill-lld);color:var(--pill-lld-text);}
+  .pill-hld{background:var(--pill-hld);color:var(--pill-hld-text);}
+
+  /* QUESTION CARDS */
+  .q-card{background:var(--surface);border:1px solid var(--border);border-radius:8px;margin-bottom:9px;overflow:hidden;transition:border-color .15s;}
+  .q-card:hover{border-color:#484f58;}
+  .q-header{display:flex;align-items:flex-start;gap:10px;padding:13px 15px;cursor:pointer;}
+  .q-num{font-size:12px;font-weight:700;color:var(--muted);min-width:26px;padding-top:1px;}
+  .q-title{flex:1;font-size:13.5px;font-weight:500;color:var(--text);line-height:1.5;}
+  .q-meta{display:flex;gap:5px;align-items:center;flex-shrink:0;flex-wrap:wrap;}
+  .q-expand{font-size:15px;color:var(--muted);transition:transform .2s;flex-shrink:0;padding-top:1px;}
+  .q-card.open .q-expand{transform:rotate(180deg);}
+  .q-body{display:none;padding:0 15px 15px 42px;border-top:1px solid var(--border);}
+  .q-card.open .q-body{display:block;}
+  .q-body p{color:var(--muted);font-size:13px;margin-top:10px;line-height:1.7;}
+
+  /* CODE BLOCK */
+  .code-tabs{margin-top:12px;}
+  .code-tab-btns{display:flex;gap:0;border-bottom:1px solid var(--border);margin-bottom:0;}
+  .ctb{background:none;border:none;padding:6px 14px;font-size:12px;font-weight:600;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;transition:color .15s,border-color .15s;}
+  .ctb.active{color:var(--accent2);border-bottom-color:var(--accent2);}
+  .code-panel{display:none;}
+  .code-panel.active{display:block;}
+  pre{background:var(--surface2);border:1px solid var(--border);border-top:none;border-radius:0 0 6px 6px;padding:14px;overflow-x:auto;font-size:12px;line-height:1.65;color:#e6edf3;font-family:'Fira Code','Cascadia Code','Consolas',monospace;}
+  .kw{color:#ff7b72;}
+  .ty{color:#79c0ff;}
+  .cm{color:#8b949e;font-style:italic;}
+  .st{color:#a5d6ff;}
+  .nm{color:#ffa657;}
+  .fn{color:#d2a8ff;}
+
+  /* ANSWER TEXT */
+  .ans-text{background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:12px 14px;margin-top:10px;font-size:12.5px;color:var(--muted);line-height:1.7;}
+  .ans-text strong{color:var(--text);}
+  .ans-text ul{margin:6px 0 6px 18px;}
+  .ans-text ul li{margin-bottom:3px;}
+  .ans-text code{background:var(--tag-bg);padding:1px 5px;border-radius:3px;font-size:11.5px;color:var(--accent2);font-family:monospace;}
+
+  .source-tag{display:inline-block;font-size:11px;color:var(--muted);background:var(--tag-bg);padding:2px 8px;border-radius:4px;margin-top:8px;}
+  .lc-link{display:inline-flex;align-items:center;gap:5px;font-size:12px;color:var(--accent2);text-decoration:none;margin-top:8px;background:rgba(121,192,255,.08);padding:3px 10px;border-radius:4px;border:1px solid rgba(121,192,255,.2);}
+  .lc-link:hover{background:rgba(121,192,255,.15);}
+
+  /* CATEGORY HEADER */
+  .cat-header{display:flex;align-items:center;gap:12px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:11px 15px;margin:18px 0 10px;}
+  .cat-icon{font-size:19px;}
+  .cat-title{font-size:14px;font-weight:700;color:var(--text);}
+  .cat-count{font-size:12px;color:var(--muted);margin-left:auto;}
+
+  /* TOPIC CARD (backend) */
+  .topic-card{background:var(--surface);border:1px solid var(--border);border-radius:8px;margin-bottom:12px;overflow:hidden;}
+  .topic-header{display:flex;align-items:center;gap:10px;padding:13px 16px;cursor:pointer;background:var(--surface);}
+  .topic-title-text{font-size:13px;font-weight:700;color:var(--text);flex:1;}
+  .topic-body{display:none;border-top:1px solid var(--border);}
+  .topic-card.open .topic-body{display:block;}
+  .topic-card.open .q-expand{transform:rotate(180deg);}
+
+  .qa-item{padding:14px 16px;border-bottom:1px solid var(--border);}
+  .qa-item:last-child{border-bottom:none;}
+  .qa-q{font-size:13px;font-weight:600;color:var(--text);margin-bottom:8px;display:flex;align-items:flex-start;gap:8px;}
+  .qa-q::before{content:'Q';font-size:10px;font-weight:800;background:var(--accent);color:#000;padding:1px 5px;border-radius:3px;flex-shrink:0;margin-top:2px;}
+
+  /* STATS */
+  .stats-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;margin:12px 0 22px;}
+  .stat-card{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:14px;text-align:center;}
+  .stat-num{font-size:24px;font-weight:800;color:var(--accent);}
+  .stat-label{font-size:12px;color:var(--muted);margin-top:2px;}
+
+  /* PROCESS */
+  .process-timeline{display:grid;gap:9px;margin:12px 0;}
+  .process-step{display:flex;align-items:flex-start;gap:12px;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:13px 15px;}
+  .step-num{font-size:17px;font-weight:800;color:var(--accent);min-width:30px;flex-shrink:0;}
+  .step-title{font-size:13px;font-weight:700;color:var(--text);margin-bottom:4px;}
+  .step-desc{font-size:12.5px;color:var(--muted);line-height:1.6;}
+
+  .tip-box{background:rgba(56,211,100,.06);border:1px solid rgba(56,211,100,.2);border-radius:8px;padding:13px 15px;margin:14px 0;font-size:13px;color:var(--muted);}
+  .tip-box .tip-title{font-size:12px;font-weight:700;color:var(--accent3);text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px;}
+  .warn-box{background:rgba(247,129,102,.06);border:1px solid rgba(247,129,102,.25);border-radius:8px;padding:13px 15px;margin:13px 0;font-size:13px;color:var(--muted);}
+  .warn-box .tip-title{color:var(--accent);}
+
+  .search-box{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:9px 13px;color:var(--text);font-size:13px;width:100%;margin-bottom:14px;outline:none;transition:border-color .15s;}
+  .search-box:focus{border-color:var(--accent2);}
+  .search-box::placeholder{color:var(--muted);}
+
+  @media(max-width:600px){
+    nav{padding:0 10px;}section{padding:18px 12px;}
+    .q-header{flex-wrap:wrap;}.q-meta{order:2;}
+    .q-body{padding-left:12px;}pre{font-size:11px;}
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-logo">MMT Prep 🎯</div>
+  <div class="nav-tabs">
+    <button class="nav-tab active" onclick="showTab('overview',this)">Overview</button>
+    <button class="nav-tab" onclick="showTab('dsa',this)">DSA + Code</button>
+    <button class="nav-tab" onclick="showTab('backend',this)">Backend Q&amp;A</button>
+    <button class="nav-tab" onclick="showTab('lld',this)">LLD + Code</button>
+    <button class="nav-tab" onclick="showTab('hld',this)">HLD / System Design</button>
+    <button class="nav-tab" onclick="showTab('tips',this)">Strategy</button>
+  </div>
+</nav>
+
+<!-- OVERVIEW -->
+<section id="overview" class="active">
+  <h1>MakeMyTrip Technical Interview — Complete Prep Guide</h1>
+  <p style="color:var(--muted);font-size:13px;margin-bottom:18px;">Compiled from GFG, LeetCode Discuss, Glassdoor, Naukri Code360 — 2019–2025. DSA answers in <strong style="color:var(--accent2)">C++</strong>. Backend/LLD/HLD answers in <strong style="color:var(--accent3)">Java / Spring Boot / MySQL</strong>.</p>
+  <div class="stats-grid">
+    <div class="stat-card"><div class="stat-num">44</div><div class="stat-label">DSA Problems + C++ Code</div></div>
+    <div class="stat-card"><div class="stat-num">70+</div><div class="stat-label">Backend Q&amp;A (Java)</div></div>
+    <div class="stat-card"><div class="stat-num">12</div><div class="stat-label">LLD + Java Code</div></div>
+    <div class="stat-card"><div class="stat-num">10</div><div class="stat-label">HLD Problems</div></div>
+    <div class="stat-card"><div class="stat-num">3–5</div><div class="stat-label">Interview Rounds</div></div>
+  </div>
+  <h2>Interview Process at MMT</h2>
+  <div class="process-timeline">
+    <div class="process-step"><div class="step-num">0</div><div><div class="step-title">Online Assessment (HackerEarth/HackerRank)</div><div class="step-desc">22 questions = 2 algorithmic coding + 20 MCQs covering DBMS, OS, CN, Java OOP, SQL, aptitude. Medium difficulty.</div></div></div>
+    <div class="process-step"><div class="step-num">1</div><div><div class="step-title">DSA / Problem Solving Round (60 min)</div><div class="step-desc">2 coding questions — arrays, linked lists, trees, DP, graphs. LeetCode Easy–Medium. Working code + dry-run + complexity required.</div></div></div>
+    <div class="process-step"><div class="step-num">2</div><div><div class="step-title">LLD / Machine Coding Round (60 min)</div><div class="step-desc">Design and code a real system in Java. SOLID principles, design patterns, concurrency are tested hands-on. Java is a hard requirement.</div></div></div>
+    <div class="process-step"><div class="step-num">3</div><div><div class="step-title">HLD / System Design Round (60–90 min)</div><div class="step-desc">Distributed, travel-domain-relevant systems. DB schema, SQL, scalability, concurrency, caching, microservices.</div></div></div>
+    <div class="process-step"><div class="step-num">4</div><div><div class="step-title">Managerial / Director Round (SDE-2+)</div><div class="step-desc">Project depth, innovative contributions, latency problems solved, architecture decisions. Prepare STAR stories from production.</div></div></div>
+  </div>
+  <div class="warn-box"><div class="tip-title">⚠️ MMT-Specific Signals</div>Java is a <strong>hard requirement</strong> — even if DSA is in Python/C++, expect Java follow-ups (records, streams, concurrency). SOLID principles and design patterns tested live in LLD. Idempotency and double-payment prevention are very commonly asked.</div>
+</section>
+
+<!-- DSA -->
+<section id="dsa">
+  <h1>DSA Questions + C++ Solutions</h1>
+  <div class="page-intro">Ordered by <strong>frequency</strong>. C++ solutions provided for each. Complexity noted. Click any card to expand the full solution.</div>
+  <input class="search-box" type="text" placeholder="Filter questions…" oninput="filterQ(this,'dsa-list')">
+  <div id="dsa-list">
+
+  <!-- ARRAYS & STRINGS -->
+  <div class="cat-header"><span class="cat-icon">📦</span><span class="cat-title">Arrays &amp; Strings</span><span class="cat-count">12 problems</span></div>
+
+  <div class="q-card" onclick="toggle(this)">
+    <div class="q-header">
+      <div class="q-num">#1</div>
+      <div class="q-title">Minimum Window Substring — smallest substring in A containing all chars of B</div>
+      <div class="q-meta"><span class="freq freq-high">🔥 High</span><span class="pill pill-dsa">Sliding Window</span></div>
+      <div class="q-expand">▾</div>
+    </div>
+    <div class="q-body">
+      <p>Sliding window with two frequency maps. Expand right, shrink left when valid. Track best window.</p>
+      <a class="lc-link" href="https://leetcode.com/problems/minimum-window-substring/" target="_blank">🔗 LC #76</a>
+      <div class="code-tabs">
+        <div class="code-tab-btns"><button class="ctb active" onclick="switchTab(this,'cpp')">C++</button></div>
+        <div class="code-panel active" data-lang="cpp"><pre><span class="kw">string</span> <span class="fn">minWindow</span>(<span class="kw">string</span> s, <span class="kw">string</span> t) {
+    <span class="ty">unordered_map</span>&lt;<span class="kw">char</span>,<span class="kw">int</span>&gt; need, window;
+    <span class="kw">for</span> (<span class="kw">char</span> c : t) need[c]++;
+    <span class="kw">int</span> have = <span class="nm">0</span>, required = need.size();
+    <span class="kw">int</span> l = <span class="nm">0</span>, minLen = INT_MAX, start = <span class="nm">0</span>;
+    <span class="kw">for</span> (<span class="kw">int</span> r = <span class="nm">0</span>; r &lt; s.size(); r++) {
+        window[s[r]]++;
+        <span class="kw">if</span> (need.count(s[r]) &amp;&amp; window[s[r]] == need[s[r]]) have++;
+        <span class="kw">while</span> (have == required) {
+            <span class="kw">if</span> (r - l + <span class="nm">1</span> &lt; minLen) { minLen = r-l+<span class="nm">1</span>; start = l; }
+            window[s[l]]--;
+            <span class="kw">if</span> (need.count(s[l]) &amp;&amp; window[s[l]] &lt; need[s[l]]) have--;
+            l++;
+        }
+    }
+    <span class="kw">return</span> minLen == INT_MAX ? <span class="st">""</span> : s.substr(start, minLen);
+}
+<span class="cm">// Time: O(|S|+|T|)  Space: O(|T|)</span></pre></div>
+      </div>
+      <span class="source-tag">Reported: SDE-2 GFG 2021, MMT Campus, Code360 2022</span>
+    </div>
+  </div>
+
+  <div class="q-card" onclick="toggle(this)">
+    <div class="q-header">
+      <div class="q-num">#2</div>
+      <div class="q-title">Subarray with Sum Zero — find any subarray whose sum = 0</div>
+      <div class="q-meta"><span class="freq freq-high">🔥 High</span><span class="pill pill-dsa">HashMap</span></div>
+      <div class="q-expand">▾</div>
+    </div>
+    <div class="q-body">
+      <p>Prefix sum: if the same prefix sum appears twice, the subarray between those indices sums to 0.</p>
+      <div class="code-tabs">
+        <div class="code-tab-btns"><button class="ctb active" onclick="switchTab(this,'cpp')">C++</button></div>
+        <div class="code-panel active" data-lang="cpp"><pre><span class="kw">bool</span> <span class="fn">hasZeroSumSubarray</span>(<span class="ty">vector</span>&lt;<span class="kw">int</span>&gt;&amp; arr) {
+    <span class="ty">unordered_set</span>&lt;<span class="kw">int</span>&gt; seen;
+    seen.insert(<span class="nm">0</span>);
+    <span class="kw">int</span> prefix = <span class="nm">0</span>;
+    <span class="kw">for</span> (<span class="kw">int</span> x : arr) {
+        prefix += x;
+        <span class="kw">if</span> (seen.count(prefix)) <span class="kw">return</span> <span class="kw">true</span>;
+        seen.insert(prefix);
+    }
+    <span class="kw">return</span> <span class="kw">false</span>;
+}
+<span class="cm">// Time: O(N)  Space: O(N)</span></pre></div>
+      </div>
+      <span class="source-tag">Reported: SDE/SSE-2 Round 1, Oct 2024</span>
+    </div>
+  </div>
+
+  <div class="q-card" onclick="toggle(this)">
+    <div class="q-header">
+      <div class="q-num">#3</div>
+      <div class="q-title">Merge K Sorted Arrays / Linked Lists</div>
+      <div class="q-meta"><span class="freq freq-high">🔥 High</span><span class="pill pill-dsa">Heap</span></div>
+      <div class="q-expand">▾</div>
+    </div>
+    <div class="q-body">
+      <p>Min-heap of size K — always extract minimum, push next from same list.</p>
+      <a class="lc-link" href="https://leetcode.com/problems/merge-k-sorted-lists/" target="_blank">🔗 LC #23</a>
+      <div class="code-tabs">
+        <div class="code-tab-btns"><button class="ctb active" onclick="switchTab(this,'cpp')">C++</button></div>
+        <div class="code-panel active" data-lang="cpp"><pre><span class="kw">struct</span> <span class="ty">ListNode</span> { <span class="kw">int</span> val; <span class="ty">ListNode</span>* next; };
+
+<span class="ty">ListNode</span>* <span class="fn">mergeKLists</span>(<span class="ty">vector</span>&lt;<span class="ty">ListNode</span>*&gt;&amp; lists) {
+    <span class="kw">auto</span> cmp = [](<span class="ty">ListNode</span>* a, <span class="ty">ListNode</span>* b){ <span class="kw">return</span> a-&gt;val &gt; b-&gt;val; };
+    <span class="ty">priority_queue</span>&lt;<span class="ty">ListNode</span>*, <span class="ty">vector</span>&lt;<span class="ty">ListNode</span>*&gt;, <span class="kw">decltype</span>(cmp)&gt; pq(cmp);
+    <span class="kw">for</span> (<span class="kw">auto</span> node : lists)
+        <span class="kw">if</span> (node) pq.push(node);
+    <span class="ty">ListNode</span> dummy(<span class="nm">0</span>); <span class="ty">ListNode</span>* cur = &amp;dummy;
+    <span class="kw">while</span> (!pq.empty()) {
+        cur-&gt;next = pq.top(); pq.pop();
+        cur = cur-&gt;next;
+        <span class="kw">if</span> (cur-&gt;next) pq.push(cur-&gt;next);
+    }
+    <span class="kw">return</span> dummy.next;
+}
+<span class="cm">// Time: O(N log K)  Space: O(K)</span></pre></div>
+      </div>
+      <span class="source-tag">Reported: SDE-2 GFG 2021, SDE-1 Naukri Aug 2024</span>
+    </div>
+  </div>
+
+  <div class="q-card" onclick="toggle(this)">
+    <div class="q-header">
+      <div class="q-num">#4</div>
+      <div class="q-title">Jump Game II — minimum number of jumps (+ return jump indexes)</div>
+      <div class="q-meta"><span class="freq freq-high">🔥 High</span><span class="pill pill-dsa">Greedy</span></div>
+      <div class="q-expand">▾</div>
+    </div>
+    <div class="q-body">
+      <p>Greedy: track current range end and furthest reachable. When pointer hits current end, increment jump count.</p>
+      <a class="lc-link" href="https://leetcode.com/problems/jump-game-ii/" target="_blank">🔗 LC #45</a>
+      <div class="code-tabs">
+        <div class="code-tab-btns"><button class="ctb active" onclick="switchTab(this,'cpp')">C++</button></div>
+        <div class="code-panel active" data-lang="cpp"><pre><span class="kw">int</span> <span class="fn">jump</span>(<span class="ty">vector</span>&lt;<span class="kw">int</span>&gt;&amp; nums) {
+    <span class="kw">int</span> jumps=<span class="nm">0</span>, curEnd=<span class="nm">0</span>, farthest=<span class="nm">0</span>;
+    <span class="kw">for</span> (<span class="kw">int</span> i=<span class="nm">0</span>; i &lt; (<span class="kw">int</span>)nums.size()-<span class="nm">1</span>; i++) {
+        farthest = max(farthest, i + nums[i]);
+        <span class="kw">if</span> (i == curEnd) { jumps++; curEnd = farthest; }
+    }
+    <span class="kw">return</span> jumps;
+}
+<span class="cm">// Time: O(N)  Space: O(1)</span>
+
+<span class="cm">// Variant: also return the jump indexes</span>
+<span class="ty">vector</span>&lt;<span class="kw">int</span>&gt; <span class="fn">jumpWithPath</span>(<span class="ty">vector</span>&lt;<span class="kw">int</span>&gt;&amp; nums) {
+    <span class="kw">int</span> n = nums.size();
+    <span class="ty">vector</span>&lt;<span class="kw">int</span>&gt; prev(n, -<span class="nm">1</span>);
+    <span class="kw">int</span> curEnd=<span class="nm">0</span>, farthest=<span class="nm">0</span>, jumpFrom=<span class="nm">0</span>;
+    <span class="kw">for</span> (<span class="kw">int</span> i=<span class="nm">0</span>; i&lt;n-<span class="nm">1</span>; i++) {
+        <span class="kw">if</span> (i + nums[i] &gt; farthest) { farthest = i+nums[i]; jumpFrom = i; }
+        <span class="kw">if</span> (i == curEnd) { prev[farthest] = jumpFrom; curEnd = farthest; }
+    }
+    <span class="ty">vector</span>&lt;<span class="kw">int</span>&gt; path;
+    <span class="kw">for</span> (<span class="kw">int</span> i=n-<span class="nm">1</span>; i&gt;<span class="nm">0</span>; i=prev[i]) path.push_back(i);
+    path.push_back(<span class="nm">0</span>); reverse(path.begin(), path.end());
+    <span class="kw">return</span> path;
+}</pre></div>
+      </div>
+      <span class="source-tag">Reported: SSE-2 LeetCode Discuss Nov 2023, CodingKaro</span>
+    </div>
+  </div>
+
+  <div class="q-card" onclick="toggle(this)">
+    <div class="q-header">
+      <div class="q-num">#5</div>
+      <div class="q-title">Merge Overlapping Intervals</div>
+      <div class="q-meta"><span class="freq freq-high">🔥 High</span><span class="pill pill-dsa">Sorting</span></div>
+      <div class="q-expand">▾</div>
+    </div>
+    <div class="q-body">
+      <a class="lc-link" href="https://leetcode.com/problems/merge-intervals/" target="_blank">🔗 LC #56</a>
+      <div class="code-tabs">
+        <div class="code-tab-btns"><button class="ctb active" onclick="switchTab(this,'cpp')">C++</button></div>
+        <div class="code-panel active" data-lang="cpp"><pre><span class="ty">vector</span>&lt;<span class="ty">vector</span>&lt;<span class="kw">int</span>&gt;&gt; <span class="fn">merge</span>(<span class="ty">vector</span>&lt;<span class="ty">vector</span>&lt;<span class="kw">int</span>&gt;&gt;&amp; intervals) {
+    sort(intervals.begin(), intervals.end());
+    <span class="ty">vector</span>&lt;<span class="ty">vector</span>&lt;<span class="kw">int</span>&gt;&gt; res;
+    <span class="kw">for</span> (<span class="kw">auto</span>&amp; iv : intervals) {
+        <span class="kw">if</span> (res.empty() || res.back()[<span class="nm">1</span>] &lt; iv[<span class="nm">0</span>])
+            res.push_back(iv);
+        <span class="kw">else</span>
+            res.back()[<span class="nm">1</span>] = max(res.back()[<span class="nm">1</span>], iv[<span class="nm">1</span>]);
+    }
+    <span class="kw">return</span> res;
+}
+<span class="cm">// Time: O(N log N)  Space: O(N)</span></pre></div>
+      </div>
+      <span class="source-tag">Reported: SDE-2 GFG 2021 Round 1</span>
+    </div>
+  </div>
+
+  <div class="q-card" onclick="toggle(this)">
+    <div class="q-header">
+      <div class="q-num">#6</div>
+      <div class="q-title">Multiply Two Large Integers as Strings</div>
+      <div class="q-meta"><span class="freq freq-med">⚡ Med</span><span class="pill pill-dsa">String/Math</span></div>
+      <div class="q-expand">▾</div>
+    </div>
+    <div class="q-body">
+      <a class="lc-link" href="https://leetcode.com/problems/multiply-strings/" target="_blank">🔗 LC #43</a>
+      <div class="code-tabs">
+        <div class="code-tab-btns"><button class="ctb active" onclick="switchTab(this,'cpp')">C++</button></div>
+        <div class="code-panel active" data-lang="cpp"><pre><span class="kw">string</span> <span class="fn">multiply</span>(<span class="kw">string</span> num1, <span class="kw">string</span> num2) {
+    <span class="kw">int</span> m=num1.size(), n=num2.size();
+    <span class="ty">vector</span>&lt;<span class="kw">int</span>&gt; pos(m+n, <span class="nm">0</span>);
+    <span class="kw">for</span> (<span class="kw">int</span> i=m-<span class="nm">1</span>; i&gt;=<span class="nm">0</span>; i--)
+        <span class="kw">for</span> (<span class="kw">int</span> j=n-<span class="nm">1</span>; j&gt;=<span class="nm">0</span>; j--) {
+            <span class="kw">int</span> mul = (num1[i]-<span class="st">'0'</span>)*(num2[j]-<span class="st">'0'</span>);
+            <span class="kw">int</span> p1=i+j, p2=i+j+<span class="nm">1</span>, sum=mul+pos[p2];
+            pos[p2]=sum%<span class="nm">10</span>; pos[p1]+=sum/<span class="nm">10</span>;
+        }
+    <span class="kw">string</span> res;
+    <span class="kw">for</span> (<span class="kw">int</span> d : pos) <span class="kw">if</span> (!(res.empty() &amp;&amp; d==<span class="nm">0</span>)) res+=(<span class="st">'0'</span>+d);
+    <span class="kw">return</span> res.empty() ? <span class="st">"0"</span> : res;
+}
+<span class="cm">// Time: O(M*N)  Space: O(M+N)</span></pre></div>
+      </div>
+      <span class="source-tag">Reported: SDE-2 LeetCode Discuss 2025</span>
+    </div>
+  </div>
+
+  <div class="q-card" onclick="toggle(this)">
+    <div class="q-header">
+      <div class="q-num">#7</div>
+      <div class="q-title">Find All Pairs with Given Sum in Two Arrays</div>
+      <div class="q-meta"><span class="freq freq-med">⚡ Med</span><span class="pill pill-dsa">HashMap</span></div>
+      <div class="q-expand">▾</div>
+    </div>
+    <div class="q-body">
+      <div class="code-tabs">
+        <div class="code-tab-btns"><button class="ctb active" onclick="switchTab(this,'cpp')">C++</button></div>
+        <div class="code-panel active" data-lang="cpp"><pre><span class="ty">vector</span>&lt;<span class="ty">pair</span>&lt;<span class="kw">int</span>,<span class="kw">int</span>&gt;&gt; <span class="fn">pairsWithSum</span>(<span class="ty">vector</span>&lt;<span class="kw">int</span>&gt;&amp; a, <span class="ty">vector</span>&lt;<span class="kw">int</span>&gt;&amp; b, <span class="kw">int</span> k) {
+    <span class="ty">unordered_set</span>&lt;<span class="kw">int</span>&gt; setA(a.begin(), a.end());
+    <span class="ty">vector</span>&lt;<span class="ty">pair</span>&lt;<span class="kw">int</span>,<span class="kw">int</span>&gt;&gt; res;
+    <span class="kw">for</span> (<span class="kw">int</span> bv : b)
+        <span class="kw">if</span> (setA.count(k - bv))
+            res.push_back({k-bv, bv});
+    <span class="kw">return</span> res;
+}
+<span class="cm">// Time: O(N+M)  Space: O(N)</span></pre></div>
+      </div>
+      <span class="source-tag">Reported: SDE GFG 2020</span>
+    </div>
+  </div>
+
+  <div class="q-card" onclick="toggle(this)">
+    <div class="q-header">
+      <div class="q-num">#8</div>
+      <div class="q-title">Increasing Triplet Subsequence</div>
+      <div class="q-meta"><span class="freq freq-med">⚡ Med</span><span class="pill pill-dsa">Greedy</span></div>
+      <div class="q-expand">▾</div>
+    </div>
+    <div class="q-body">
+      <a class="lc-link" href="https://leetcode.com/problems/increasing-triplet-subsequence/" target="_blank">🔗 LC #334</a>
+      <div class="code-tabs">
+        <div class="code-tab-btns"><button class="ctb active" onclick="switchTab(this,'cpp')">C++</button></div>
+        <div class="code-panel active" data-lang="cpp"><pre><span class="kw">bool</span> <span class="fn">increasingTriplet</span>(<span class="ty">vector</span>&lt;<span class="kw">int</span>&gt;&amp; nums) {
+    <span class="kw">int</span> first=INT_MAX, second=INT_MAX;
+    <span class="kw">for</span> (<span class="kw">int</span> n : nums) {
+        <span class="kw">if</span> (n &lt;= first) first = n;
+        <span class="kw">else if</span> (n &lt;= second) second = n;
+        <span class="kw">else return true</span>;
+    }
+    <span class="kw">return false</span>;
+}
+<span class="cm">// Time: O(N)  Space: O(1)</span></pre></div>
+      </div>
+      <span class="source-tag">Reported: SSE-2 LeetCode Discuss Nov 2023</span>
+    </div>
+  </div>
+
+  <div class="q-card" onclick="toggle(this)">
+    <div class="q-header">
+      <div class="q-num">#9</div>
+      <div class="q-title">Maximum j–i such that arr[j] &gt; arr[i]</div>
+      <div class="q-meta"><span class="freq freq-low">🟢 Once</span><span class="pill pill-dsa">Array</span></div>
+      <div class="q-expand">▾</div>
+    </div>
+    <div class="q-body">
+      <div class="code-tabs">
+        <div class="code-tab-btns"><button class="ctb active" onclick="switchTab(this,'cpp')">C++</button></div>
+        <div class="code-panel active" data-lang="cpp"><pre><span class="kw">int</span> <span class="fn">maxDistance</span>(<span class="ty">vector</span>&lt;<span class="kw">int</span>&gt;&amp; arr) {
+    <span class="kw">int</span> n=arr.size();
+    <span class="ty">vector</span>&lt;<span class="kw">int</span>&gt; lmin(n), rmax(n);
+    lmin[<span class="nm">0</span>]=arr[<span class="nm">0</span>];
+    <span class="kw">for</span> (<span class="kw">int</span> i=<span class="nm">1</span>;i&lt;n;i++) lmin[i]=min(lmin[i-<span class="nm">1</span>],arr[i]);
+    rmax[n-<span class="nm">1</span>]=arr[n-<span class="nm">1</span>];
+    <span class="kw">for</span> (<span class="kw">int</span> j=n-<span class="nm">2</span>;j&gt;=<span class="nm">0</span>;j--) rmax[j]=max(rmax[j+<span class="nm">1</span>],arr[j]);
+    <span class="kw">int</span> i=<span class="nm">0</span>, j=<span class="nm">0</span>, ans=<span class="nm">0</span>;
+    <span class="kw">while</span> (i&lt;n &amp;&amp; j&lt;n) {
+        <span class="kw">if</span> (lmin[i]&lt;=rmax[j]) { ans=max(ans,j-i); j++; }
+        <span class="kw">else</span> i++;
+    }
+    <span class="kw">return</span> ans;
+}
+<span class="cm">// Time: O(N)  Space: O(N)</span></pre></div>
+      </div>
+      <span class="source-tag">Reported: SDE GFG 2020 Round 2</span>
+    </div>
+  </div>
+
+  <div class="q-card" onclick="toggle(this)">
+    <div class="q-header">
+      <div class="q-num">#10</div>
+      <div class="q-title">Maximize Sum Picking K Elements from Either Side</div>
+      <div class="q-meta"><span class="freq freq-low">🟢 Once</span><span class="pill pill-dsa">Sliding Window</span></div>
+      <div class="q-expand">▾</div>
+    </div>
+    <div class="q-body">
+      <a class="lc-link" href="https://leetcode.com/problems/maximum-points-you-can-obtain-from-cards/" target="_blank">🔗 LC #1423</a>
+      <div class="code-tabs">
+        <div class="code-tab-btns"><button class="ctb active" onclick="switchTab(this,'cpp')">C++</button></div>
+        <div class="code-panel active" data-lang="cpp"><pre><span class="kw">int</span> <span class="fn">maxScore</span>(<span class="ty">vector</span>&lt;<span class="kw">int</span>&gt;&amp; c, <span class="kw">int</span> k) {
+    <span class="kw">int</span> n=c.size(), total=<span class="nm">0</span>;
+    <span class="kw">for</span> (<span class="kw">int</span> i=<span class="nm">0</span>;i&lt;k;i++) total+=c[i];
+    <span class="kw">int</span> cur=total;
+    <span class="kw">for</span> (<span class="kw">int</span> i=<span class="nm">1</span>;i&lt;=k;i++) {
+        cur += c[n-i] - c[k-i];
+        total = max(total, cur);
+    }
+    <span class="kw">return</span> total;
+}
+<span class="cm">// Time: O(K)  Space: O(1)</span></pre></div>
+      </div>
+      <span class="source-tag">Reported: SSE BLR LeetCode 2022</span>
+    </div>
+  </div>
+
+  <div class="q-card" onclick="toggle(this)">
+    <div class="q-header">
+      <div class="q-num">#11</div>
+      <div class="q-title">Sort Array by Frequency of Elements</div>
+      <div class="q-meta"><span class="freq freq-low">🟢 Once</span><span class="pill pill-dsa">HashMap+Sort</span></div>
+      <div class="q-expand">▾</div>
+    </div>
+    <div class="q-body">
+      <div class="code-tabs">
+        <div class="code-tab-btns"><button class="ctb active" onclick="switchTab(this,'cpp')">C++</button></div>
+        <div class="code-panel active" data-lang="cpp"><pre><span class="ty">vector</span>&lt;<span class="kw">int</span>&gt; <span class="fn">sortByFreq</span>(<span class="ty">vector</span>&lt;<span class="kw">int</span>&gt;&amp; arr) {
+    <span class="ty">map</span>&lt;<span class="kw">int</span>,<span class="kw">int</span>&gt; freq;
+    <span class="kw">for</span> (<span class="kw">int</span> x : arr) freq[x]++;
+    sort(arr.begin(), arr.end(), [&amp;](<span class="kw">int</span> a, <span class="kw">int</span> b){
+        <span class="kw">if</span> (freq[a] != freq[b]) <span class="kw">return</span> freq[a] &lt; freq[b];
+        <span class="kw">return</span> a &gt; b; <span class="cm">// tie-break by value desc</span>
+    });
+    <span class="kw">return</span> arr;
+}
+<span class="cm">// Time: O(N log N)  Space: O(N)</span></pre></div>
+      </div>
+      <span class="source-tag">Reported: Java Developer Glassdoor</span>
+    </div>
+  </div>
+
+  <div class="q-card" onclick="toggle(this)">
+    <div class="q-header">
+      <div class="q-num">#12</div>
+      <div class="q-title">Find First and Last Position in Sorted Array (Binary Search)</div>
+      <div class="q-meta"><span class="freq freq-low">🟢 Once</span><span class="pill pill-dsa">Binary Search</span></div>
+      <div class="q-expand">▾</div>
+    </div>
+    <div class="q-body">
+      <a class="lc-link" href="https://leetcode.com/problems/find-first-and-last-position-of-element-in-sorted-array/" target="_blank">🔗 LC #34</a>
+      <div class="code-tabs">
+        <div class="code-tab-btns"><button class="ctb active" onclick="switchTab(this,'cpp')">C++</button></div>
+        <div class="code-panel active" data-lang="cpp"><pre><span class="ty">vector</span>&lt;<span class="kw">int</span>&gt; <span class="fn">searchRange</span>(<span class="ty">vector</span>&lt;<span class="kw">int</span>&gt;&amp; nums, <span class="kw">int</span> target) {
+    <span class="kw">auto</span> bound = [&amp;](<span class="kw">bool</span> lower) {
+        <span class="kw">int</span> lo=<span class="nm">0</span>, hi=nums.size()-<span class="nm">1</span>, res=-<span class="nm">1</span>;
+        <span class="kw">while</span>(lo&lt;=hi){
+            <span class="kw">int</span> mid=lo+(hi-lo)/<span class="nm">2</span>;
+            <span class="kw">if</span>(nums[mid]==target){ res=mid; lower?hi=mid-<span class="nm">1</span>:lo=mid+<span class="nm">1</span>; }
+            <span class="kw">else if</span>(nums[mid]&lt;target) lo=mid+<span class="nm">1</span>;
+            <span class="kw">else</span> hi=mid-<span class="nm">1</span>;
+        }
+        <span class="kw">return</span> res;
+    };
+    <span class="kw">return</span> {bound(<span class="kw">true</span>), bound(<span class="kw">false</span>)};
+}
+<span class="cm">// Time: O(log N)  Space: O(1)</span></pre></div>
+      </div>
+      <span class="source-tag">Reported: SSE-2 LeetCode Discuss Nov 2023</span>
+    </div>
+  </div>
+
+  <!-- LINKED LIST -->
+  <div class="cat-header"><span class="cat-icon">🔗</span><span class="cat-title">Linked Lists</span><span class="cat-count">5 problems</span></div>
+
+  <div class="q-card" onclick="toggle(this)">
+    <div class="q-header">
+      <div class="q-num">#13</div>
+      <div class="q-title">Reverse Linked List in Groups of K</div>
+      <div class="q-meta"><span class="freq freq-high">🔥 High</span><span class="pill pill-dsa">Linked List</span></div>
+      <div class="q-expand">▾</div>
+    </div>
+    <div class="q-body">
+      <a class="lc-link" href="https://leetcode.com/problems/reverse-nodes-in-k-group/" target="_blank">🔗 LC #25</a>
+      <div class="code-tabs">
+        <div class="code-tab-btns"><button class="ctb active" onclick="switchTab(this,'cpp')">C++</button></div>
+        <div class="code-panel active" data-lang="cpp"><pre><span class="ty">ListNode</span>* <span class="fn">reverseKGroup</span>(<span class="ty">ListNode</span>* head, <span class="kw">int</span> k) {
+    <span class="ty">ListNode</span>* cur=head; <span class="kw">int</span> cnt=<span class="nm">0</span>;
+    <span class="kw">while</span>(cur &amp;&amp; cnt&lt;k){ cur=cur-&gt;next; cnt++; }
+    <span class="kw">if</span>(cnt&lt;k) <span class="kw">return</span> head;
+    <span class="ty">ListNode</span>* prev=<span class="kw">nullptr</span>; cur=head;
+    <span class="kw">for</span>(<span class="kw">int</span> i=<span class="nm">0</span>;i&lt;k;i++){
+        <span class="ty">ListNode</span>* nxt=cur-&gt;next; cur-&gt;next=prev; prev=cur; cur=nxt;
+    }
+    head-&gt;next = <span class="fn">reverseKGroup</span>(cur, k);
+    <span class="kw">return</span> prev;
+}
+<span class="cm">// Time: O(N)  Space: O(N/K) recursive stack</span></pre></div>
+      </div>
+      <span class="source-tag">Reported: MMT Set-4 GFG, SSE-2 Nov 2023</span>
+    </div>
+  </div>
+
+  <div class="q-card" onclick="toggle(this)">
+    <div class="q-header">
+      <div class="q-num">#14</div>
+      <div class="q-title">Clone Linked List with Next and Random Pointers</div>
+      <div class="q-meta"><span class="freq freq-med">⚡ Med</span><span class="pill pill-dsa">Linked List</span></div>
+      <div class="q-expand">▾</div>
+    </div>
+    <div class="q-body">
+      <a class="lc-link" href="https://leetcode.com/problems/copy-list-with-random-pointer/" target="_blank">🔗 LC #138</a>
+      <div class="code-tabs">
+        <div class="code-tab-btns"><button class="ctb active" onclick="switchTab(this,'cpp')">C++</button></div>
+        <div class="code-panel active" data-lang="cpp"><pre><span class="kw">struct</span> <span class="ty">Node</span> { <span class="kw">int</span> val; <span class="ty">Node</span>*next,*random; };
+
+<span class="ty">Node</span>* <span class="fn">copyRandomList</span>(<span class="ty">Node</span>* head) {
+    <span class="ty">unordered_map</span>&lt;<span class="ty">Node</span>*,<span class="ty">Node</span>*&gt; mp;
+    <span class="ty">Node</span>* cur=head;
+    <span class="kw">while</span>(cur){ mp[cur]=<span class="kw">new</span> <span class="ty">Node</span>(); mp[cur]-&gt;val=cur-&gt;val; cur=cur-&gt;next; }
+    cur=head;
+    <span class="kw">while</span>(cur){
+        mp[cur]-&gt;next   = mp[cur-&gt;next];
+        mp[cur]-&gt;random = mp[cur-&gt;random];
+        cur=cur-&gt;next;
+    }
+    <span class="kw">return</span> mp[head];
+}
+<span class="cm">// Time: O(N)  Space: O(N)</span></pre></div>
+      </div>
+      <span class="source-tag">Reported: MMT Set-4 GFG</span>
+    </div>
+  </div>
+
+  <div class="q-card" onclick="toggle(this)">
+    <div class="q-header">
+      <div class="q-num">#15</div>
+      <div class="q-title">Populate Next Right Pointers in Each Node</div>
+      <div class="q-meta"><span class="freq freq-low">🟢 Once</span><span class="pill pill-dsa">Tree/LL</span></div>
+      <div class="q-expand">▾</div>
+    </div>
+    <div class="q-body">
+      <a class="lc-link" href="https://leetcode.com/problems/populating-next-right-pointers-in-each-node/" target="_blank">🔗 LC #116</a>
+      <div class="code-tabs">
+        <div class="code-tab-btns"><button class="ctb active" onclick="switchTab(this,'cpp')">C++</button></div>
+        <div class="code-panel active" data-lang="cpp"><pre><span class="kw">struct</span> <span class="ty">Node</span>{<span class="kw">int</span> val;<span class="ty">Node</span>*left,*right,*next;};
+<span class="cm">// O(log N) space — use already set 'next' pointers as "free" traversal</span>
+<span class="ty">Node</span>* <span class="fn">connect</span>(<span class="ty">Node</span>* root) {
+    <span class="kw">if</span>(!root) <span class="kw">return</span> <span class="kw">nullptr</span>;
+    <span class="ty">Node</span>* leftmost=root;
+    <span class="kw">while</span>(leftmost-&gt;left){
+        <span class="ty">Node</span>* head=leftmost;
+        <span class="kw">while</span>(head){
+            head-&gt;left-&gt;next=head-&gt;right;
+            <span class="kw">if</span>(head-&gt;next) head-&gt;right-&gt;next=head-&gt;next-&gt;left;
+            head=head-&gt;next;
+        }
+        leftmost=leftmost-&gt;left;
+    }
+    <span class="kw">return</span> root;
+}
+<span class="cm">// Time: O(N)  Space: O(1) — the interviewer's expected O(log N) approach</span></pre></div>
+      </div>
+      <span class="source-tag">Reported: SDE-2 LeetCode Discuss 2025</span>
+    </div>
+  </div>
+
+  <div class="q-card" onclick="toggle(this)">
+    <div class="q-header">
+      <div class="q-num">#16</div>
+      <div class="q-title">Intersection of Two Linked Lists (Merge Point)</div>
+      <div class="q-meta"><span class="freq freq-low">🟢 Once</span><span class="pill pill-dsa">Two Pointer</span></div>
+      <div class="q-expand">▾</div>
+    </div>
+    <div class="q-body">
+      <a class="lc-link" href="https://leetcode.com/problems/intersection-of-two-linked-lists/" target="_blank">🔗 LC #160</a>
+      <div class="code-tabs">
+        <div class="code-tab-btns"><button class="ctb active" onclick="switchTab(this,'cpp')">C++</button></div>
+        <div class="code-panel active" data-lang="cpp"><pre><span class="ty">ListNode</span>* <span class="fn">getIntersectionNode</span>(<span class="ty">ListNode</span>* a, <span class="ty">ListNode</span>* b) {
+    <span class="ty">ListNode</span>* pa=a, *pb=b;
+    <span class="kw">while</span>(pa!=pb){
+        pa = pa ? pa-&gt;next : b;
+        pb = pb ? pb-&gt;next : a;
+    }
+    <span class="kw">return</span> pa;
+}
+<span class="cm">// Time: O(M+N)  Space: O(1)</span></pre></div>
+      </div>
+      <span class="source-tag">Reported: MMT Set-4 GFG</span>
+    </div>
+  </div>
+
+  <div class="q-card" onclick="toggle(this)">
+    <div class="q-header">
+      <div class="q-num">#17</div>
+      <div class="q-title">Reverse Second Half of Linked List (In-Place)</div>
+      <div class="q-meta"><span class="freq freq-low">🟢 Once</span><span class="pill pill-dsa">Linked List</span></div>
+      <div class="q-expand">▾</div>
+    </div>
+    <div class="q-body">
+      <div class="code-tabs">
+        <div class="code-tab-btns"><button class="ctb active" onclick="switchTab(this,'cpp')">C++</button></div>
+        <div class="code-panel active" data-lang="cpp"><pre><span class="ty">ListNode</span>* <span class="fn">reverseSecondHalf</span>(<span class="ty">ListNode</span>* head) {
+    <span class="cm">// Find mid with slow/fast</span>
+    <span class="ty">ListNode</span>* slow=head, *fast=head;
+    <span class="kw">while</span>(fast-&gt;next &amp;&amp; fast-&gt;next-&gt;next){ slow=slow-&gt;next; fast=fast-&gt;next-&gt;next; }
+    <span class="cm">// Reverse from slow->next</span>
+    <span class="ty">ListNode</span>* prev=<span class="kw">nullptr</span>, *cur=slow-&gt;next;
+    <span class="kw">while</span>(cur){ <span class="ty">ListNode</span>* nxt=cur-&gt;next; cur-&gt;next=prev; prev=cur; cur=nxt; }
+    slow-&gt;next=prev;
+    <span class="kw">return</span> head;
+}
+<span class="cm">// Time: O(N)  Space: O(1)</span></pre></div>
+      </div>
+      <span class="source-tag">Reported: MMT Set-4 GFG</span>
+    </div>
+  </div>
+
+  <!-- TREES & GRAPHS -->
+  <div class="cat-header"><span class="cat-icon">🌳</span><span class="cat-title">Trees &amp; Graphs</span><span class="cat-count">9 problems</span></div>
+
+  <div class="q-card" onclick="toggle(this)">
+    <div class="q-header">
+      <div class="q-num">#18</div>
+      <div class="q-title">LCA / Common Manager of Two Employees</div>
+      <div class="q-meta"><span class="freq freq-high">🔥 High</span><span class="pill pill-dsa">Tree</span></div>
+      <div class="q-expand">▾</div>
+    </div>
+    <div class="q-body">
+      <p>Disguised as "common manager" — it's LCA on a general tree. Key insight: if the Emp class has a parent pointer, walk both nodes to root, collect ancestors, find first match.</p>
+      <a class="lc-link" href="https://leetcode.com/problems/lowest-common-ancestor-of-a-binary-tree/" target="_blank">🔗 LC #236</a>
+      <div class="code-tabs">
+        <div class="code-tab-btns"><button class="ctb active" onclick="switchTab(this,'cpp')">C++</button></div>
+        <div class="code-panel active" data-lang="cpp"><pre><span class="kw">struct</span> <span class="ty">TreeNode</span>{<span class="kw">int</span> val;<span class="ty">TreeNode</span>*left,*right;};
+
+<span class="cm">// Binary Tree LCA (no parent pointer)</span>
+<span class="ty">TreeNode</span>* <span class="fn">lca</span>(<span class="ty">TreeNode</span>* root, <span class="ty">TreeNode</span>* p, <span class="ty">TreeNode</span>* q) {
+    <span class="kw">if</span>(!root||root==p||root==q) <span class="kw">return</span> root;
+    <span class="ty">TreeNode</span>* L=<span class="fn">lca</span>(root-&gt;left,p,q);
+    <span class="ty">TreeNode</span>* R=<span class="fn">lca</span>(root-&gt;right,p,q);
+    <span class="kw">if</span>(L &amp;&amp; R) <span class="kw">return</span> root;
+    <span class="kw">return</span> L ? L : R;
+}
+<span class="cm">// Time: O(N)  Space: O(H)</span>
+
+<span class="cm">// With parent pointer (closer to real "Emp" class question)</span>
+<span class="kw">struct</span> <span class="ty">Emp</span> { <span class="kw">int</span> id; <span class="ty">Emp</span>* manager; };
+<span class="ty">Emp</span>* <span class="fn">commonManager</span>(<span class="ty">Emp</span>* e1, <span class="ty">Emp</span>* e2) {
+    <span class="ty">unordered_set</span>&lt;<span class="ty">Emp</span>*&gt; ancestors;
+    <span class="kw">while</span>(e1){ ancestors.insert(e1); e1=e1-&gt;manager; }
+    <span class="kw">while</span>(e2){ <span class="kw">if</span>(ancestors.count(e2)) <span class="kw">return</span> e2; e2=e2-&gt;manager; }
+    <span class="kw">return nullptr</span>;
+}
+<span class="cm">// Time: O(D)  Space: O(D) where D = depth</span></pre></div>
+      </div>
+      <span class="source-tag">Reported: SDE/SSE-2 LeetCode Oct 2024, Code360 Oct 2022</span>
+    </div>
+  </div>
+
+  <div class="q-card" onclick="toggle(this)">
+    <div class="q-header">
+      <div class="q-num">#19</div>
+      <div class="q-title">Validate Binary Search Tree</div>
+      <div class="q-meta"><span class="freq freq-med">⚡ Med</span><span class="pill pill-dsa">BST</span></div>
+      <div class="q-expand">▾</div>
+    </div>
+    <div class="q-body">
+      <a class="lc-link" href="https://leetcode.com/problems/validate-binary-search-tree/" target="_blank">🔗 LC #98</a>
+      <div class="code-tabs">
+        <div class="code-tab-btns"><button class="ctb active" onclick="switchTab(this,'cpp')">C++</button></div>
+        <div class="code-panel active" data-lang="cpp"><pre><span class="kw">bool</span> <span class="fn">isValid</span>(<span class="ty">TreeNode</span>* n, <span class="kw">long</span> lo, <span class="kw">long</span> hi) {
+    <span class="kw">if</span>(!n) <span class="kw">return true</span>;
+    <span class="kw">if</span>(n-&gt;val&lt;=lo || n-&gt;val&gt;=hi) <span class="kw">return false</span>;
+    <span class="kw">return</span> <span class="fn">isValid</span>(n-&gt;left,lo,n-&gt;val) &amp;&amp; <span class="fn">isValid</span>(n-&gt;right,n-&gt;val,hi);
+}
+<span class="kw">bool</span> <span class="fn">isValidBST</span>(<span class="ty">TreeNode</span>* r){ <span class="kw">return</span> <span class="fn">isValid</span>(r,LONG_MIN,LONG_MAX); }
+<span class="cm">// Time: O(N)  Space: O(H)</span></pre></div>
+      </div>
+      <span class="source-tag">Reported: SDE GFG 2020</span>
+    </div>
+  </div>
+
+  <div class="q-card" onclick="toggle(this)">
+    <div class="q-header">
+      <div class="q-num">#20</div>
+      <div class="q-title">Left View of Binary Tree</div>
+      <div class="q-meta"><span class="freq freq-low">🟢 Once</span><span class="pill pill-dsa">Tree BFS</span></div>
+      <div class="q-expand">▾</div>
+    </div>
+    <div class="q-body">
+      <div class="code-tabs">
+        <div class="code-tab-btns"><button class="ctb active" onclick="switchTab(this,'cpp')">C++</button></div>
+        <div class="code-panel active" data-lang="cpp"><pre><span class="ty">vector</span>&lt;<span class="kw">int</span>&gt; <span class="fn">leftView</span>(<span class="ty">TreeNode</span>* root) {
+    <span class="ty">vector</span>&lt;<span class="kw">int</span>&gt; res;
+    <span class="kw">if</span>(!root) <span class="kw">return</span> res;
+    <span class="ty">queue</span>&lt;<span class="ty">TreeNode</span>*&gt; q;
+    q.push(root);
+    <span class="kw">while</span>(!q.empty()){
+        <span class="kw">int</span> sz=q.size();
+        <span class="kw">for</span>(<span class="kw">int</span> i=<span class="nm">0</span>;i&lt;sz;i++){
+            <span class="ty">TreeNode</span>* n=q.front(); q.pop();
+            <span class="kw">if</span>(i==<span class="nm">0</span>) res.push_back(n-&gt;val);
+            <span class="kw">if</span>(n-&gt;left) q.push(n-&gt;left);
+            <span class="kw">if</span>(n-&gt;right) q.push(n-&gt;right);
+        }
+    }
+    <span class="kw">return</span> res;
+}
+<span class="cm">// Time: O(N)  Space: O(W) width</span></pre></div>
+      </div>
+      <span class="source-tag">Reported: Senior SDE GFG 2019</span>
+    </div>
+  </div>
+
+  <div class="q-card" onclick="toggle(this)">
+    <div class="q-header">
+      <div class="q-num">#21</div>
+      <div class="q-title">Vertical Order Traversal of Binary Tree</div>
+      <div class="q-meta"><span class="freq freq-low">🟢 Once</span><span class="pill pill-dsa">Tree</span></div>
+      <div class="q-expand">▾</div>
+    </div>
+    <div class="q-body">
+      <a class="lc-link" href="https://leetcode.com/problems/vertical-order-traversal-of-a-binary-tree/" target="_blank">🔗 LC #987</a>
+      <div class="code-tabs">
+        <div class="code-tab-btns"><button class="ctb active" onclick="switchTab(this,'cpp')">C++</button></div>
+        <div class="code-panel active" data-lang="cpp"><pre><span class="ty">vector</span>&lt;<span class="ty">vector</span>&lt;<span class="kw">int</span>&gt;&gt; <span class="fn">verticalTraversal</span>(<span class="ty">TreeNode</span>* root) {
+    <span class="ty">map</span>&lt;<span class="kw">int</span>,<span class="ty">map</span>&lt;<span class="kw">int</span>,<span class="ty">multiset</span>&lt;<span class="kw">int</span>&gt;&gt;&gt; nodes;
+    <span class="ty">queue</span>&lt;<span class="ty">tuple</span>&lt;<span class="ty">TreeNode</span>*,<span class="kw">int</span>,<span class="kw">int</span>&gt;&gt; q;
+    q.push({root,<span class="nm">0</span>,<span class="nm">0</span>});
+    <span class="kw">while</span>(!q.empty()){
+        <span class="kw">auto</span>[node,col,row]=q.front(); q.pop();
+        nodes[col][row].insert(node-&gt;val);
+        <span class="kw">if</span>(node-&gt;left) q.push({node-&gt;left,col-<span class="nm">1</span>,row+<span class="nm">1</span>});
+        <span class="kw">if</span>(node-&gt;right) q.push({node-&gt;right,col+<span class="nm">1</span>,row+<span class="nm">1</span>});
+    }
+    <span class="ty">vector</span>&lt;<span class="ty">vector</span>&lt;<span class="kw">int</span>&gt;&gt; res;
+    <span class="kw">for</span>(<span class="kw">auto</span>&amp;[col,rows]:nodes){
+        res.push_back({});
+        <span class="kw">for</span>(<span class="kw">auto</span>&amp;[row,vals]:rows)
+            <span class="kw">for</span>(<span class="kw">int</span> v:vals) res.back().push_back(v);
+    }
+    <span class="kw">return</span> res;
+}
+<span class="cm">// Time: O(N log N)  Space: O(N)</span></pre></div>
+      </div>
+      <span class="source-tag">Reported: MMT Set-4 GFG</span>
+    </div>
+  </div>
+
+  <div class="q-card" onclick="toggle(this)">
+    <div class="q-header">
+      <div class="q-num">#22</div>
+      <div class="q-title">Path Finding in Binary Matrix (Backtracking / Rat in Maze)</div>
+      <div class="q-meta"><span class="freq freq-low">🟢 Once</span><span class="pill pill-dsa">Backtracking</span></div>
+      <div class="q-expand">▾</div>
+    </div>
+    <div class="q-body">
+      <div class="code-tabs">
+        <div class="code-tab-btns"><button class="ctb active" onclick="switchTab(this,'cpp')">C++</button></div>
+        <div class="code-panel active" data-lang="cpp"><pre><span class="kw">bool</span> <span class="fn">dfs</span>(<span class="ty">vector</span>&lt;<span class="ty">vector</span>&lt;<span class="kw">int</span>&gt;&gt;&amp; g, <span class="kw">int</span> r, <span class="kw">int</span> c, <span class="kw">int</span> dr, <span class="kw">int</span> dc) {
+    <span class="kw">if</span>(r==dr &amp;&amp; c==dc) <span class="kw">return true</span>;
+    <span class="kw">int</span> n=g.size(), m=g[<span class="nm">0</span>].size();
+    <span class="kw">int</span> dirs[][<span class="nm">2</span>]={{<span class="nm">1</span>,<span class="nm">0</span>},{-<span class="nm">1</span>,<span class="nm">0</span>},{<span class="nm">0</span>,<span class="nm">1</span>},{<span class="nm">0</span>,-<span class="nm">1</span>}};
+    g[r][c]=<span class="nm">0</span>; <span class="cm">// mark visited</span>
+    <span class="kw">for</span>(<span class="kw">auto</span>&amp; d:dirs){
+        <span class="kw">int</span> nr=r+d[<span class="nm">0</span>],nc=c+d[<span class="nm">1</span>];
+        <span class="kw">if</span>(nr&gt;=<span class="nm">0</span>&amp;&amp;nr&lt;n&amp;&amp;nc&gt;=<span class="nm">0</span>&amp;&amp;nc&lt;m&amp;&amp;g[nr][nc]==<span class="nm">1</span>)
+            <span class="kw">if</span>(<span class="fn">dfs</span>(g,nr,nc,dr,dc)) <span class="kw">return true</span>;
+    }
+    g[r][c]=<span class="nm">1</span>; <span class="cm">// backtrack</span>
+    <span class="kw">return false</span>;
+}
+<span class="cm">// Time: O(4^(N*M))  Space: O(N*M)</span></pre></div>
+      </div>
+      <span class="source-tag">Reported: SDE GFG 2020</span>
+    </div>
+  </div>
+
+  <div class="q-card" onclick="toggle(this)">
+    <div class="q-header">
+      <div class="q-num">#23</div>
+      <div class="q-title">Cut Tree to Minimise Subtree Sum Difference</div>
+      <div class="q-meta"><span class="freq freq-low">🟢 Once</span><span class="pill pill-dsa">Tree DP</span></div>
+      <div class="q-expand">▾</div>
+    </div>
+    <div class="q-body">
+      <div class="code-tabs">
+        <div class="code-tab-btns"><button class="ctb active" onclick="switchTab(this,'cpp')">C++</button></div>
+        <div class="code-panel active" data-lang="cpp"><pre><span class="kw">int</span> total, ans=INT_MAX;
+<span class="kw">int</span> <span class="fn">dfs</span>(<span class="ty">vector</span>&lt;<span class="ty">vector</span>&lt;<span class="kw">int</span>&gt;&gt;&amp; adj, <span class="ty">vector</span>&lt;<span class="kw">int</span>&gt;&amp; val, <span class="kw">int</span> u, <span class="kw">int</span> p){
+    <span class="kw">int</span> sub=val[u];
+    <span class="kw">for</span>(<span class="kw">int</span> v:adj[u]) <span class="kw">if</span>(v!=p) sub+=<span class="fn">dfs</span>(adj,val,v,u);
+    ans=min(ans, abs(total-<span class="nm">2</span>*sub));
+    <span class="kw">return</span> sub;
+}
+<span class="cm">// Call: total=sum(val); dfs(adj,val,0,-1); return ans;</span>
+<span class="cm">// Time: O(N)  Space: O(N)</span></pre></div>
+      </div>
+      <span class="source-tag">Reported: SDE GFG 2020 HackerEarth OA</span>
+    </div>
+  </div>
+
+  <div class="q-card" onclick="toggle(this)">
+    <div class="q-header">
+      <div class="q-num">#24</div>
+      <div class="q-title">Critical Connections in Network (Bridges — Tarjan's)</div>
+      <div class="q-meta"><span class="freq freq-low">🟢 Once</span><span class="pill pill-dsa">Graph/Tarjan</span></div>
+      <div class="q-expand">▾</div>
+    </div>
+    <div class="q-body">
+      <a class="lc-link" href="https://leetcode.com/problems/critical-connections-in-a-network/" target="_blank">🔗 LC #1192</a>
+      <div class="code-tabs">
+        <div class="code-tab-btns"><button class="ctb active" onclick="switchTab(this,'cpp')">C++</button></div>
+        <div class="code-panel active" data-lang="cpp"><pre><span class="kw">int</span> timer=<span class="nm">0</span>;
+<span class="kw">void</span> <span class="fn">dfs</span>(<span class="ty">vector</span>&lt;<span class="ty">vector</span>&lt;<span class="kw">int</span>&gt;&gt;&amp; g, <span class="kw">int</span> u, <span class="kw">int</span> par,
+         <span class="ty">vector</span>&lt;<span class="kw">int</span>&gt;&amp; disc, <span class="ty">vector</span>&lt;<span class="kw">int</span>&gt;&amp; low,
+         <span class="ty">vector</span>&lt;<span class="ty">vector</span>&lt;<span class="kw">int</span>&gt;&gt;&amp; res) {
+    disc[u]=low[u]=timer++;
+    <span class="kw">for</span>(<span class="kw">int</span> v:g[u]){
+        <span class="kw">if</span>(disc[v]==-<span class="nm">1</span>){
+            <span class="fn">dfs</span>(g,v,u,disc,low,res);
+            low[u]=min(low[u],low[v]);
+            <span class="kw">if</span>(low[v]&gt;disc[u]) res.push_back({u,v});
+        } <span class="kw">else if</span>(v!=par) low[u]=min(low[u],disc[v]);
+    }
+}
+<span class="ty">vector</span>&lt;<span class="ty">vector</span>&lt;<span class="kw">int</span>&gt;&gt; <span class="fn">criticalConnections</span>(<span class="kw">int</span> n, <span class="ty">vector</span>&lt;<span class="ty">vector</span>&lt;<span class="kw">int</span>&gt;&gt;&amp; edges) {
+    <span class="ty">vector</span>&lt;<span class="ty">vector</span>&lt;<span class="kw">int</span>&gt;&gt; g(n), res;
+    <span class="ty">vector</span>&lt;<span class="kw">int</span>&gt; disc(n,-<span class="nm">1</span>), low(n);
+    <span class="kw">for</span>(<span class="kw">auto</span>&amp; e:edges){ g[e[<span class="nm">0</span>]].push_back(e[<span class="nm">1</span>]); g[e[<span class="nm">1</span>]].push_back(e[<span class="nm">0</span>]); }
+    <span class="kw">for</span>(<span class="kw">int</span> i=<span class="nm">0</span>;i&lt;n;i++) <span class="kw">if</span>(disc[i]==-<span class="nm">1</span>) <span class="fn">dfs</span>(g,i,-<span class="nm">1</span>,disc,low,res);
+    <span class="kw">return</span> res;
+}
+<span class="cm">// Time: O(V+E)  Space: O(V+E)</span></pre></div>
+      </div>
+      <span class="source-tag">Reported: Code360 Campus Sep/Oct 2022</span>
+    </div>
+  </div>
+
+  <div class="q-card" onclick="toggle(this)">
+    <div class="q-header">
+      <div class="q-num">#25</div>
+      <div class="q-title">Shortest Path in Graph (Dijkstra)</div>
+      <div class="q-meta"><span class="freq freq-low">🟢 Once</span><span class="pill pill-dsa">Graph BFS/Dijkstra</span></div>
+      <div class="q-expand">▾</div>
+    </div>
+    <div class="q-body">
+      <div class="code-tabs">
+        <div class="code-tab-btns"><button class="ctb active" onclick="switchTab(this,'cpp')">C++</button></div>
+        <div class="code-panel active" data-lang="cpp"><pre><span class="ty">vector</span>&lt;<span class="kw">int</span>&gt; <span class="fn">dijkstra</span>(<span class="ty">vector</span>&lt;<span class="ty">vector</span>&lt;<span class="ty">pair</span>&lt;<span class="kw">int</span>,<span class="kw">int</span>&gt;&gt;&gt;&amp; g, <span class="kw">int</span> src){
+    <span class="kw">int</span> n=g.size();
+    <span class="ty">vector</span>&lt;<span class="kw">int</span>&gt; dist(n,INT_MAX);
+    <span class="ty">priority_queue</span>&lt;<span class="ty">pair</span>&lt;<span class="kw">int</span>,<span class="kw">int</span>&gt;,<span class="ty">vector</span>&lt;<span class="ty">pair</span>&lt;<span class="kw">int</span>,<span class="kw">int</span>&gt;&gt;,<span class="ty">greater</span>&lt;&gt;&gt; pq;
+    dist[src]=<span class="nm">0</span>; pq.push({<span class="nm">0</span>,src});
+    <span class="kw">while</span>(!pq.empty()){
+        <span class="kw">auto</span>[d,u]=pq.top(); pq.pop();
+        <span class="kw">if</span>(d&gt;dist[u]) <span class="kw">continue</span>;
+        <span class="kw">for</span>(<span class="kw">auto</span>[v,w]:g[u])
+            <span class="kw">if</span>(dist[u]+w&lt;dist[v]){ dist[v]=dist[u]+w; pq.push({dist[v],v}); }
+    }
+    <span class="kw">return</span> dist;
+}
+<span class="cm">// Time: O((V+E) log V)  Space: O(V)</span></pre></div>
+      </div>
+      <span class="source-tag">Reported: Glassdoor Sep 2023</span>
+    </div>
+  </div>
+
+  <div class="q-card" onclick="toggle(this)">
+    <div class="q-header">
+      <div class="q-num">#26</div>
+      <div class="q-title">Coordinate Reachability Check Using GCD</div>
+      <div class="q-meta"><span class="freq freq-low">🟢 Once</span><span class="pill pill-dsa">Math</span></div>
+      <div class="q-expand">▾</div>
+    </div>
+    <div class="q-body">
+      <p>From (1,1) move to (a+b,b) or (a,a+b). Reach (x,y)? Key: gcd(x,y) must equal 1 since gcd is preserved by moves and gcd(1,1)=1.</p>
+      <div class="code-tabs">
+        <div class="code-tab-btns"><button class="ctb active" onclick="switchTab(this,'cpp')">C++</button></div>
+        <div class="code-panel active" data-lang="cpp"><pre><span class="kw">bool</span> <span class="fn">canReach</span>(<span class="kw">long long</span> x, <span class="kw">long long</span> y){
+    <span class="kw">if</span>(x==<span class="nm">1</span> &amp;&amp; y==<span class="nm">1</span>) <span class="kw">return true</span>;
+    <span class="kw">if</span>(x&lt;<span class="nm">1</span> || y&lt;<span class="nm">1</span>) <span class="kw">return false</span>;
+    <span class="kw">return</span> __gcd(x,y)==<span class="nm">1</span>;
+}
+<span class="cm">// Time: O(log(min(x,y)))  Space: O(1)</span></pre></div>
+      </div>
+      <span class="source-tag">Reported: SDE GFG 2020 HackerEarth OA</span>
+    </div>
+  </div>
+
+  <!-- DYNAMIC PROGRAMMING -->
+  <div class="cat-header"><span class="cat-icon">🧮</span><span class="cat-title">Dynamic Programming</span><span class="cat-count">6 problems</span></div>
+
+  <div class="q-card" onclick="toggle(this)">
+    <div class="q-header">
+      <div class="q-num">#27</div>
+      <div class="q-title">Maximum Sum Increasing Subsequence</div>
+      <div class="q-meta"><span class="freq freq-med">⚡ Med</span><span class="pill pill-dsa">DP</span></div>
+      <div class="q-expand">▾</div>
+    </div>
+    <div class="q-body">
+      <div class="code-tabs">
+        <div class="code-tab-btns"><button class="ctb active" onclick="switchTab(this,'cpp')">C++</button></div>
+        <div class="code-panel active" data-lang="cpp"><pre><span class="kw">int</span> <span class="fn">maxSumIS</span>(<span class="ty">vector</span>&lt;<span class="kw">int</span>&gt;&amp; arr){
+    <span class="kw">int</span> n=arr.size();
+    <span class="ty">vector</span>&lt;<span class="kw">int</span>&gt; dp(arr); <span class="cm">// dp[i] = max sum ending at i</span>
+    <span class="kw">for</span>(<span class="kw">int</span> i=<span class="nm">1</span>;i&lt;n;i++)
+        <span class="kw">for</span>(<span class="kw">int</span> j=<span class="nm">0</span>;j&lt;i;j++)
+            <span class="kw">if</span>(arr[j]&lt;arr[i])
+                dp[i]=max(dp[i],dp[j]+arr[i]);
+    <span class="kw">return</span> *max_element(dp.begin(),dp.end());
+}
+<span class="cm">// Time: O(N²)  Space: O(N)</span></pre></div>
+      </div>
+      <span class="source-tag">Reported: SDE-2 GFG Round 1</span>
+    </div>
+  </div>
+
+  <div class="q-card" onclick="toggle(this)">
+    <div class="q-header">
+      <div class="q-num">#28</div>
+      <div class="q-title">Longest Consecutive Sequence</div>
+      <div class="q-meta"><span class="freq freq-high">🔥 High</span><span class="pill pill-dsa">HashSet</span></div>
+      <div class="q-expand">▾</div>
+    </div>
+    <div class="q-body">
+      <a class="lc-link" href="https://leetcode.com/problems/longest-consecutive-sequence/" target="_blank">🔗 LC #128</a>
+      <div class="code-tabs">
+        <div class="code-tab-btns"><button class="ctb active" onclick="switchTab(this,'cpp')">C++</button></div>
+        <div class="code-panel active" data-lang="cpp"><pre><span class="kw">int</span> <span class="fn">longestConsecutive</span>(<span class="ty">vector</span>&lt;<span class="kw">int</span>&gt;&amp; nums){
+    <span class="ty">unordered_set</span>&lt;<span class="kw">int</span>&gt; s(nums.begin(),nums.end());
+    <span class="kw">int</span> best=<span class="nm">0</span>;
+    <span class="kw">for</span>(<span class="kw">int</span> n:s){
+        <span class="kw">if</span>(!s.count(n-<span class="nm">1</span>)){
+            <span class="kw">int</span> cur=n, len=<span class="nm">1</span>;
+            <span class="kw">while</span>(s.count(++cur)) len++;
+            best=max(best,len);
+        }
+    }
+    <span class="kw">return</span> best;
+}
+<span class="cm">// Time: O(N)  Space: O(N)</span></pre></div>
+      </div>
+      <span class="source-tag">Reported: SDE-1 GFG 2022, 2024</span>
+    </div>
+  </div>
+
+  <div class="q-card" onclick="toggle(this)">
+    <div class="q-header">
+      <div class="q-num">#29</div>
+      <div class="q-title">Generate All Permutations of a String</div>
+      <div class="q-meta"><span class="freq freq-high">🔥 High</span><span class="pill pill-dsa">Backtracking</span></div>
+      <div class="q-expand">▾</div>
+    </div>
+    <div class="q-body">
+      <div class="code-tabs">
+        <div class="code-tab-btns"><button class="ctb active" onclick="switchTab(this,'cpp')">C++</button></div>
+        <div class="code-panel active" data-lang="cpp"><pre><span class="kw">void</span> <span class="fn">permute</span>(<span class="kw">string</span>&amp; s, <span class="kw">int</span> l, <span class="ty">set</span>&lt;<span class="kw">string</span>&gt;&amp; res){
+    <span class="kw">if</span>(l==s.size()-<span class="nm">1</span>){ res.insert(s); <span class="kw">return</span>; }
+    <span class="kw">for</span>(<span class="kw">int</span> i=l;i&lt;s.size();i++){
+        swap(s[l],s[i]);
+        <span class="fn">permute</span>(s,l+<span class="nm">1</span>,res);
+        swap(s[l],s[i]); <span class="cm">// backtrack</span>
+    }
+}
+<span class="cm">// Time: O(N! * N)  Space: O(N! * N)</span>
+<span class="cm">// Using set handles duplicate characters automatically</span></pre></div>
+      </div>
+      <span class="source-tag">Reported: SDE-1 Managerial Round GFG 2022</span>
+    </div>
+  </div>
+
+  <div class="q-card" onclick="toggle(this)">
+    <div class="q-header">
+      <div class="q-num">#30</div>
+      <div class="q-title">Dice Throw — Count ways to achieve target sum</div>
+      <div class="q-meta"><span class="freq freq-low">🟢 Once</span><span class="pill pill-dsa">DP</span></div>
+      <div class="q-expand">▾</div>
+    </div>
+    <div class="q-body">
+      <div class="code-tabs">
+        <div class="code-tab-btns"><button class="ctb active" onclick="switchTab(this,'cpp')">C++</button></div>
+        <div class="code-panel active" data-lang="cpp"><pre><span class="kw">long long</span> <span class="fn">diceThrow</span>(<span class="kw">int</span> D, <span class="kw">int</span> F, <span class="kw">int</span> S){
+    <span class="cm">// dp[i][j] = ways to get sum j using i dice</span>
+    <span class="ty">vector</span>&lt;<span class="ty">vector</span>&lt;<span class="kw">long long</span>&gt;&gt; dp(D+<span class="nm">1</span>,<span class="ty">vector</span>&lt;<span class="kw">long long</span>&gt;(S+<span class="nm">1</span>,<span class="nm">0</span>));
+    dp[<span class="nm">0</span>][<span class="nm">0</span>]=<span class="nm">1</span>;
+    <span class="kw">for</span>(<span class="kw">int</span> d=<span class="nm">1</span>;d&lt;=D;d++)
+        <span class="kw">for</span>(<span class="kw">int</span> s=d;s&lt;=S;s++)
+            <span class="kw">for</span>(<span class="kw">int</span> f=<span class="nm">1</span>;f&lt;=F &amp;&amp; f&lt;=s;f++)
+                dp[d][s]+=dp[d-<span class="nm">1</span>][s-f];
+    <span class="kw">return</span> dp[D][S];
+}
+<span class="cm">// Time: O(D*S*F)  Space: O(D*S)</span></pre></div>
+      </div>
+      <span class="source-tag">Reported: Code360 Campus Sep 2022</span>
+    </div>
+  </div>
+
+  <div class="q-card" onclick="toggle(this)">
+    <div class="q-header">
+      <div class="q-num">#31</div>
+      <div class="q-title">Generate N Pairs of Balanced Parentheses</div>
+      <div class="q-meta"><span class="freq freq-low">🟢 Once</span><span class="pill pill-dsa">Backtracking</span></div>
+      <div class="q-expand">▾</div>
+    </div>
+    <div class="q-body">
+      <a class="lc-link" href="https://leetcode.com/problems/generate-parentheses/" target="_blank">🔗 LC #22</a>
+      <div class="code-tabs">
+        <div class="code-tab-btns"><button class="ctb active" onclick="switchTab(this,'cpp')">C++</button></div>
+        <div class="code-panel active" data-lang="cpp"><pre><span class="ty">vector</span>&lt;<span class="kw">string</span>&gt; <span class="fn">generateParenthesis</span>(<span class="kw">int</span> n){
+    <span class="ty">vector</span>&lt;<span class="kw">string</span>&gt; res;
+    function&lt;<span class="kw">void</span>(<span class="kw">string</span>,<span class="kw">int</span>,<span class="kw">int</span>)&gt; bt = [&amp;](<span class="kw">string</span> s,<span class="kw">int</span> o,<span class="kw">int</span> c){
+        <span class="kw">if</span>(s.size()==<span class="nm">2</span>*n){ res.push_back(s); <span class="kw">return</span>; }
+        <span class="kw">if</span>(o&lt;n) bt(s+<span class="st">'('</span>,o+<span class="nm">1</span>,c);
+        <span class="kw">if</span>(c&lt;o) bt(s+<span class="st">')'</span>,o,c+<span class="nm">1</span>);
+    };
+    bt(<span class="st">""</span>,<span class="nm">0</span>,<span class="nm">0</span>); <span class="kw">return</span> res;
+}
+<span class="cm">// Time: O(4^N / sqrt(N))  Space: O(N)</span></pre></div>
+      </div>
+      <span class="source-tag">Reported: MMT Set-4 GFG</span>
+    </div>
+  </div>
+
+  <div class="q-card" onclick="toggle(this)">
+    <div class="q-header">
+      <div class="q-num">#32</div>
+      <div class="q-title">Longest Repeating Non-Overlapping Substring</div>
+      <div class="q-meta"><span class="freq freq-low">🟢 Once</span><span class="pill pill-dsa">DP/HashMap</span></div>
+      <div class="q-expand">▾</div>
+    </div>
+    <div class="q-body">
+      <div class="code-tabs">
+        <div class="code-tab-btns"><button class="ctb active" onclick="switchTab(this,'cpp')">C++</button></div>
+        <div class="code-panel active" data-lang="cpp"><pre><span class="kw">string</span> <span class="fn">longestRepeating</span>(<span class="kw">string</span> s){
+    <span class="kw">int</span> n=s.size();
+    <span class="ty">vector</span>&lt;<span class="ty">vector</span>&lt;<span class="kw">int</span>&gt;&gt; dp(n+<span class="nm">1</span>,<span class="ty">vector</span>&lt;<span class="kw">int</span>&gt;(n+<span class="nm">1</span>,<span class="nm">0</span>));
+    <span class="kw">int</span> len=<span class="nm">0</span>, idx=<span class="nm">0</span>;
+    <span class="kw">for</span>(<span class="kw">int</span> i=<span class="nm">1</span>;i&lt;=n;i++)
+        <span class="kw">for</span>(<span class="kw">int</span> j=i+<span class="nm">1</span>;j&lt;=n;j++)
+            <span class="kw">if</span>(s[i-<span class="nm">1</span>]==s[j-<span class="nm">1</span>] &amp;&amp; dp[i-<span class="nm">1</span>][j-<span class="nm">1</span>]&lt;j-i){
+                dp[i][j]=dp[i-<span class="nm">1</span>][j-<span class="nm">1</span>]+<span class="nm">1</span>;
+                <span class="kw">if</span>(dp[i][j]&gt;len){ len=dp[i][j]; idx=i-<span class="nm">1</span>; }
+            }
+    <span class="kw">return</span> s.substr(idx-len+<span class="nm">1</span>,len);
+}
+<span class="cm">// Time: O(N²)  Space: O(N²)</span></pre></div>
+      </div>
+      <span class="source-tag">Reported: SDE GFG 2020 Round 2</span>
+    </div>
+  </div>
+
+  <!-- STACKS / QUEUES / HEAPS -->
+  <div class="cat-header"><span class="cat-icon">📚</span><span class="cat-title">Stacks, Queues &amp; Heaps</span><span class="cat-count">4 problems</span></div>
+
+  <div class="q-card" onclick="toggle(this)">
+    <div class="q-header">
+      <div class="q-num">#33</div>
+      <div class="q-title">Maximum Frequency Stack (FreqStack)</div>
+      <div class="q-meta"><span class="freq freq-high">🔥 High</span><span class="pill pill-dsa">Stack/HashMap</span></div>
+      <div class="q-expand">▾</div>
+    </div>
+    <div class="q-body">
+      <a class="lc-link" href="https://leetcode.com/problems/maximum-frequency-stack/" target="_blank">🔗 LC #895</a>
+      <div class="code-tabs">
+        <div class="code-tab-btns"><button class="ctb active" onclick="switchTab(this,'cpp')">C++</button></div>
+        <div class="code-panel active" data-lang="cpp"><pre><span class="kw">class</span> <span class="ty">FreqStack</span> {
+    <span class="ty">unordered_map</span>&lt;<span class="kw">int</span>,<span class="kw">int</span>&gt; freq;
+    <span class="ty">unordered_map</span>&lt;<span class="kw">int</span>,<span class="ty">vector</span>&lt;<span class="kw">int</span>&gt;&gt; group;
+    <span class="kw">int</span> maxFreq=<span class="nm">0</span>;
+<span class="kw">public</span>:
+    <span class="kw">void</span> <span class="fn">push</span>(<span class="kw">int</span> x){
+        maxFreq=max(maxFreq,++freq[x]);
+        group[freq[x]].push_back(x);
+    }
+    <span class="kw">int</span> <span class="fn">pop</span>(){
+        <span class="kw">int</span> x=group[maxFreq].back();
+        group[maxFreq].pop_back();
+        <span class="kw">if</span>(group[maxFreq].empty()) maxFreq--;
+        freq[x]--;
+        <span class="kw">return</span> x;
+    }
+};
+<span class="cm">// push/pop: O(1) amortized  Space: O(N)</span></pre></div>
+      </div>
+      <span class="source-tag">Reported: SDE-1 GFG 2022, 2024</span>
+    </div>
+  </div>
+
+  <div class="q-card" onclick="toggle(this)">
+    <div class="q-header">
+      <div class="q-num">#34</div>
+      <div class="q-title">Kth Largest Element</div>
+      <div class="q-meta"><span class="freq freq-med">⚡ Med</span><span class="pill pill-dsa">Heap</span></div>
+      <div class="q-expand">▾</div>
+    </div>
+    <div class="q-body">
+      <a class="lc-link" href="https://leetcode.com/problems/kth-largest-element-in-an-array/" target="_blank">🔗 LC #215</a>
+      <div class="code-tabs">
+        <div class="code-tab-btns"><button class="ctb active" onclick="switchTab(this,'cpp')">C++</button></div>
+        <div class="code-panel active" data-lang="cpp"><pre><span class="kw">int</span> <span class="fn">findKthLargest</span>(<span class="ty">vector</span>&lt;<span class="kw">int</span>&gt;&amp; nums, <span class="kw">int</span> k){
+    <span class="ty">priority_queue</span>&lt;<span class="kw">int</span>,<span class="ty">vector</span>&lt;<span class="kw">int</span>&gt;,<span class="ty">greater</span>&lt;<span class="kw">int</span>&gt;&gt; minHeap;
+    <span class="kw">for</span>(<span class="kw">int</span> n:nums){
+        minHeap.push(n);
+        <span class="kw">if</span>(minHeap.size()&gt;k) minHeap.pop();
+    }
+    <span class="kw">return</span> minHeap.top();
+}
+<span class="cm">// Time: O(N log K)  Space: O(K)</span></pre></div>
+      </div>
+      <span class="source-tag">Reported: SDE-2 Code360 May 2022, MMT Set-4</span>
+    </div>
+  </div>
+
+  <div class="q-card" onclick="toggle(this)">
+    <div class="q-header">
+      <div class="q-num">#35</div>
+      <div class="q-title">LRU Cache</div>
+      <div class="q-meta"><span class="freq freq-high">🔥 High</span><span class="pill pill-dsa">Design</span></div>
+      <div class="q-expand">▾</div>
+    </div>
+    <div class="q-body">
+      <a class="lc-link" href="https://leetcode.com/problems/lru-cache/" target="_blank">🔗 LC #146</a>
+      <div class="code-tabs">
+        <div class="code-tab-btns"><button class="ctb active" onclick="switchTab(this,'cpp')">C++</button></div>
+        <div class="code-panel active" data-lang="cpp"><pre><span class="kw">class</span> <span class="ty">LRUCache</span> {
+    <span class="kw">int</span> cap;
+    <span class="ty">list</span>&lt;<span class="ty">pair</span>&lt;<span class="kw">int</span>,<span class="kw">int</span>&gt;&gt; dll;  <span class="cm">// {key,val} — front=most recent</span>
+    <span class="ty">unordered_map</span>&lt;<span class="kw">int</span>,<span class="ty">list</span>&lt;<span class="ty">pair</span>&lt;<span class="kw">int</span>,<span class="kw">int</span>&gt;&gt;::iterator&gt; mp;
+<span class="kw">public</span>:
+    <span class="fn">LRUCache</span>(<span class="kw">int</span> c):cap(c){}
+    <span class="kw">int</span> <span class="fn">get</span>(<span class="kw">int</span> key){
+        <span class="kw">if</span>(!mp.count(key)) <span class="kw">return</span> -<span class="nm">1</span>;
+        dll.splice(dll.begin(),dll,mp[key]);
+        <span class="kw">return</span> mp[key]-&gt;second;
+    }
+    <span class="kw">void</span> <span class="fn">put</span>(<span class="kw">int</span> key, <span class="kw">int</span> val){
+        <span class="kw">if</span>(mp.count(key)) dll.erase(mp[key]);
+        <span class="kw">else if</span>(dll.size()==cap){ mp.erase(dll.back().first); dll.pop_back(); }
+        dll.push_front({key,val}); mp[key]=dll.begin();
+    }
+};
+<span class="cm">// get/put: O(1)  Space: O(cap)</span></pre></div>
+      </div>
+      <span class="source-tag">Reported: SDE-1 Code360 Aug 2024</span>
+    </div>
+  </div>
+
+  <div class="q-card" onclick="toggle(this)">
+    <div class="q-header">
+      <div class="q-num">#36</div>
+      <div class="q-title">Stack Using Queue / Queue Using Stack</div>
+      <div class="q-meta"><span class="freq freq-low">🟢 Once</span><span class="pill pill-dsa">Stack/Queue</span></div>
+      <div class="q-expand">▾</div>
+    </div>
+    <div class="q-body">
+      <a class="lc-link" href="https://leetcode.com/problems/implement-stack-using-queues/" target="_blank">🔗 LC #225</a>
+      <div class="code-tabs">
+        <div class="code-tab-btns"><button class="ctb active" onclick="switchTab(this,'cpp')">C++</button></div>
+        <div class="code-panel active" data-lang="cpp"><pre><span class="kw">class</span> <span class="ty">MyStack</span> {
+    <span class="ty">queue</span>&lt;<span class="kw">int</span>&gt; q;
+<span class="kw">public</span>:
+    <span class="kw">void</span> <span class="fn">push</span>(<span class="kw">int</span> x){
+        q.push(x);
+        <span class="kw">for</span>(<span class="kw">int</span> i=<span class="nm">0</span>;i&lt;q.size()-<span class="nm">1</span>;i++){ q.push(q.front()); q.pop(); }
+    }
+    <span class="kw">int</span> <span class="fn">pop</span>(){ <span class="kw">int</span> x=q.front(); q.pop(); <span class="kw">return</span> x; }
+    <span class="kw">int</span>  <span class="fn">top</span>(){ <span class="kw">return</span> q.front(); }
+    <span class="kw">bool</span> <span class="fn">empty</span>(){ <span class="kw">return</span> q.empty(); }
+};
+<span class="cm">// push O(N), pop O(1)</span></pre></div>
+      </div>
+      <span class="source-tag">Reported: Code360 Oct 2022</span>
+    </div>
+  </div>
+
+  <!-- CONCURRENCY / THREADING -->
+  <div class="cat-header"><span class="cat-icon">⚙️</span><span class="cat-title">Concurrency Coding (C++ reference; implement in Java at MMT)</span><span class="cat-count">3 problems</span></div>
+
+  <div class="q-card" onclick="toggle(this)">
+    <div class="q-header">
+      <div class="q-num">#37</div>
+      <div class="q-title">Implement HashMap from Scratch — Thread-Safe</div>
+      <div class="q-meta"><span class="freq freq-high">🔥 High</span><span class="pill pill-dsa">Design+Concurrency</span></div>
+      <div class="q-expand">▾</div>
+    </div>
+    <div class="q-body">
+      <p>MMT interviewers want you to implement this in <strong>Java</strong> with thread-safe put(). Follow-up: why default capacity is 16 (power-of-2 allows bitmask: <code>hash & (n-1)</code> instead of modulo).</p>
+      <div class="code-tabs">
+        <div class="code-tab-btns"><button class="ctb active" onclick="switchTab(this,'cpp')">C++ (concept)</button></div>
+        <div class="code-panel active" data-lang="cpp"><pre><span class="cm">// Conceptual — MMT asks Java impl with synchronized</span>
+<span class="kw">template</span>&lt;<span class="kw">typename</span> K, <span class="kw">typename</span> V&gt;
+<span class="kw">class</span> <span class="ty">HashMap</span> {
+    <span class="kw">static const int</span> CAP = <span class="nm">16</span>;  <span class="cm">// power of 2!</span>
+    <span class="ty">vector</span>&lt;<span class="ty">list</span>&lt;<span class="ty">pair</span>&lt;K,V&gt;&gt;&gt; buckets{CAP};
+    <span class="kw">int</span> <span class="fn">idx</span>(K k){ <span class="kw">return</span> hash&lt;K&gt;{}(k) &amp; (CAP-<span class="nm">1</span>); } <span class="cm">// bitmask!</span>
+<span class="kw">public</span>:
+    <span class="kw">void</span> <span class="fn">put</span>(K k, V v){
+        <span class="kw">auto</span>&amp; b=buckets[<span class="fn">idx</span>(k)];
+        <span class="kw">for</span>(<span class="kw">auto</span>&amp; p:b) <span class="kw">if</span>(p.first==k){ p.second=v; <span class="kw">return</span>; }
+        b.push_back({k,v});
+    }
+    V <span class="fn">get</span>(K k){
+        <span class="kw">for</span>(<span class="kw">auto</span>&amp; p:buckets[<span class="fn">idx</span>(k)])
+            <span class="kw">if</span>(p.first==k) <span class="kw">return</span> p.second;
+        <span class="kw">throw</span> runtime_error(<span class="st">"not found"</span>);
+    }
+};
+<span class="cm">// Java thread-safe: synchronized(buckets[idx(k))){ ... }
+// Or use ConcurrentHashMap's segment-level locking approach</span></pre></div>
+      </div>
+      <span class="source-tag">Reported: Senior SDE GFG 2019, Glassdoor Java Developer</span>
+    </div>
+  </div>
+
+  <div class="q-card" onclick="toggle(this)">
+    <div class="q-header">
+      <div class="q-num">#38</div>
+      <div class="q-title">Multi-threaded HTML Word Counter</div>
+      <div class="q-meta"><span class="freq freq-low">🟢 Once</span><span class="pill pill-dsa">Threading</span></div>
+      <div class="q-expand">▾</div>
+    </div>
+    <div class="q-body">
+      <p>Download pages concurrently, count string occurrences. Must use Java threading (CompletableFuture / ExecutorService). Output: <code>[url, keyword, count]</code>.</p>
+      <div class="code-tabs">
+        <div class="code-tab-btns"><button class="ctb active" onclick="switchTab(this,'cpp')">Java (MMT expects Java)</button></div>
+        <div class="code-panel active" data-lang="cpp"><pre><span class="cm">// Java — CompletableFuture approach</span>
+List&lt;CompletableFuture&lt;String[]&gt;&gt; futures = urls.stream()
+    .map(url -&gt; CompletableFuture.supplyAsync(() -&gt; {
+        String html = fetchHtml(url);   <span class="cm">// HTTP GET</span>
+        long count = countOccurrences(html, keyword);
+        <span class="kw">return new</span> String[]{url, keyword, String.valueOf(count)};
+    }, executor))
+    .collect(Collectors.toList());
+
+List&lt;String[]&gt; results = futures.stream()
+    .map(CompletableFuture::join)
+    .collect(Collectors.toList());
+
+<span class="cm">// countOccurrences: simple regex or KMP</span>
+<span class="kw">long</span> countOccurrences(String text, String kw) {
+    <span class="kw">return</span> Pattern.compile(Pattern.quote(kw))
+                  .matcher(text).results().count();
+}</pre></div>
+      </div>
+      <span class="source-tag">Reported: Tech Lead LeetCode Discuss Jul 2024</span>
+    </div>
+  </div>
+
+  <div class="q-card" onclick="toggle(this)">
+    <div class="q-header">
+      <div class="q-num">#39</div>
+      <div class="q-title">Thread-Safe Builder Pattern (AtomicReference approach)</div>
+      <div class="q-meta"><span class="freq freq-low">🟢 Once</span><span class="pill pill-dsa">Concurrency</span></div>
+      <div class="q-expand">▾</div>
+    </div>
+    <div class="q-body">
+      <p>MMT interviewer rejected synchronized as "blocking". Expected Atomic-based or immutable builder solution.</p>
+      <div class="code-tabs">
+        <div class="code-tab-btns"><button class="ctb active" onclick="switchTab(this,'cpp')">Java (MMT expects Java)</button></div>
+        <div class="code-panel active" data-lang="cpp"><pre><span class="cm">// Immutable builder — naturally thread-safe (no shared mutable state)</span>
+<span class="kw">final class</span> Person {
+    <span class="kw">final</span> String name; <span class="kw">final int</span> age;
+    <span class="kw">private</span> Person(Builder b){ this.name=b.name; this.age=b.age; }
+    
+    <span class="kw">static class</span> Builder {
+        <span class="kw">private final</span> String name; <span class="kw">private final int</span> age;
+        Builder(String n,<span class="kw">int</span> a){ this.name=n; this.age=a; }
+        Builder(){ this(<span class="st">""</span>,<span class="nm">0</span>); }
+        Builder withName(String n){ <span class="kw">return new</span> Builder(n,age); } <span class="cm">// returns NEW</span>
+        Builder withAge(<span class="kw">int</span> a)  { <span class="kw">return new</span> Builder(name,a); } <span class="cm">// returns NEW</span>
+        Person build(){ <span class="kw">return new</span> Person(this); }
+    }
+}
+<span class="cm">// Thread 1 and Thread 2 can both .withName().withAge().build()
+// without any locking — each gets their own Builder chain</span></pre></div>
+      </div>
+      <span class="source-tag">Reported: SDE/SSE-2 LeetCode Oct 2024</span>
+    </div>
+  </div>
+
+  <!-- MISC -->
+  <div class="cat-header"><span class="cat-icon">📝</span><span class="cat-title">Misc / OA Problems</span><span class="cat-count">5 problems</span></div>
+
+  <div class="q-card" onclick="toggle(this)">
+    <div class="q-header">
+      <div class="q-num">#40</div>
+      <div class="q-title">Tower of Hanoi</div>
+      <div class="q-meta"><span class="freq freq-low">🟢 Once</span><span class="pill pill-dsa">Recursion</span></div>
+      <div class="q-expand">▾</div>
+    </div>
+    <div class="q-body">
+      <div class="code-tabs">
+        <div class="code-tab-btns"><button class="ctb active" onclick="switchTab(this,'cpp')">C++</button></div>
+        <div class="code-panel active" data-lang="cpp"><pre><span class="kw">void</span> <span class="fn">hanoi</span>(<span class="kw">int</span> n, <span class="kw">char</span> from, <span class="kw">char</span> to, <span class="kw">char</span> aux){
+    <span class="kw">if</span>(n==<span class="nm">1</span>){ cout&lt;&lt;<span class="st">"Move disk 1 from "</span>&lt;&lt;from&lt;&lt;<span class="st">" to "</span>&lt;&lt;to&lt;&lt;<span class="st">"\n"</span>; <span class="kw">return</span>; }
+    <span class="fn">hanoi</span>(n-<span class="nm">1</span>,from,aux,to);
+    cout&lt;&lt;<span class="st">"Move disk "</span>&lt;&lt;n&lt;&lt;<span class="st">" from "</span>&lt;&lt;from&lt;&lt;<span class="st">" to "</span>&lt;&lt;to&lt;&lt;<span class="st">"\n"</span>;
+    <span class="fn">hanoi</span>(n-<span class="nm">1</span>,aux,to,from);
+}
+<span class="cm">// Time: O(2^N)  Moves: 2^N - 1</span></pre></div>
+      </div>
+      <span class="source-tag">Reported: SDE On-Campus GFG</span>
+    </div>
+  </div>
+
+  <div class="q-card" onclick="toggle(this)">
+    <div class="q-header">
+      <div class="q-num">#41</div>
+      <div class="q-title">Shortest Unsorted Subarray</div>
+      <div class="q-meta"><span class="freq freq-low">🟢 Once</span><span class="pill pill-dsa">Array</span></div>
+      <div class="q-expand">▾</div>
+    </div>
+    <div class="q-body">
+      <a class="lc-link" href="https://leetcode.com/problems/shortest-unsorted-continuous-subarray/" target="_blank">🔗 LC #581</a>
+      <div class="code-tabs">
+        <div class="code-tab-btns"><button class="ctb active" onclick="switchTab(this,'cpp')">C++</button></div>
+        <div class="code-panel active" data-lang="cpp"><pre><span class="kw">int</span> <span class="fn">findUnsortedSubarray</span>(<span class="ty">vector</span>&lt;<span class="kw">int</span>&gt;&amp; nums){
+    <span class="kw">int</span> n=nums.size(), lo=n, hi=-<span class="nm">1</span>;
+    <span class="kw">int</span> mn=INT_MAX, mx=INT_MIN;
+    <span class="kw">for</span>(<span class="kw">int</span> i=<span class="nm">0</span>;i&lt;n;i++){
+        mx=max(mx,nums[i]);
+        <span class="kw">if</span>(nums[i]&lt;mx) hi=i;
+    }
+    <span class="kw">for</span>(<span class="kw">int</span> i=n-<span class="nm">1</span>;i&gt;=<span class="nm">0</span>;i--){
+        mn=min(mn,nums[i]);
+        <span class="kw">if</span>(nums[i]&gt;mn) lo=i;
+    }
+    <span class="kw">return</span> hi==-<span class="nm">1</span> ? <span class="nm">0</span> : hi-lo+<span class="nm">1</span>;
+}
+<span class="cm">// Time: O(N)  Space: O(1)</span></pre></div>
+      </div>
+      <span class="source-tag">Reported: SDE On-Campus GFG</span>
+    </div>
+  </div>
+
+  <div class="q-card" onclick="toggle(this)">
+    <div class="q-header">
+      <div class="q-num">#42</div>
+      <div class="q-title">Josephus Problem — Circular array, remove Kth, find last</div>
+      <div class="q-meta"><span class="freq freq-low">🟢 Once</span><span class="pill pill-dsa">Math</span></div>
+      <div class="q-expand">▾</div>
+    </div>
+    <div class="q-body">
+      <div class="code-tabs">
+        <div class="code-tab-btns"><button class="ctb active" onclick="switchTab(this,'cpp')">C++</button></div>
+        <div class="code-panel active" data-lang="cpp"><pre><span class="kw">int</span> <span class="fn">josephus</span>(<span class="kw">int</span> n, <span class="kw">int</span> k){
+    <span class="kw">int</span> pos=<span class="nm">0</span>; <span class="cm">// survivor position in 0-indexed</span>
+    <span class="kw">for</span>(<span class="kw">int</span> i=<span class="nm">2</span>;i&lt;=n;i++) pos=(pos+k)%i;
+    <span class="kw">return</span> pos+<span class="nm">1</span>; <span class="cm">// 1-indexed</span>
+}
+<span class="cm">// Time: O(N)  Space: O(1)</span></pre></div>
+      </div>
+      <span class="source-tag">Reported: CodingKaro SSE/SDE Round</span>
+    </div>
+  </div>
+
+  <div class="q-card" onclick="toggle(this)">
+    <div class="q-header">
+      <div class="q-num">#43</div>
+      <div class="q-title">Prisoner Wall Jump Problem</div>
+      <div class="q-meta"><span class="freq freq-low">🟢 Once</span><span class="pill pill-dsa">Math/Logic</span></div>
+      <div class="q-expand">▾</div>
+    </div>
+    <div class="q-body">
+      <p>N walls each height h[i]. Max jump = H. After each jump slips l units. Count total jumps to clear all walls.</p>
+      <div class="code-tabs">
+        <div class="code-tab-btns"><button class="ctb active" onclick="switchTab(this,'cpp')">C++</button></div>
+        <div class="code-panel active" data-lang="cpp"><pre><span class="kw">int</span> <span class="fn">totalJumps</span>(<span class="ty">vector</span>&lt;<span class="kw">int</span>&gt;&amp; walls, <span class="kw">int</span> H, <span class="kw">int</span> L){
+    <span class="kw">int</span> jumps=<span class="nm">0</span>, curHeight=<span class="nm">0</span>;
+    <span class="kw">for</span>(<span class="kw">int</span> w:walls){
+        <span class="kw">while</span>(curHeight&lt;w){
+            curHeight+=H;  <span class="cm">// jump</span>
+            jumps++;
+            <span class="kw">if</span>(curHeight&lt;w) curHeight-=L; <span class="cm">// slip (only if not cleared)</span>
+        }
+        curHeight=<span class="nm">0</span>; <span class="cm">// reset for next wall</span>
+    }
+    <span class="kw">return</span> jumps;
+}
+<span class="cm">// Time: O(N * max_jumps_per_wall)  Space: O(1)</span></pre></div>
+      </div>
+      <span class="source-tag">Reported: MMT Campus GFG</span>
+    </div>
+  </div>
+
+  <div class="q-card" onclick="toggle(this)">
+    <div class="q-header">
+      <div class="q-num">#44</div>
+      <div class="q-title">Store Open/Close Timing — Availability Check (Implementation)</div>
+      <div class="q-meta"><span class="freq freq-low">🟢 Once</span><span class="pill pill-dsa">Implementation</span></div>
+      <div class="q-expand">▾</div>
+    </div>
+    <div class="q-body">
+      <p>Given arrays of open and close times, check if store is open at a given time T.</p>
+      <div class="code-tabs">
+        <div class="code-tab-btns"><button class="ctb active" onclick="switchTab(this,'cpp')">C++</button></div>
+        <div class="code-panel active" data-lang="cpp"><pre><span class="kw">bool</span> <span class="fn">isOpen</span>(<span class="ty">vector</span>&lt;<span class="kw">int</span>&gt;&amp; open, <span class="ty">vector</span>&lt;<span class="kw">int</span>&gt;&amp; close, <span class="kw">int</span> T){
+    <span class="kw">for</span>(<span class="kw">int</span> i=<span class="nm">0</span>;i&lt;open.size();i++)
+        <span class="kw">if</span>(T&gt;=open[i] &amp;&amp; T&lt;close[i]) <span class="kw">return true</span>;
+    <span class="kw">return false</span>;
+}
+<span class="cm">// For sorted intervals use binary search: O(log N)</span>
+<span class="kw">bool</span> <span class="fn">isOpenBS</span>(<span class="ty">vector</span>&lt;<span class="kw">int</span>&gt;&amp; open, <span class="ty">vector</span>&lt;<span class="kw">int</span>&gt;&amp; close, <span class="kw">int</span> T){
+    <span class="kw">int</span> idx = upper_bound(open.begin(),open.end(),T)-open.begin()-<span class="nm">1</span>;
+    <span class="kw">return</span> idx&gt;=<span class="nm">0</span> &amp;&amp; T&lt;close[idx];
+}
+<span class="cm">// Time: O(log N) with binary search</span></pre></div>
+      </div>
+      <span class="source-tag">Reported: Tech Lead LeetCode Jul 2024</span>
+    </div>
+  </div>
+
+  </div><!-- /dsa-list -->
+</section>
+
+<!-- BACKEND Q&A -->
+<section id="backend">
+  <h1>Backend Q&amp;A — Java / Spring Boot / MySQL</h1>
+  <div class="page-intro">All answers given in the context of <strong>Java + Spring Boot + MySQL/Redis</strong> as MMT's primary backend stack. Click a topic group to expand all Q&amp;As inside it.</div>
+  <input class="search-box" type="text" placeholder="Filter questions…" oninput="filterQ(this,'backend-list')">
+  <div id="backend-list">
+
+  <div class="topic-card" onclick="toggleTopic(this)">
+    <div class="topic-header">
+      <span class="cat-icon">☕</span>
+      <span class="topic-title-text">Core Java Internals</span>
+      <span class="q-expand">▾</span>
+    </div>
+    <div class="topic-body">
+
+      <div class="qa-item">
+        <div class="qa-q">What is a Record in Java? How is it different from a POJO?</div>
+        <div class="ans-text">A <code>record</code> (Java 16+) is a concise immutable data carrier. The compiler auto-generates constructor, getters, <code>equals()</code>, <code>hashCode()</code>, and <code>toString()</code>. Fields are implicitly <code>private final</code>. A POJO requires you to write all of these manually and fields can be mutable. Records are ideal for DTOs and value objects where immutability is desired.<br><br>Example: <code>record Point(int x, int y) {}</code> — that's the entire class.</div>
+      </div>
+
+      <div class="qa-item">
+        <div class="qa-q">Why is the default capacity of HashMap 16? Why must it be a power of 2?</div>
+        <div class="ans-text">The bucket index is computed as <code>hash &amp; (capacity - 1)</code> instead of <code>hash % capacity</code>. This bitwise AND is only equivalent to modulo when capacity is a power of 2, and it is significantly faster. Starting at 16 provides a reasonable balance — small enough not to waste memory for small maps, large enough to avoid immediate rehashing. Load factor 0.75 means rehashing at 12 entries.</div>
+      </div>
+
+      <div class="qa-item">
+        <div class="qa-q">What are volatile, synchronized, and AtomicInteger? When to use each?</div>
+        <div class="ans-text"><ul><li><strong>volatile</strong>: Guarantees visibility — writes are immediately flushed to main memory, reads always fetch from main memory. Does NOT guarantee atomicity for compound operations like <code>i++</code>. Use for simple flags (<code>volatile boolean running</code>).</li><li><strong>synchronized</strong>: Guarantees both visibility and atomicity but is blocking. Use for complex critical sections where multiple operations must be atomic together.</li><li><strong>AtomicInteger</strong>: Non-blocking (CAS — Compare and Swap). Guarantees atomicity for single-variable operations without locking. Use for counters, reference updates. Preferred over synchronized for single variable.</li></ul></div>
+      </div>
+
+      <div class="qa-item">
+        <div class="qa-q">Explain equals() and hashCode() contract. What breaks if you override only one?</div>
+        <div class="ans-text">Contract: if <code>a.equals(b)</code> is true, then <code>a.hashCode() == b.hashCode()</code> must be true. If you override <code>equals()</code> but not <code>hashCode()</code>: two logically equal objects get different hash codes → they land in different HashMap buckets → <code>map.get()</code> returns null even after <code>put()</code>. If you override only <code>hashCode()</code>: objects with the same hash could be considered unequal → duplicate keys in collections.</div>
+      </div>
+
+      <div class="qa-item">
+        <div class="qa-q">What are Java 8 Streams? Why use them over for-loops?</div>
+        <div class="ans-text">Streams provide a declarative, functional-style pipeline for processing collections: <code>filter → map → reduce</code>. Benefits: (1) more readable code, (2) lazy evaluation — intermediate ops only execute when terminal op is called, (3) easy parallelism via <code>parallelStream()</code> with no manual thread management, (4) composable operations. Downside: harder to debug, slight overhead for small collections. Use streams for data transformation pipelines; use loops for performance-critical hot paths.</div>
+      </div>
+
+      <div class="qa-item">
+        <div class="qa-q">How does ExecutorService, CompletableFuture, and ForkJoinPool differ?</div>
+        <div class="ans-text"><ul><li><strong>ExecutorService</strong>: Thread pool manager. Submit <code>Callable</code>/<code>Runnable</code> tasks, get <code>Future</code> back. Blocking <code>future.get()</code> to retrieve result.</li><li><strong>CompletableFuture</strong>: Non-blocking composition of async tasks. Chain with <code>.thenApply()</code>, <code>.thenCompose()</code>, <code>.exceptionally()</code>. Uses <code>ForkJoinPool.commonPool()</code> by default or a custom executor.</li><li><strong>ForkJoinPool</strong>: Work-stealing pool designed for recursive divide-and-conquer tasks. Best for CPU-bound recursive algorithms. <code>parallelStream()</code> uses it internally.</li></ul></div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="topic-card" onclick="toggleTopic(this)">
+    <div class="topic-header">
+      <span class="cat-icon">🌱</span>
+      <span class="topic-title-text">Spring Boot / Spring Framework</span>
+      <span class="q-expand">▾</span>
+    </div>
+    <div class="topic-body">
+
+      <div class="qa-item">
+        <div class="qa-q">What is an Interceptor in Spring? Why use it over a Filter?</div>
+        <div class="ans-text">A Spring <code>HandlerInterceptor</code> intercepts requests at the Spring MVC level — after the request reaches DispatcherServlet but before it hits the controller (<code>preHandle</code>), after the controller (<code>postHandle</code>), and after view rendering (<code>afterCompletion</code>). A Servlet Filter operates at the Servlet container level — before Spring even processes the request. Use Interceptors for Spring-specific logic (accessing ModelAndView, accessing Spring beans easily). Use Filters for low-level request/response manipulation (CORS, compression, security headers) that must apply to all endpoints including non-Spring ones.<br><br>Example use case: logging request duration, authentication token validation, audit logging.</div>
+      </div>
+
+      <div class="qa-item">
+        <div class="qa-q">Explain @Transactional propagation = REQUIRED vs REQUIRES_NEW</div>
+        <div class="ans-text"><ul><li><strong>REQUIRED</strong> (default): Join existing transaction if one exists; create new one if not. Both methods succeed or fail together.</li><li><strong>REQUIRES_NEW</strong>: Always create a new transaction, suspend any existing one. The inner transaction commits/rolls back independently. Use for audit logging that must persist even if the outer transaction fails.</li></ul>
+        Common pitfall: <code>@Transactional</code> only works on <strong>public methods</strong> called from outside the bean. Self-invocation (calling a @Transactional method from the same class) bypasses the proxy — the transaction is ignored.</div>
+      </div>
+
+      <div class="qa-item">
+        <div class="qa-q">How does Spring Boot auto-configuration work?</div>
+        <div class="ans-text"><code>@EnableAutoConfiguration</code> triggers class-path scanning via <code>spring.factories</code> (or <code>AutoConfiguration.imports</code> in Spring Boot 3). Each auto-configuration class is annotated with <code>@ConditionalOnClass</code>, <code>@ConditionalOnMissingBean</code>, etc. For example, if <code>spring-data-redis</code> is on classpath, <code>RedisAutoConfiguration</code> auto-creates a <code>RedisTemplate</code> bean unless you define your own. You can exclude specific auto-configs via <code>@SpringBootApplication(exclude = {DataSourceAutoConfiguration.class})</code>.</div>
+      </div>
+
+      <div class="qa-item">
+        <div class="qa-q">What is AOP? Give a real production use case.</div>
+        <div class="ans-text">Aspect-Oriented Programming allows cross-cutting concerns to be modularised out of business logic. Spring implements it via proxies (JDK dynamic proxy for interfaces, CGLIB for classes). Common production use cases: (1) <strong>Logging</strong>: log method entry/exit/args without polluting business code. (2) <strong>Performance monitoring</strong>: measure execution time and push to Micrometer/Prometheus. (3) <strong>Security</strong>: <code>@PreAuthorize</code>. (4) <strong>Transaction management</strong>: <code>@Transactional</code> is itself AOP. (5) <strong>Rate limiting</strong>: intercept annotated methods and check rate limit bucket.<br><br>Key terms: <code>@Aspect</code>, <code>@Before</code>, <code>@After</code>, <code>@Around</code>, <code>@Pointcut</code>.</div>
+      </div>
+
+      <div class="qa-item">
+        <div class="qa-q">How would you implement a rate limiter in Spring Boot?</div>
+        <div class="ans-text">Production approach using Redis (sliding window log):<br><br><code>// In Redis: ZADD user:rateLimit:{userId} {now} {now}</code><br><code>// ZREMRANGEBYSCORE user:rateLimit:{userId} 0 {now-60000}</code><br><code>// ZCARD user:rateLimit:{userId} → count</code><br><code>// If count >= limit → reject with 429</code><br><br>In Spring Boot: create a <code>RateLimitInterceptor</code> that runs the above Redis commands in a Lua script (atomic). Use <code>Resilience4j RateLimiter</code> for a simpler local-only approach. For distributed: <code>Bucket4j</code> with Redis backend is production-ready.</div>
+      </div>
+
+      <div class="qa-item">
+        <div class="qa-q">How does Spring Security JWT authentication work end-to-end?</div>
+        <div class="ans-text">1. User POSTs credentials → <code>AuthController</code> → <code>AuthenticationManager.authenticate()</code> → <code>UserDetailsService.loadByUsername()</code> → verify password → generate JWT (signed with secret, contains userId + roles + expiry).<br>2. Client sends <code>Authorization: Bearer &lt;token&gt;</code> on every request.<br>3. <code>JwtAuthFilter</code> (extends <code>OncePerRequestFilter</code>) extracts token, validates signature + expiry, sets <code>SecurityContextHolder.getContext().setAuthentication()</code>.<br>4. Method-level security: <code>@PreAuthorize("hasRole('ADMIN')")</code> uses the Authentication from context.<br><br>Key: JWT is <strong>stateless</strong> — no server-side session storage. Invalidation requires a token blacklist (Redis TTL).</div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="topic-card" onclick="toggleTopic(this)">
+    <div class="topic-header">
+      <span class="cat-icon">📡</span>
+      <span class="topic-title-text">Microservices &amp; Distributed Systems</span>
+      <span class="q-expand">▾</span>
+    </div>
+    <div class="topic-body">
+
+      <div class="qa-item">
+        <div class="qa-q">How do you prevent double payment when the same request is made twice? (Explicitly asked at MMT)</div>
+        <div class="ans-text"><strong>Idempotency key pattern</strong>: Client generates a UUID per payment attempt and sends it as a header (<code>Idempotency-Key: abc123</code>). Server:<br>1. Check Redis/DB for this key. If found → return cached response (200/201).<br>2. If not found → process payment → store <code>{key → response}</code> in Redis with TTL (e.g. 24h) → return response.<br><br>In Spring Boot: implement as a <code>@Aspect</code> or middleware that intercepts payment endpoints. Store in Redis with <code>SET key value NX PX 86400000</code> (atomic set-if-not-exists). If the SET returns null, key existed → return cached response. Never process the payment a second time.</div>
+      </div>
+
+      <div class="qa-item">
+        <div class="qa-q">How do you handle concurrent seat booking? (IRCTC-style — asked multiple times)</div>
+        <div class="ans-text"><strong>Option 1 — Optimistic Locking (preferred for read-heavy)</strong>: Add a <code>version</code> column to Seat table. <code>SELECT * FROM seat WHERE id=? AND status='AVAILABLE'</code>. Then <code>UPDATE seat SET status='BOOKED', version=version+1 WHERE id=? AND version=?</code>. If 0 rows updated → conflict → retry or show "seat taken". With Spring Data JPA: <code>@Version private Integer version;</code> — Spring throws <code>OptimisticLockingFailureException</code> automatically.<br><br><strong>Option 2 — Pessimistic Locking</strong>: <code>@Lock(LockModeType.PESSIMISTIC_WRITE)</code> → generates <code>SELECT ... FOR UPDATE</code>. Simpler but lower throughput.<br><br><strong>Option 3 — Redis Distributed Lock</strong> (Redisson): Lock the seat ID in Redis for the duration of the booking transaction (~2–3s TTL). Best for microservices where DB locking doesn't span service boundaries.</div>
+      </div>
+
+      <div class="qa-item">
+        <div class="qa-q">What is the Circuit Breaker pattern? How does Resilience4j implement it?</div>
+        <div class="ans-text">Circuit Breaker prevents cascading failures by stopping calls to a failing downstream service. Three states:<ul><li><strong>CLOSED</strong>: Normal. Calls pass through. Failure rate tracked in a sliding window (count or time-based).</li><li><strong>OPEN</strong>: Failure threshold exceeded. All calls immediately fail (or return fallback) without hitting the service. Timer runs.</li><li><strong>HALF_OPEN</strong>: Timer elapsed. Limited calls permitted. If they succeed → CLOSED. If they fail → back to OPEN.</li></ul>In Spring Boot: <code>@CircuitBreaker(name="payment", fallbackMethod="fallback")</code>. Config: <code>failureRateThreshold=50</code>, <code>waitDurationInOpenState=10s</code>, <code>permittedNumberOfCallsInHalfOpenState=5</code>.</div>
+      </div>
+
+      <div class="qa-item">
+        <div class="qa-q">Kafka — Topics, Partitions, Consumer Groups, Offset management, Exactly-once</div>
+        <div class="ans-text"><ul><li><strong>Topic</strong>: Named stream of records. Divided into <strong>Partitions</strong> for parallelism. Messages within a partition are ordered.</li><li><strong>Consumer Group</strong>: Multiple consumers sharing load. Each partition is consumed by exactly one consumer in a group. Scaling: add more consumers up to the number of partitions.</li><li><strong>Offset</strong>: Position within a partition. Auto-commit (at-least-once — may reprocess on crash) vs manual commit (control exactly when offset advances). Commit after successful processing for at-least-once.</li><li><strong>Exactly-once</strong>: Enable idempotent producer (<code>enable.idempotence=true</code>) + Kafka transactions (<code>transactional.id</code>) + <code>isolation.level=read_committed</code> on consumer. Or handle at application level with idempotency keys.</li></ul></div>
+      </div>
+
+      <div class="qa-item">
+        <div class="qa-q">How do you reduce latency between two microservices? (Tech Lead core question Jul 2024)</div>
+        <div class="ans-text">Multi-pronged approach depending on root cause:<ul><li><strong>Async decoupling</strong>: If response isn't needed synchronously, use Kafka/SQS. Service A publishes event, Service B consumes. Eliminates synchronous wait.</li><li><strong>Caching</strong>: Redis read-through cache in Service A for data fetched from Service B. Reduces cross-service calls for static/semi-static data.</li><li><strong>gRPC instead of REST</strong>: Binary protocol (protobuf), HTTP/2 multiplexing, persistent connections. 5–10x faster than REST for internal service calls.</li><li><strong>Connection pooling</strong>: Use Apache HttpClient with connection pool instead of creating new connections per request.</li><li><strong>Bulk/Batch APIs</strong>: Replace N calls with 1 batch call (e.g. fetch 100 prices in one request).</li><li><strong>Co-location</strong>: Deploy both services in the same availability zone/region to minimise network hop latency.</li></ul></div>
+      </div>
+
+      <div class="qa-item">
+        <div class="qa-q">What is the Saga Pattern? Choreography vs Orchestration?</div>
+        <div class="ans-text">Saga manages distributed transactions across microservices where 2PC is not feasible. Each step has a compensating transaction for rollback.<br><br><strong>Choreography</strong>: Each service publishes events and reacts to others' events (event-driven). No central coordinator. Pros: loose coupling. Cons: hard to track flow, distributed logic.<br><br><strong>Orchestration</strong>: A central Saga Orchestrator (e.g. Temporal, or a dedicated Spring service) calls each service in sequence and handles compensation on failure. Pros: clear flow, easier debugging. Cons: orchestrator is a central dependency.<br><br>MMT context: Booking saga — reserve seat → charge payment → send confirmation email. If payment fails → release seat (compensation).</div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="topic-card" onclick="toggleTopic(this)">
+    <div class="topic-header">
+      <span class="cat-icon">💾</span>
+      <span class="topic-title-text">Databases — MySQL, Redis, NoSQL</span>
+      <span class="q-expand">▾</span>
+    </div>
+    <div class="topic-body">
+
+      <div class="qa-item">
+        <div class="qa-q">SQL vs NoSQL — when would you choose MongoDB over MySQL?</div>
+        <div class="ans-text">Choose <strong>MySQL (relational)</strong> when: data is structured and relational (users, orders, payments), ACID transactions are required (financial data), complex JOINs needed, schema is stable.<br><br>Choose <strong>MongoDB (NoSQL)</strong> when: data is hierarchical/nested (hotel metadata with room types, amenities, photos as nested arrays), schema varies across documents (different hotel types have different fields), horizontal sharding needed for massive write scale, rapid schema iteration during product development.<br><br>At MMT: booking and payment tables → MySQL. Hotel/flight content catalogue (deeply nested, varies by type) → MongoDB.</div>
+      </div>
+
+      <div class="qa-item">
+        <div class="qa-q">How do indexes work? How does a B-tree index work? When does an index hurt performance?</div>
+        <div class="ans-text">A B-tree index is a balanced tree structure stored separately from the table. Each leaf node contains the indexed value + a pointer to the row (or the clustered key). Lookups: O(log N). Range queries: O(log N + K) — tree traversal then leaf-level scan.<br><br>Indexes hurt when: (1) <strong>Write-heavy tables</strong>: every INSERT/UPDATE/DELETE must also update all indexes. (2) <strong>Low-cardinality columns</strong>: index on a boolean column with 2 values is useless — MySQL will do a full table scan anyway. (3) <strong>Too many indexes</strong>: optimizer must choose among many; storage overhead. (4) Functions on indexed columns: <code>WHERE YEAR(created_at) = 2024</code> can't use an index on <code>created_at</code> — rewrite as range query.</div>
+      </div>
+
+      <div class="qa-item">
+        <div class="qa-q">What are Redis data structures and when to use each?</div>
+        <div class="ans-text"><ul><li><strong>String</strong>: Simple key-value, counters (<code>INCR</code>), rate limiting, session tokens, feature flags.</li><li><strong>Hash</strong>: User/session objects — store fields without serializing entire JSON. <code>HSET user:1 name "Ashutosh" age 27</code>.</li><li><strong>List</strong>: Message queues (LPUSH/BRPOP), activity feeds, recent items.</li><li><strong>Set</strong>: Unique tags, friend lists, deduplication, set operations (SUNION, SINTER).</li><li><strong>Sorted Set (ZSet)</strong>: Leaderboards (score = timestamp or points), rate limiting (sliding window log with timestamps as scores), geospatial indexes.</li><li><strong>HyperLogLog</strong>: Approximate distinct count (DAU) with ~1% error, fixed 12KB memory regardless of cardinality.</li></ul></div>
+      </div>
+
+      <div class="qa-item">
+        <div class="qa-q">Cache invalidation strategies — Write-through vs Write-behind vs Cache-aside?</div>
+        <div class="ans-text"><ul><li><strong>Cache-aside (Lazy loading)</strong>: App checks cache first. Miss → fetch from DB → populate cache. Pros: only caches what's needed. Cons: initial miss penalty, potential stale data. Most common pattern.</li><li><strong>Write-through</strong>: Every write goes to cache AND DB synchronously. Pros: cache always fresh. Cons: writes are slower (two writes), caches data that may never be read.</li><li><strong>Write-behind (Write-back)</strong>: Write to cache immediately, persist to DB asynchronously. Pros: fastest writes. Cons: risk of data loss if cache crashes before DB write. Use only where eventual persistence is acceptable.</li></ul>Cache-aside is MMT's likely pattern for hotel/flight search results with configurable TTLs.</div>
+      </div>
+
+      <div class="qa-item">
+        <div class="qa-q">How did you use caching to reduce API response time by 98%? (Prepare your STAR story)</div>
+        <div class="ans-text">Framework for your answer: <strong>Situation</strong>: API hitting DB on every request, 500ms+ response time under load. <strong>Task</strong>: Reduce to sub-10ms. <strong>Action</strong>: (1) Identified hot-path queries using Kibana (high frequency, same params). (2) Added Redis cache-aside with TTL = business-appropriate freshness (e.g. 5 min for hotel prices). (3) Used <code>@Cacheable("hotelPrices")</code> in Spring with Lettuce Redis client. (4) Cache warming on startup for most popular routes. <strong>Result</strong>: 98% requests served from cache at ~2ms. DB load reduced 95%. (Match to your actual Paytm work.)</div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="topic-card" onclick="toggleTopic(this)">
+    <div class="topic-header">
+      <span class="cat-icon">🔧</span>
+      <span class="topic-title-text">OS &amp; Computer Networks</span>
+      <span class="q-expand">▾</span>
+    </div>
+    <div class="topic-body">
+
+      <div class="qa-item">
+        <div class="qa-q">Process vs Thread — difference? Why is context switching expensive for processes?</div>
+        <div class="ans-text">A <strong>process</strong> is an independent execution unit with its own memory space, file handles, and OS resources. A <strong>thread</strong> is a lightweight execution unit within a process, sharing the same heap/code/data segments.<br><br>Context switching is more expensive for processes because: (1) full memory address space must be saved/restored including page tables, (2) TLB (Translation Lookaside Buffer) must be flushed — next process needs its own virtual-to-physical mapping, (3) more kernel data structures. Thread switching only saves/restores CPU registers and stack pointer — no TLB flush needed within the same process.</div>
+      </div>
+
+      <div class="qa-item">
+        <div class="qa-q">What is a deadlock? Coffman's conditions. How to prevent in Java?</div>
+        <div class="ans-text">Deadlock: two or more threads wait indefinitely for each other to release locks. Coffman's 4 conditions (all must hold): (1) Mutual Exclusion, (2) Hold &amp; Wait, (3) No Preemption, (4) Circular Wait.<br><br>Prevention in Java: (1) <strong>Lock ordering</strong>: always acquire locks in the same order across all threads. (2) <strong>tryLock with timeout</strong>: <code>lock.tryLock(1, TimeUnit.SECONDS)</code> — give up and retry rather than wait forever. (3) <strong>Avoid nested locks</strong>: redesign to avoid needing two locks simultaneously. (4) <strong>Use higher-level constructs</strong>: <code>java.util.concurrent</code> classes (ConcurrentHashMap, BlockingQueue) which handle their own synchronization safely.</div>
+      </div>
+
+      <div class="qa-item">
+        <div class="qa-q">HTTP vs HTTPS — what happens during TLS handshake?</div>
+        <div class="ans-text">1. Client sends <strong>ClientHello</strong>: TLS version, supported cipher suites, random bytes.<br>2. Server sends <strong>ServerHello</strong>: chosen cipher suite, random bytes, <strong>SSL Certificate</strong> (contains server's public key, signed by CA).<br>3. Client verifies certificate against trusted CA store.<br>4. <strong>Key exchange</strong>: (TLS 1.3) Client/Server use ECDHE to derive a shared secret without transmitting it — perfect forward secrecy.<br>5. Both derive the same symmetric session key from the shared secret + random bytes.<br>6. All subsequent data encrypted with symmetric key (e.g. AES-256-GCM).<br><br>HTTPS adds confidentiality (encryption), integrity (HMAC), and authentication (certificate) over HTTP.</div>
+      </div>
+
+      <div class="qa-item">
+        <div class="qa-q">What happens when you type "www.google.com" in a browser?</div>
+        <div class="ans-text">1. <strong>DNS Resolution</strong>: Browser cache → OS cache → Recursive resolver → Root NS → .com TLD NS → Google's authoritative NS → IP address returned.<br>2. <strong>TCP Handshake</strong>: SYN → SYN-ACK → ACK to the resolved IP on port 443.<br>3. <strong>TLS Handshake</strong>: As described above — establishes encrypted channel.<br>4. <strong>HTTP/2 Request</strong>: GET / HTTP/2 with headers (Host, Accept, Cookie).<br>5. <strong>Server Processing</strong>: Load balancer → web server → application server → (cache → DB if needed) → response built.<br>6. <strong>Response</strong>: HTML sent back → browser parses → fetches CSS/JS/images (parallel HTTP/2 streams) → renders page.</div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="topic-card" onclick="toggleTopic(this)">
+    <div class="topic-header">
+      <span class="cat-icon">🎨</span>
+      <span class="topic-title-text">Design Patterns (Java) — Tested Live at MMT</span>
+      <span class="q-expand">▾</span>
+    </div>
+    <div class="topic-body">
+
+      <div class="qa-item">
+        <div class="qa-q">Thread-safe Singleton — implement it in Java</div>
+        <div class="ans-text">
+          <div class="code-tabs">
+            <div class="code-tab-btns"><button class="ctb active" onclick="switchTab(this,'java')">Java</button></div>
+            <div class="code-panel active" data-lang="java"><pre><span class="cm">// Best approach: Initialization-on-Demand Holder (lazy, thread-safe, no sync overhead)</span>
+<span class="kw">public class</span> <span class="ty">Singleton</span> {
+    <span class="kw">private</span> <span class="fn">Singleton</span>() {}
+    <span class="kw">private static class</span> <span class="ty">Holder</span> {
+        <span class="kw">static final</span> <span class="ty">Singleton</span> INSTANCE = <span class="kw">new</span> <span class="ty">Singleton</span>();
+    }
+    <span class="kw">public static</span> <span class="ty">Singleton</span> <span class="fn">getInstance</span>() { <span class="kw">return</span> Holder.INSTANCE; }
+}
+
+<span class="cm">// Alternative: Enum singleton (handles serialization + reflection attacks)</span>
+<span class="kw">public enum</span> <span class="ty">EnumSingleton</span> {
+    INSTANCE;
+    <span class="kw">public void</span> <span class="fn">doWork</span>() { <span class="cm">/* ... */</span> }
+}</pre></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="qa-item">
+        <div class="qa-q">State Pattern (for Vending Machine — explicitly asked at MMT)</div>
+        <div class="ans-text">
+          <div class="code-tabs">
+            <div class="code-tab-btns"><button class="ctb active" onclick="switchTab(this,'java')">Java</button></div>
+            <div class="code-panel active" data-lang="java"><pre><span class="kw">interface</span> <span class="ty">VendingState</span> {
+    <span class="kw">void</span> <span class="fn">insertCoin</span>(<span class="ty">VendingMachine</span> vm);
+    <span class="kw">void</span> <span class="fn">selectItem</span>(<span class="ty">VendingMachine</span> vm, String item);
+    <span class="kw">void</span> <span class="fn">dispense</span>(<span class="ty">VendingMachine</span> vm);
+}
+
+<span class="kw">class</span> <span class="ty">IdleState</span> <span class="kw">implements</span> <span class="ty">VendingState</span> {
+    <span class="kw">public void</span> <span class="fn">insertCoin</span>(<span class="ty">VendingMachine</span> vm) {
+        System.out.<span class="fn">println</span>(<span class="st">"Coin accepted"</span>);
+        vm.<span class="fn">setState</span>(<span class="kw">new</span> <span class="ty">HasMoneyState</span>());
+    }
+    <span class="kw">public void</span> <span class="fn">selectItem</span>(<span class="ty">VendingMachine</span> vm, String item) { System.out.<span class="fn">println</span>(<span class="st">"Insert coin first"</span>); }
+    <span class="kw">public void</span> <span class="fn">dispense</span>(<span class="ty">VendingMachine</span> vm) { System.out.<span class="fn">println</span>(<span class="st">"No money inserted"</span>); }
+}
+
+<span class="kw">class</span> <span class="ty">VendingMachine</span> {
+    <span class="kw">private</span> <span class="ty">VendingState</span> state = <span class="kw">new</span> <span class="ty">IdleState</span>();
+    <span class="kw">private final</span> ReentrantLock lock = <span class="kw">new</span> ReentrantLock(); <span class="cm">// thread safety</span>
+    <span class="kw">public void</span> <span class="fn">setState</span>(<span class="ty">VendingState</span> s) { this.state = s; }
+    <span class="kw">public void</span> <span class="fn">insertCoin</span>() {
+        lock.<span class="fn">lock</span>(); <span class="kw">try</span> { state.<span class="fn">insertCoin</span>(this); } <span class="kw">finally</span> { lock.<span class="fn">unlock</span>(); }
+    }
+    <span class="cm">// selectItem, dispense similarly locked</span>
+}</pre></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="qa-item">
+        <div class="qa-q">Observer / Publisher-Subscriber pattern in microservices context</div>
+        <div class="ans-text">In microservices, this maps to event-driven architecture via Kafka/SQS. In Spring:<br><br><code>@EventListener</code> for in-process events: <code>applicationEventPublisher.publishEvent(new OrderCreatedEvent(order))</code> → any <code>@EventListener</code> method consuming <code>OrderCreatedEvent</code> reacts. For cross-service: publish to Kafka topic, consumers subscribe via <code>@KafkaListener</code>.<br><br>Example at MMT: BookingConfirmedEvent → (1) NotificationService sends email, (2) AnalyticsService records booking, (3) RewardsService credits points — all independently, without BookingService knowing about them.</div>
+      </div>
+
+    </div>
+  </div>
+
+  </div><!-- /backend-list -->
+</section>
+
+<!-- LLD -->
+<section id="lld">
+  <h1>LLD Problems — Java Implementations</h1>
+  <div class="page-intro">MMT expects <strong>working Java code</strong> in IntelliJ/online IDE. Design pattern application and concurrency handling are assessed. Click to expand full solution sketch.</div>
+  <input class="search-box" type="text" placeholder="Filter…" oninput="filterQ(this,'lld-list')">
+  <div id="lld-list">
+
+  <div class="q-card" onclick="toggle(this)">
+    <div class="q-header">
+      <div class="q-num">#1</div>
+      <div class="q-title">Vending Machine — State Pattern + Thread Safety</div>
+      <div class="q-meta"><span class="freq freq-high">🔥 High</span><span class="pill pill-lld">LLD</span></div>
+      <div class="q-expand">▾</div>
+    </div>
+    <div class="q-body">
+      <p>Use State pattern. Concurrency: ReentrantLock per machine. Shown above in Design Patterns section — here's the complete flow with dispensing state.</p>
+      <div class="code-tabs">
+        <div class="code-tab-btns"><button class="ctb active" onclick="switchTab(this,'java')">Java</button></div>
+        <div class="code-panel active" data-lang="java"><pre><span class="kw">interface</span> <span class="ty">VendingState</span> {
+    <span class="kw">void</span> <span class="fn">insertCoin</span>(<span class="ty">VendingMachine</span> vm, <span class="kw">double</span> amount);
+    <span class="kw">void</span> <span class="fn">selectItem</span>(<span class="ty">VendingMachine</span> vm, String code);
+    <span class="kw">void</span> <span class="fn">dispense</span>(<span class="ty">VendingMachine</span> vm);
+    <span class="kw">void</span> <span class="fn">cancel</span>(<span class="ty">VendingMachine</span> vm);
+}
+
+<span class="kw">class</span> <span class="ty">IdleState</span> <span class="kw">implements</span> <span class="ty">VendingState</span> {
+    <span class="kw">public void</span> <span class="fn">insertCoin</span>(<span class="ty">VendingMachine</span> vm, <span class="kw">double</span> amt) {
+        vm.<span class="fn">setBalance</span>(amt);
+        vm.<span class="fn">setState</span>(<span class="kw">new</span> <span class="ty">HasMoneyState</span>());
+    }
+    <span class="kw">public void</span> <span class="fn">selectItem</span>(<span class="ty">VendingMachine</span> vm, String c){ System.out.<span class="fn">println</span>(<span class="st">"Insert coin first"</span>); }
+    <span class="kw">public void</span> <span class="fn">dispense</span>(<span class="ty">VendingMachine</span> vm) {}
+    <span class="kw">public void</span> <span class="fn">cancel</span>(<span class="ty">VendingMachine</span> vm) {}
+}
+
+<span class="kw">class</span> <span class="ty">HasMoneyState</span> <span class="kw">implements</span> <span class="ty">VendingState</span> {
+    <span class="kw">public void</span> <span class="fn">insertCoin</span>(<span class="ty">VendingMachine</span> vm, <span class="kw">double</span> amt) { vm.<span class="fn">addBalance</span>(amt); }
+    <span class="kw">public void</span> <span class="fn">selectItem</span>(<span class="ty">VendingMachine</span> vm, String code) {
+        Item item = vm.<span class="fn">getInventory</span>().<span class="fn">get</span>(code);
+        <span class="kw">if</span> (item == <span class="kw">null</span> || item.<span class="fn">getQuantity</span>() == <span class="nm">0</span>) { System.out.<span class="fn">println</span>(<span class="st">"Out of stock"</span>); <span class="kw">return</span>; }
+        <span class="kw">if</span> (vm.<span class="fn">getBalance</span>() &lt; item.<span class="fn">getPrice</span>()) { System.out.<span class="fn">println</span>(<span class="st">"Insufficient funds"</span>); <span class="kw">return</span>; }
+        vm.<span class="fn">setSelectedItem</span>(code);
+        vm.<span class="fn">setState</span>(<span class="kw">new</span> <span class="ty">DispensingState</span>());
+        vm.<span class="fn">dispense</span>();
+    }
+    <span class="kw">public void</span> <span class="fn">cancel</span>(<span class="ty">VendingMachine</span> vm) { vm.<span class="fn">refund</span>(); vm.<span class="fn">setState</span>(<span class="kw">new</span> <span class="ty">IdleState</span>()); }
+    <span class="kw">public void</span> <span class="fn">dispense</span>(<span class="ty">VendingMachine</span> vm) { System.out.<span class="fn">println</span>(<span class="st">"Select item first"</span>); }
+}
+
+<span class="kw">class</span> <span class="ty">VendingMachine</span> {    <span class="cm">// Singleton</span>
+    <span class="kw">private static final</span> <span class="ty">VendingMachine</span> INSTANCE = <span class="kw">new</span> <span class="ty">VendingMachine</span>();
+    <span class="kw">private</span> <span class="ty">VendingState</span> state = <span class="kw">new</span> <span class="ty">IdleState</span>();
+    <span class="kw">private final</span> ReentrantLock lock = <span class="kw">new</span> ReentrantLock();
+    <span class="kw">private</span> Map&lt;String, Item&gt; inventory = <span class="kw">new</span> ConcurrentHashMap&lt;&gt;();
+    <span class="kw">private double</span> balance; <span class="kw">private</span> String selectedItem;
+    
+    <span class="kw">public void</span> <span class="fn">insertCoin</span>(<span class="kw">double</span> amount) {
+        lock.<span class="fn">lock</span>(); <span class="kw">try</span> { state.<span class="fn">insertCoin</span>(this, amount); } <span class="kw">finally</span> { lock.<span class="fn">unlock</span>(); }
+    }
+    <span class="cm">// selectItem, dispense, cancel similarly lock-protected</span>
+}</pre></div>
+      </div>
+      <span class="source-tag">Reported: SDE-2 LeetCode 2025, CodingKaro Java Developer</span>
+    </div>
+  </div>
+
+  <div class="q-card" onclick="toggle(this)">
+    <div class="q-header">
+      <div class="q-num">#2</div>
+      <div class="q-title">Rate Limiter — Sliding Window (Redis-backed in production)</div>
+      <div class="q-meta"><span class="freq freq-high">🔥 High</span><span class="pill pill-lld">LLD</span></div>
+      <div class="q-expand">▾</div>
+    </div>
+    <div class="q-body">
+      <div class="code-tabs">
+        <div class="code-tab-btns"><button class="ctb active" onclick="switchTab(this,'java')">Java (in-memory for interview)</button></div>
+        <div class="code-panel active" data-lang="java"><pre><span class="kw">class</span> <span class="ty">RateLimiter</span> {
+    <span class="kw">private final int</span> maxRequests;
+    <span class="kw">private final long</span> windowMs;
+    <span class="kw">private final</span> Map&lt;String, Deque&lt;Long&gt;&gt; userTimestamps = <span class="kw">new</span> ConcurrentHashMap&lt;&gt;();
+
+    <span class="fn">RateLimiter</span>(<span class="kw">int</span> max, <span class="kw">long</span> windowMs) { this.maxRequests=max; this.windowMs=windowMs; }
+
+    <span class="kw">public synchronized boolean</span> <span class="fn">isAllowed</span>(String userId) {
+        <span class="kw">long</span> now = System.<span class="fn">currentTimeMillis</span>();
+        userTimestamps.<span class="fn">putIfAbsent</span>(userId, <span class="kw">new</span> ArrayDeque&lt;&gt;());
+        Deque&lt;Long&gt; timestamps = userTimestamps.<span class="fn">get</span>(userId);
+        <span class="cm">// evict old timestamps outside window</span>
+        <span class="kw">while</span> (!timestamps.<span class="fn">isEmpty</span>() &amp;&amp; now - timestamps.<span class="fn">peekFirst</span>() &gt; windowMs)
+            timestamps.<span class="fn">pollFirst</span>();
+        <span class="kw">if</span> (timestamps.<span class="fn">size</span>() &lt; maxRequests) {
+            timestamps.<span class="fn">addLast</span>(now);
+            <span class="kw">return true</span>;   <span class="cm">// allowed</span>
+        }
+        <span class="kw">return false</span>;   <span class="cm">// rate limited → return 429</span>
+    }
+}
+
+<span class="cm">// Production: replace with Redis ZADD/ZREMRANGEBYSCORE in Lua script (atomic)</span>
+<span class="cm">// Spring Boot: @RateLimiter(name="api") from Resilience4j
+// or Bucket4j with Redis backend for distributed rate limiting</span></pre></div>
+      </div>
+      <span class="source-tag">Reported: SDE-2 Code360 May 2022</span>
+    </div>
+  </div>
+
+  <div class="q-card" onclick="toggle(this)">
+    <div class="q-header">
+      <div class="q-num">#3</div>
+      <div class="q-title">URL Shortener — Spring Boot with Redis cache</div>
+      <div class="q-meta"><span class="freq freq-high">🔥 High</span><span class="pill pill-lld">LLD + HLD</span></div>
+      <div class="q-expand">▾</div>
+    </div>
+    <div class="q-body">
+      <div class="code-tabs">
+        <div class="code-tab-btns"><button class="ctb active" onclick="switchTab(this,'java')">Java / Spring Boot</button></div>
+        <div class="code-panel active" data-lang="java"><pre><span class="cm">// Entity</span>
+@Entity @Table(name="urls")
+<span class="kw">class</span> <span class="ty">UrlMapping</span> {
+    @Id @GeneratedValue Long id;
+    @Column(unique=<span class="kw">true</span>) String shortCode;
+    String longUrl;
+    Long userId;         <span class="cm">// for auth check</span>
+    LocalDateTime expiry;
+}
+
+<span class="cm">// Service</span>
+@Service <span class="kw">class</span> <span class="ty">UrlShortenerService</span> {
+    <span class="kw">private static final</span> String CHARS = <span class="st">"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"</span>;
+
+    @Autowired <span class="ty">UrlRepository</span> repo;
+    @Autowired <span class="ty">RedisTemplate</span>&lt;String,String&gt; redis;
+
+    <span class="kw">public</span> String <span class="fn">shorten</span>(String longUrl, Long userId) {
+        String code = <span class="fn">toBase62</span>(repo.<span class="fn">save</span>(<span class="kw">new</span> <span class="ty">UrlMapping</span>(longUrl, userId)).<span class="fn">getId</span>());
+        redis.<span class="fn">opsForValue</span>().<span class="fn">set</span>(<span class="st">"url:"</span>+code, longUrl, <span class="nm">7</span>, TimeUnit.DAYS);
+        <span class="kw">return</span> <span class="st">"https://mmt.to/"</span> + code;
+    }
+
+    <span class="kw">public</span> String <span class="fn">resolve</span>(String code, Long requestUserId) {
+        String cached = redis.<span class="fn">opsForValue</span>().<span class="fn">get</span>(<span class="st">"url:"</span>+code);
+        <span class="kw">if</span> (cached != <span class="kw">null</span>) <span class="kw">return</span> cached;
+        <span class="ty">UrlMapping</span> mapping = repo.<span class="fn">findByShortCode</span>(code)
+            .<span class="fn">orElseThrow</span>(() -&gt; <span class="kw">new</span> NotFoundException());
+        <span class="kw">if</span> (!mapping.<span class="fn">getUserId</span>().<span class="fn">equals</span>(requestUserId)) <span class="kw">throw new</span> ForbiddenException();
+        <span class="kw">return</span> mapping.<span class="fn">getLongUrl</span>();
+    }
+
+    <span class="kw">private</span> String <span class="fn">toBase62</span>(<span class="kw">long</span> n) {
+        StringBuilder sb = <span class="kw">new</span> StringBuilder();
+        <span class="kw">while</span> (n &gt; <span class="nm">0</span>) { sb.<span class="fn">append</span>(CHARS.<span class="fn">charAt</span>((<span class="kw">int</span>)(n%<span class="nm">62</span>))); n/=<span class="nm">62</span>; }
+        <span class="kw">return</span> sb.<span class="fn">reverse</span>().<span class="fn">toString</span>();
+    }
+}</pre></div>
+      </div>
+      <span class="source-tag">Reported: Senior SDE GFG 2019, SDE/SSE-2 Oct 2024</span>
+    </div>
+  </div>
+
+  <div class="q-card" onclick="toggle(this)">
+    <div class="q-header">
+      <div class="q-num">#4</div>
+      <div class="q-title">Banking System — Thread-safe REST APIs (In-memory)</div>
+      <div class="q-meta"><span class="freq freq-med">⚡ Med</span><span class="pill pill-lld">Machine Coding</span></div>
+      <div class="q-expand">▾</div>
+    </div>
+    <div class="q-body">
+      <div class="code-tabs">
+        <div class="code-tab-btns"><button class="ctb active" onclick="switchTab(this,'java')">Java</button></div>
+        <div class="code-panel active" data-lang="java"><pre>@Service <span class="kw">class</span> <span class="ty">BankService</span> {
+    <span class="kw">private final</span> Map&lt;Long, <span class="ty">Account</span>&gt; accounts = <span class="kw">new</span> ConcurrentHashMap&lt;&gt;();
+
+    <span class="kw">public</span> <span class="ty">Account</span> <span class="fn">createAccount</span>(String owner) {
+        <span class="ty">Account</span> acc = <span class="kw">new</span> <span class="ty">Account</span>(idGen.<span class="fn">incrementAndGet</span>(), owner);
+        accounts.<span class="fn">put</span>(acc.<span class="fn">getId</span>(), acc);
+        <span class="kw">return</span> acc;
+    }
+
+    <span class="kw">public void</span> <span class="fn">deposit</span>(<span class="kw">long</span> id, <span class="kw">double</span> amount) {
+        <span class="ty">Account</span> acc = <span class="fn">getOrThrow</span>(id);
+        <span class="kw">synchronized</span>(acc) { acc.<span class="fn">setBalance</span>(acc.<span class="fn">getBalance</span>() + amount); }
+    }
+
+    <span class="kw">public void</span> <span class="fn">withdraw</span>(<span class="kw">long</span> id, <span class="kw">double</span> amount) {
+        <span class="ty">Account</span> acc = <span class="fn">getOrThrow</span>(id);
+        <span class="kw">synchronized</span>(acc) {
+            <span class="kw">if</span> (acc.<span class="fn">getBalance</span>() &lt; amount) <span class="kw">throw new</span> InsufficientFundsException();
+            acc.<span class="fn">setBalance</span>(acc.<span class="fn">getBalance</span>() - amount);
+        }
+    }
+
+    <span class="kw">public void</span> <span class="fn">transfer</span>(<span class="kw">long</span> fromId, <span class="kw">long</span> toId, <span class="kw">double</span> amount) {
+        <span class="cm">// Lock in consistent order to prevent deadlock</span>
+        <span class="ty">Account</span> first  = fromId &lt; toId ? <span class="fn">getOrThrow</span>(fromId) : <span class="fn">getOrThrow</span>(toId);
+        <span class="ty">Account</span> second = fromId &lt; toId ? <span class="fn">getOrThrow</span>(toId)   : <span class="fn">getOrThrow</span>(fromId);
+        <span class="kw">synchronized</span>(first) {
+            <span class="kw">synchronized</span>(second) {
+                <span class="fn">withdraw</span>(fromId, amount);
+                <span class="fn">deposit</span>(toId, amount);
+            }
+        }
+    }
+}</pre></div>
+      </div>
+      <span class="source-tag">Reported: GFG 2019 Machine Coding Round</span>
+    </div>
+  </div>
+
+  <div class="q-card" onclick="toggle(this)">
+    <div class="q-header">
+      <div class="q-num">#5</div>
+      <div class="q-title">FizzBuzz — SOLID / Open-Closed extensible design</div>
+      <div class="q-meta"><span class="freq freq-low">🟢 Once</span><span class="pill pill-lld">LLD</span></div>
+      <div class="q-expand">▾</div>
+    </div>
+    <div class="q-body">
+      <p>The naive if-else version is wrong here. MMT wants you to use OCP: new rules should be addable without modifying existing code.</p>
+      <div class="code-tabs">
+        <div class="code-tab-btns"><button class="ctb active" onclick="switchTab(this,'java')">Java</button></div>
+        <div class="code-panel active" data-lang="java"><pre><span class="kw">interface</span> <span class="ty">FizzBuzzRule</span> {
+    <span class="kw">boolean</span> <span class="fn">matches</span>(<span class="kw">int</span> n);
+    String <span class="fn">output</span>();
+}
+
+<span class="kw">class</span> <span class="ty">FizzRule</span>    <span class="kw">implements</span> <span class="ty">FizzBuzzRule</span> { <span class="kw">public boolean</span> <span class="fn">matches</span>(<span class="kw">int</span> n){ <span class="kw">return</span> n%<span class="nm">3</span>==<span class="nm">0</span>; } <span class="kw">public</span> String <span class="fn">output</span>(){ <span class="kw">return</span> <span class="st">"Fizz"</span>; } }
+<span class="kw">class</span> <span class="ty">BuzzRule</span>    <span class="kw">implements</span> <span class="ty">FizzBuzzRule</span> { <span class="kw">public boolean</span> <span class="fn">matches</span>(<span class="kw">int</span> n){ <span class="kw">return</span> n%<span class="nm">5</span>==<span class="nm">0</span>; } <span class="kw">public</span> String <span class="fn">output</span>(){ <span class="kw">return</span> <span class="st">"Buzz"</span>; } }
+<span class="kw">class</span> <span class="ty">WoofRule</span>    <span class="kw">implements</span> <span class="ty">FizzBuzzRule</span> { <span class="kw">public boolean</span> <span class="fn">matches</span>(<span class="kw">int</span> n){ <span class="kw">return</span> n%<span class="nm">7</span>==<span class="nm">0</span>; } <span class="kw">public</span> String <span class="fn">output</span>(){ <span class="kw">return</span> <span class="st">"Woof"</span>; } }
+
+<span class="kw">class</span> <span class="ty">FizzBuzzEngine</span> {
+    <span class="kw">private final</span> List&lt;FizzBuzzRule&gt; rules;
+    <span class="fn">FizzBuzzEngine</span>(List&lt;FizzBuzzRule&gt; rules) { this.rules = rules; }
+
+    <span class="kw">public</span> String <span class="fn">evaluate</span>(<span class="kw">int</span> n) {
+        String result = rules.stream()
+            .<span class="fn">filter</span>(r -&gt; r.<span class="fn">matches</span>(n))
+            .<span class="fn">map</span>(FizzBuzzRule::output)
+            .<span class="fn">collect</span>(Collectors.<span class="fn">joining</span>());
+        <span class="kw">return</span> result.<span class="fn">isEmpty</span>() ? String.<span class="fn">valueOf</span>(n) : result;
+    }
+}
+<span class="cm">// Add new rule (e.g. Woof for 7) without touching existing code ✓</span></pre></div>
+      </div>
+      <span class="source-tag">Reported: SSE-2 LeetCode Discuss Nov 2023</span>
+    </div>
+  </div>
+
+  <div class="q-card" onclick="toggle(this)">
+    <div class="q-header">
+      <div class="q-num">#6</div>
+      <div class="q-title">Food Search Across Restaurants — Adapter Pattern</div>
+      <div class="q-meta"><span class="freq freq-low">🟢 Once</span><span class="pill pill-lld">LLD</span></div>
+      <div class="q-expand">▾</div>
+    </div>
+    <div class="q-body">
+      <div class="code-tabs">
+        <div class="code-tab-btns"><button class="ctb active" onclick="switchTab(this,'java')">Java</button></div>
+        <div class="code-panel active" data-lang="java"><pre><span class="cm">// Unified interface</span>
+<span class="kw">interface</span> <span class="ty">RestaurantAdapter</span> {
+    List&lt;MenuItem&gt; <span class="fn">search</span>(String query);
+}
+
+<span class="cm">// Restaurant 1 has different response format</span>
+<span class="kw">class</span> <span class="ty">Restaurant1Adapter</span> <span class="kw">implements</span> <span class="ty">RestaurantAdapter</span> {
+    <span class="kw">private</span> <span class="ty">Restaurant1Client</span> client;
+    <span class="kw">public</span> List&lt;MenuItem&gt; <span class="fn">search</span>(String query) {
+        Restaurant1Response resp = client.<span class="fn">getMenu</span>(<span class="kw">new</span> Restaurant1Request(query));
+        <span class="kw">return</span> resp.<span class="fn">getDishes</span>().stream()
+            .<span class="fn">map</span>(d -&gt; <span class="kw">new</span> MenuItem(d.<span class="fn">getName</span>(), d.<span class="fn">getCost</span>(), <span class="st">"Restaurant1"</span>))
+            .<span class="fn">collect</span>(Collectors.<span class="fn">toList</span>());
+    }
+}
+
+<span class="cm">// Facade aggregating all adapters</span>
+@Service <span class="kw">class</span> <span class="ty">FoodSearchService</span> {
+    <span class="kw">private final</span> List&lt;RestaurantAdapter&gt; adapters;
+
+    <span class="kw">public</span> List&lt;MenuItem&gt; <span class="fn">search</span>(String query) {
+        <span class="kw">return</span> adapters.parallelStream()   <span class="cm">// parallel for latency</span>
+            .<span class="fn">flatMap</span>(a -&gt; a.<span class="fn">search</span>(query).stream())
+            .<span class="fn">collect</span>(Collectors.<span class="fn">toList</span>());
+    }
+}</pre></div>
+      </div>
+      <span class="source-tag">Reported: SDE-2 GFG 4 years exp</span>
+    </div>
+  </div>
+
+  </div><!-- /lld-list -->
+</section>
+
+<!-- HLD -->
+<section id="hld">
+  <h1>HLD — System Design Problems</h1>
+  <div class="page-intro">For each problem: DB schema → API design → Scalability → Concurrency → Caching. MMT is travel/payments domain — always think about booking consistency and idempotency.</div>
+  <div id="hld-list">
+
+  <div class="q-card" onclick="toggle(this)">
+    <div class="q-header">
+      <div class="q-num">#1</div>
+      <div class="q-title">IRCTC / Railway Ticketing System — DB Schema + SQL + Concurrent Booking</div>
+      <div class="q-meta"><span class="freq freq-high">🔥 High</span><span class="pill pill-hld">HLD</span></div>
+      <div class="q-expand">▾</div>
+    </div>
+    <div class="q-body">
+      <div class="code-tabs">
+        <div class="code-tab-btns"><button class="ctb active" onclick="switchTab(this,'java')">MySQL Schema + Key Queries</button></div>
+        <div class="code-panel active" data-lang="java"><pre><span class="cm">-- Core Tables</span>
+CREATE TABLE Station (id INT PK, name VARCHAR, city VARCHAR);
+CREATE TABLE Train   (id INT PK, name VARCHAR, type ENUM('Express','Local'));
+CREATE TABLE Schedule (
+    id INT PK, train_id INT FK, departure_station INT FK,
+    arrival_station INT FK, dept_time DATETIME, arr_time DATETIME
+);
+CREATE TABLE Seat (
+    id INT PK, train_id INT FK, coach VARCHAR, seat_number INT,
+    class ENUM('1A','2A','3A','SL'), status ENUM('AVAILABLE','BOOKED','LOCKED'),
+    version INT DEFAULT 0   -- for optimistic locking
+);
+CREATE TABLE Booking (
+    id INT PK, user_id INT FK, seat_id INT FK, schedule_id INT FK,
+    pnr VARCHAR UNIQUE, status ENUM('CONFIRMED','CANCELLED'),
+    idempotency_key VARCHAR UNIQUE,  -- prevent double booking
+    created_at TIMESTAMP
+);
+
+<span class="cm">-- Find routes between Delhi and Mumbai</span>
+SELECT s1.name src, s2.name dst, t.name train, sc.dept_time
+FROM Schedule sc
+JOIN Station s1 ON s1.id = sc.departure_station AND s1.city = 'Delhi'
+JOIN Station s2 ON s2.id = sc.arrival_station   AND s2.city = 'Mumbai'
+JOIN Train t ON t.id = sc.train_id;
+
+<span class="cm">-- Concurrent booking with optimistic lock (JPA)</span>
+<span class="cm">-- @Version on Seat entity → Spring auto-appends AND version=? to UPDATE</span>
+<span class="cm">-- If 0 rows updated → OptimisticLockingFailureException → retry</span>
+
+<span class="cm">-- Available seats for a schedule</span>
+SELECT * FROM Seat WHERE train_id=? AND status='AVAILABLE';</pre></div>
+      </div>
+      <div class="ans-text"><strong>Concurrency strategy</strong>: JPA <code>@Version</code> (optimistic locking) for low-contention routes. For peak-time (tatkal), use Redis distributed lock (Redisson) with 30s TTL: <code>SETNX seat:lock:{seatId} userId EX 30</code>. Lock acquired → book → release. Lock not acquired → seat taken. <br><strong>Scaling</strong>: Read replicas for availability queries. Write to primary only. Partition Seat table by train_id. Cache popular route seat counts in Redis (invalidate on booking).</div>
+      <span class="source-tag">Reported: SSE-2 LeetCode Nov 2023, Tech Lead Jul 2024</span>
+    </div>
+  </div>
+
+  <div class="q-card" onclick="toggle(this)">
+    <div class="q-header">
+      <div class="q-num">#2</div>
+      <div class="q-title">Idempotent Booking + Double Payment Prevention</div>
+      <div class="q-meta"><span class="freq freq-high">🔥 High</span><span class="pill pill-hld">HLD</span></div>
+      <div class="q-expand">▾</div>
+    </div>
+    <div class="q-body">
+      <div class="ans-text">
+        <strong>Full flow:</strong><br>
+        1. Client generates <code>UUID idempotencyKey</code> per booking attempt.<br>
+        2. API: <code>POST /bookings</code> with header <code>Idempotency-Key: uuid</code>.<br>
+        3. Server atomically <code>SET booking:idem:{key} PROCESSING NX EX 300</code> in Redis.<br>
+        4. If key already exists → check if value is <code>DONE:{bookingId}</code> → return cached response (200).<br>
+        5. Process booking → charge payment → store result as <code>DONE:{bookingId}</code> in Redis with 24h TTL.<br>
+        6. Also store <code>idempotency_key</code> as UNIQUE column in Booking table — second layer of safety.<br><br>
+        <strong>For the payment charge itself</strong>: Payment gateway also supports idempotency keys. Pass the same key so even if you call the payment gateway twice (network retry), only one charge occurs.<br><br>
+        <strong>Outbox Pattern</strong> (for reliable event publishing): Write booking + outbox event in same DB transaction. Separate poller reads outbox and publishes to Kafka. Guarantees event is published exactly once even if service crashes.
+      </div>
+      <span class="source-tag">Reported: Tech Lead Jul 2024, SDE/SSE-2 Oct 2024 (verbal)</span>
+    </div>
+  </div>
+
+  <div class="q-card" onclick="toggle(this)">
+    <div class="q-header">
+      <div class="q-num">#3</div>
+      <div class="q-title">URL Shortener / TinyURL — Production Design</div>
+      <div class="q-meta"><span class="freq freq-high">🔥 High</span><span class="pill pill-hld">HLD</span></div>
+      <div class="q-expand">▾</div>
+    </div>
+    <div class="q-body">
+      <div class="ans-text">
+        <strong>Core design</strong>: Auto-increment ID → Base62 encode → 6-char short code (62^6 = 56 billion URLs).<br><br>
+        <strong>DB Schema</strong>: <code>url_mapping(id BIGINT PK AUTO_INCREMENT, short_code VARCHAR(8) UNIQUE, long_url TEXT, user_id BIGINT, expires_at DATETIME, created_at TIMESTAMP)</code><br><br>
+        <strong>Redirect flow</strong>: GET /{code} → Redis GET url:{code} (cache hit ~2ms) → miss → DB query → cache set (TTL 7 days) → HTTP 301 redirect.<br><br>
+        <strong>Auth for MMT variant</strong>: JWT in request → extract userId → verify url_mapping.user_id == requestUserId → else 403.<br><br>
+        <strong>Scale</strong>: 100B URLs/day redirect reads → Redis cluster. Writes: ~10M/day → single MySQL primary is fine. Use CDN in front for global redirect acceleration. Analytics: async Kafka event on each redirect → ClickHouse for stats.
+      </div>
+      <span class="source-tag">Reported: Senior SDE GFG 2019, SDE/SSE-2 Oct 2024</span>
+    </div>
+  </div>
+
+  <div class="q-card" onclick="toggle(this)">
+    <div class="q-header">
+      <div class="q-num">#4</div>
+      <div class="q-title">Distributed Cache Design</div>
+      <div class="q-meta"><span class="freq freq-med">⚡ Med</span><span class="pill pill-hld">HLD</span></div>
+      <div class="q-expand">▾</div>
+    </div>
+    <div class="q-body">
+      <div class="ans-text">
+        <strong>Key components</strong>:<br>
+        1. <strong>Consistent Hashing</strong>: Map keys to nodes on a ring. Adding/removing a node only remaps ~K/N keys (vs. K/2 with simple modulo). Use virtual nodes for uniform distribution.<br>
+        2. <strong>Replication</strong>: Each key stored on N nodes (e.g., 3). Reads from any replica. Writes to primary → async replication.<br>
+        3. <strong>Eviction</strong>: LRU per shard with max memory limit. TTL expiry (lazy + active background sweep).<br>
+        4. <strong>Cache Coherence</strong>: On write, invalidate all replicas (delete-on-write) or use versioned values (read-your-writes consistency).<br>
+        5. <strong>Client-side routing</strong>: Clients use the same consistent hash ring to determine which node to contact — no central router bottleneck.<br><br>
+        Redis Cluster in production implements this with 16384 hash slots distributed across master nodes, each with replicas.
+      </div>
+      <span class="source-tag">Reported: SDE-2 GFG 2021</span>
+    </div>
+  </div>
+
+  <div class="q-card" onclick="toggle(this)">
+    <div class="q-header">
+      <div class="q-num">#5</div>
+      <div class="q-title">Scalable System for Very High QPS</div>
+      <div class="q-meta"><span class="freq freq-high">🔥 High</span><span class="pill pill-hld">HLD</span></div>
+      <div class="q-expand">▾</div>
+    </div>
+    <div class="q-body">
+      <div class="ans-text">
+        Layer by layer approach:<br>
+        1. <strong>Client/CDN</strong>: Static assets cached at edge. CDN absorbs 60–70% of traffic before it hits origin.<br>
+        2. <strong>API Gateway</strong>: Rate limiting, auth, request routing, SSL termination.<br>
+        3. <strong>Load Balancer</strong>: L7 (Application LB) → round-robin / least-connections across stateless service instances. Auto-scaling group expands horizontally.<br>
+        4. <strong>Services</strong>: Stateless microservices — no server-side session (JWT). Horizontally scalable.<br>
+        5. <strong>Cache</strong>: Redis cluster in front of DB. Cache-aside for hot data. Target 95%+ cache hit rate.<br>
+        6. <strong>DB</strong>: Read replicas for 80% read workload. Write to primary. Shard by user_id or booking_id for extreme scale.<br>
+        7. <strong>Async</strong>: Non-critical work (emails, analytics, rewards) offloaded to Kafka → workers. Reduces synchronous API latency.<br>
+        8. <strong>Circuit Breakers</strong>: Resilience4j on downstream calls. Fallback to stale cache or graceful degradation.
+      </div>
+      <span class="source-tag">Reported: Tech Lead LeetCode Jul 2024</span>
+    </div>
+  </div>
+
+  </div>
+</section>
+
+<!-- TIPS -->
+<section id="tips">
+  <h1>Strategy &amp; Preparation</h1>
+  <div class="tip-box">
+    <div class="tip-title">🎯 MMT Core Requirements</div>
+    (1) <strong>Java is mandatory</strong> even if you code DSA in C++. (2) <strong>Concurrency</strong> appears in every round. (3) <strong>Design patterns live-coded</strong> in LLD — State, Builder, Adapter, Observer are the most common. (4) <strong>Idempotency &amp; double-payment</strong> — must have a crisp answer for this. (5) Production-readiness: every design decision needs trade-off rationale.
+  </div>
+
+  <h2>DSA Priority List</h2>
+  <div class="topic-card">
+    <ul class="topic-questions" style="padding:14px 16px;">
+      <li style="padding:5px 0;border-bottom:1px solid var(--border);color:var(--muted)"><strong style="color:var(--text)">Must know (🔥 High freq)</strong>: Sliding Window, Two Pointer, HashMap prefix-sum, Merge K sorted, Jump Game, LCA, LRU, FreqStack, Longest Consecutive Sequence, Permutations</li>
+      <li style="padding:5px 0;border-bottom:1px solid var(--border);color:var(--muted)"><strong style="color:var(--text)">Should know (⚡ Med)</strong>: Dijkstra, Tarjan bridges, DP (MSIS, Dice throw), Multiply strings, Sort by frequency</li>
+      <li style="padding:5px 0;color:var(--muted)"><strong style="color:var(--text)">Nice to know</strong>: Josephus, Tower of Hanoi, coordinate GCD, vertical tree traversal</li>
+    </ul>
+  </div>
+
+  <h2>Java Checklist</h2>
+  <div class="topic-card">
+    <ul class="topic-questions" style="padding:14px 16px;">
+      <li style="padding:5px 0;border-bottom:1px solid var(--border);color:var(--muted)">✅ HashMap internals: capacity 16, load factor 0.75, bitmask hash & (n-1)</li>
+      <li style="padding:5px 0;border-bottom:1px solid var(--border);color:var(--muted)">✅ Concurrency: volatile vs synchronized vs Atomic — know when to use each, live</li>
+      <li style="padding:5px 0;border-bottom:1px solid var(--border);color:var(--muted)">✅ CompletableFuture: supplyAsync, thenApply, thenCompose, exceptionally, join</li>
+      <li style="padding:5px 0;border-bottom:1px solid var(--border);color:var(--muted)">✅ @Transactional propagation: REQUIRED vs REQUIRES_NEW — self-invocation pitfall</li>
+      <li style="padding:5px 0;border-bottom:1px solid var(--border);color:var(--muted)">✅ Spring Interceptors vs Filters — difference and use cases</li>
+      <li style="padding:5px 0;color:var(--muted)">✅ Records, sealed classes, Optional — Java 16+ features</li>
+    </ul>
+  </div>
+
+  <div class="warn-box">
+    <div class="tip-title">⚠️ Top Rejection Reasons at MMT</div>
+    <ul style="margin:6px 0 0 16px;color:var(--muted)">
+      <li>Using synchronized everywhere in LLD — interviewers want Atomic / non-blocking alternatives</li>
+      <li>Not using State pattern in Vending Machine LLD</li>
+      <li>No clear idempotency answer for double-payment scenario</li>
+      <li>Weak Java internals despite Spring Boot on resume</li>
+      <li>No production STAR stories for Director-level managerial round</li>
+    </ul>
+  </div>
+</section>
+
+<script>
+function showTab(id, btn) {
+  document.querySelectorAll('section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  btn.classList.add('active');
+}
+function toggle(card) { card.classList.toggle('open'); }
+function toggleTopic(card) {
+  card.classList.toggle('open');
+  const body = card.querySelector('.topic-body');
+  body.style.display = card.classList.contains('open') ? 'block' : 'none';
+}
+function switchTab(btn, lang) {
+  const tabs = btn.closest('.code-tabs');
+  tabs.querySelectorAll('.ctb').forEach(b => b.classList.remove('active'));
+  tabs.querySelectorAll('.code-panel').forEach(p => p.classList.remove('active'));
+  btn.classList.add('active');
+  tabs.querySelectorAll('.code-panel').forEach(p => {
+    if (p.dataset.lang === lang) p.classList.add('active');
+  });
+}
+function filterQ(input, listId) {
+  const q = input.value.toLowerCase();
+  document.querySelectorAll('#'+listId+' .q-card, #'+listId+' .topic-card').forEach(c => {
+    c.style.display = c.textContent.toLowerCase().includes(q) ? '' : 'none';
+  });
+  document.querySelectorAll('#'+listId+' .cat-header').forEach(h => h.style.display = '');
+}
+</script>
+</body>
+</html>

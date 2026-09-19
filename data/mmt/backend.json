@@ -1,0 +1,522 @@
+{
+  "topics": [
+    {
+      "id": "mmt-be-topic-01",
+      "title": "Core Java Internals",
+      "icon": "☕",
+      "items": [
+        {
+          "id": "mmt-be-01-001",
+          "question": "What is a Record in Java? How is it different from a POJO?",
+          "answer": "A <code>record</code> (Java 16+) is a concise immutable data carrier. The compiler auto-generates constructor, getters, <code>equals()</code>, <code>hashCode()</code>, and <code>toString()</code>. Fields are implicitly <code>private final</code>. A POJO requires you to write all of these manually and fields can be mutable. Records are ideal for DTOs and value objects where immutability is desired.<br><br>Example: <code>record Point(int x, int y) {}</code> — that's the entire class."
+        },
+        {
+          "id": "mmt-be-01-002",
+          "question": "Why is the default capacity of HashMap 16? Why must it be a power of 2?",
+          "answer": "The bucket index is computed as <code>hash &amp; (capacity - 1)</code> instead of <code>hash % capacity</code>. This bitwise AND is only equivalent to modulo when capacity is a power of 2, and it is significantly faster. Starting at 16 provides a reasonable balance — small enough not to waste memory for small maps, large enough to avoid immediate rehashing. Load factor 0.75 means rehashing at 12 entries."
+        },
+        {
+          "id": "mmt-be-01-003",
+          "question": "What are volatile, synchronized, and AtomicInteger? When to use each?",
+          "answer": "<ul><li><strong>volatile</strong>: Guarantees visibility — writes are immediately flushed to main memory, reads always fetch from main memory. Does NOT guarantee atomicity for compound operations like <code>i++</code>. Use for simple flags (<code>volatile boolean running</code>).</li><li><strong>synchronized</strong>: Guarantees both visibility and atomicity but is blocking. Use for complex critical sections where multiple operations must be atomic together.</li><li><strong>AtomicInteger</strong>: Non-blocking (CAS — Compare and Swap). Guarantees atomicity for single-variable operations without locking. Use for counters, reference updates. Preferred over synchronized for single variable.</li></ul>"
+        },
+        {
+          "id": "mmt-be-01-004",
+          "question": "Explain equals() and hashCode() contract. What breaks if you override only one?",
+          "answer": "Contract: if <code>a.equals(b)</code> is true, then <code>a.hashCode() == b.hashCode()</code> must be true. If you override <code>equals()</code> but not <code>hashCode()</code>: two logically equal objects get different hash codes → they land in different HashMap buckets → <code>map.get()</code> returns null even after <code>put()</code>. If you override only <code>hashCode()</code>: objects with the same hash could be considered unequal → duplicate keys in collections."
+        },
+        {
+          "id": "mmt-be-01-005",
+          "question": "What are Java 8 Streams? Why use them over for-loops?",
+          "answer": "Streams provide a declarative, functional-style pipeline for processing collections: <code>filter → map → reduce</code>. Benefits: (1) more readable code, (2) lazy evaluation — intermediate ops only execute when terminal op is called, (3) easy parallelism via <code>parallelStream()</code> with no manual thread management, (4) composable operations. Downside: harder to debug, slight overhead for small collections. Use streams for data transformation pipelines; use loops for performance-critical hot paths."
+        },
+        {
+          "id": "mmt-be-01-006",
+          "question": "How does ExecutorService, CompletableFuture, and ForkJoinPool differ?",
+          "answer": "<ul><li><strong>ExecutorService</strong>: Thread pool manager. Submit <code>Callable</code>/<code>Runnable</code> tasks, get <code>Future</code> back. Blocking <code>future.get()</code> to retrieve result.</li><li><strong>CompletableFuture</strong>: Non-blocking composition of async tasks. Chain with <code>.thenApply()</code>, <code>.thenCompose()</code>, <code>.exceptionally()</code>. Uses <code>ForkJoinPool.commonPool()</code> by default or a custom executor.</li><li><strong>ForkJoinPool</strong>: Work-stealing pool designed for recursive divide-and-conquer tasks. Best for CPU-bound recursive algorithms. <code>parallelStream()</code> uses it internally.</li></ul>"
+        },
+        {
+          "id": "mmt-be-01-007",
+          "question": "What is a Record in Java? How does it differ from a POJO? (Explicitly asked after candidate used it in DSA code)",
+          "answer": null
+        },
+        {
+          "id": "mmt-be-01-008",
+          "question": "Why is the default capacity of HashMap 16? Why a power of 2? (Bitmask trick: hash & (n-1))",
+          "answer": null
+        },
+        {
+          "id": "mmt-be-01-010",
+          "question": "What are immutable classes? How do you implement one? Why are they important for concurrency?",
+          "answer": null
+        },
+        {
+          "id": "mmt-be-01-011",
+          "question": "Java Generics — how does type erasure work?",
+          "answer": null
+        },
+        {
+          "id": "mmt-be-01-013",
+          "question": "Difference between ArrayList and LinkedList internals",
+          "answer": null
+        },
+        {
+          "id": "mmt-be-01-014",
+          "question": "String pool, intern(), difference between == and .equals() for Strings",
+          "answer": null
+        },
+        {
+          "id": "mmt-be-01-015",
+          "question": "What is a static inner class? Static method? When to use them? (Candidate lost marks on this)",
+          "answer": null
+        },
+        {
+          "id": "mmt-be-01-016",
+          "question": "What is a functional interface? Give 3 examples from java.util.function",
+          "answer": null
+        },
+        {
+          "id": "mmt-be-01-017",
+          "question": "Optional — when and why to use it vs. null checks",
+          "answer": null
+        },
+        {
+          "id": "mmt-be-01-019",
+          "question": "What happens when you create more threads than CPU cores? (Context switching overhead)",
+          "answer": null
+        },
+        {
+          "id": "mmt-be-01-020",
+          "question": "Explain ExecutorService, ThreadPoolExecutor, and CompletableFuture",
+          "answer": null
+        }
+      ]
+    },
+    {
+      "id": "mmt-be-topic-02",
+      "title": "Spring Boot / Spring Framework",
+      "icon": "🌱",
+      "items": [
+        {
+          "id": "mmt-be-02-001",
+          "question": "What is an Interceptor in Spring? Why use it over a Filter?",
+          "answer": "A Spring <code>HandlerInterceptor</code> intercepts requests at the Spring MVC level — after the request reaches DispatcherServlet but before it hits the controller (<code>preHandle</code>), after the controller (<code>postHandle</code>), and after view rendering (<code>afterCompletion</code>). A Servlet Filter operates at the Servlet container level — before Spring even processes the request. Use Interceptors for Spring-specific logic (accessing ModelAndView, accessing Spring beans easily). Use Filters for low-level request/response manipulation (CORS, compression, security headers) that must apply to all endpoints including non-Spring ones.<br><br>Example use case: logging request duration, authentication token validation, audit logging."
+        },
+        {
+          "id": "mmt-be-02-002",
+          "question": "Explain @Transactional propagation = REQUIRED vs REQUIRES_NEW",
+          "answer": "<ul><li><strong>REQUIRED</strong> (default): Join existing transaction if one exists; create new one if not. Both methods succeed or fail together.</li><li><strong>REQUIRES_NEW</strong>: Always create a new transaction, suspend any existing one. The inner transaction commits/rolls back independently. Use for audit logging that must persist even if the outer transaction fails.</li></ul>\n        Common pitfall: <code>@Transactional</code> only works on <strong>public methods</strong> called from outside the bean. Self-invocation (calling a @Transactional method from the same class) bypasses the proxy — the transaction is ignored."
+        },
+        {
+          "id": "mmt-be-02-003",
+          "question": "How does Spring Boot auto-configuration work?",
+          "answer": "<code>@EnableAutoConfiguration</code> triggers class-path scanning via <code>spring.factories</code> (or <code>AutoConfiguration.imports</code> in Spring Boot 3). Each auto-configuration class is annotated with <code>@ConditionalOnClass</code>, <code>@ConditionalOnMissingBean</code>, etc. For example, if <code>spring-data-redis</code> is on classpath, <code>RedisAutoConfiguration</code> auto-creates a <code>RedisTemplate</code> bean unless you define your own. You can exclude specific auto-configs via <code>@SpringBootApplication(exclude = {DataSourceAutoConfiguration.class})</code>."
+        },
+        {
+          "id": "mmt-be-02-004",
+          "question": "What is AOP? Give a real production use case.",
+          "answer": "Aspect-Oriented Programming allows cross-cutting concerns to be modularised out of business logic. Spring implements it via proxies (JDK dynamic proxy for interfaces, CGLIB for classes). Common production use cases: (1) <strong>Logging</strong>: log method entry/exit/args without polluting business code. (2) <strong>Performance monitoring</strong>: measure execution time and push to Micrometer/Prometheus. (3) <strong>Security</strong>: <code>@PreAuthorize</code>. (4) <strong>Transaction management</strong>: <code>@Transactional</code> is itself AOP. (5) <strong>Rate limiting</strong>: intercept annotated methods and check rate limit bucket.<br><br>Key terms: <code>@Aspect</code>, <code>@Before</code>, <code>@After</code>, <code>@Around</code>, <code>@Pointcut</code>."
+        },
+        {
+          "id": "mmt-be-02-005",
+          "question": "How would you implement a rate limiter in Spring Boot?",
+          "answer": "Production approach using Redis (sliding window log):<br><br><code>// In Redis: ZADD user:rateLimit:{userId} {now} {now}</code><br><code>// ZREMRANGEBYSCORE user:rateLimit:{userId} 0 {now-60000}</code><br><code>// ZCARD user:rateLimit:{userId} → count</code><br><code>// If count >= limit → reject with 429</code><br><br>In Spring Boot: create a <code>RateLimitInterceptor</code> that runs the above Redis commands in a Lua script (atomic). Use <code>Resilience4j RateLimiter</code> for a simpler local-only approach. For distributed: <code>Bucket4j</code> with Redis backend is production-ready."
+        },
+        {
+          "id": "mmt-be-02-006",
+          "question": "How does Spring Security JWT authentication work end-to-end?",
+          "answer": "1. User POSTs credentials → <code>AuthController</code> → <code>AuthenticationManager.authenticate()</code> → <code>UserDetailsService.loadByUsername()</code> → verify password → generate JWT (signed with secret, contains userId + roles + expiry).<br>2. Client sends <code>Authorization: Bearer &lt;token&gt;</code> on every request.<br>3. <code>JwtAuthFilter</code> (extends <code>OncePerRequestFilter</code>) extracts token, validates signature + expiry, sets <code>SecurityContextHolder.getContext().setAuthentication()</code>.<br>4. Method-level security: <code>@PreAuthorize(\"hasRole('ADMIN')\")</code> uses the Authentication from context.<br><br>Key: JWT is <strong>stateless</strong> — no server-side session storage. Invalidation requires a token blacklist (Redis TTL)."
+        },
+        {
+          "id": "mmt-be-02-007",
+          "question": "What is an Interceptor in Spring? Why do we need it? (Spring HandlerInterceptor vs Filter)",
+          "answer": null
+        },
+        {
+          "id": "mmt-be-02-010",
+          "question": "Explain Dependency Injection types (constructor vs field vs setter) — pros/cons",
+          "answer": null
+        },
+        {
+          "id": "mmt-be-02-012",
+          "question": "What are Spring Profiles? How do you switch configurations between environments?",
+          "answer": null
+        },
+        {
+          "id": "mmt-be-02-013",
+          "question": "Difference between @Component, @Service, @Repository, @Controller",
+          "answer": null
+        },
+        {
+          "id": "mmt-be-02-014",
+          "question": "Bean lifecycle in Spring — init, post-construct, pre-destroy callbacks",
+          "answer": null
+        },
+        {
+          "id": "mmt-be-02-015",
+          "question": "Spring MVC request lifecycle — DispatcherServlet → HandlerMapping → Controller → ViewResolver",
+          "answer": null
+        },
+        {
+          "id": "mmt-be-02-016",
+          "question": "How does Spring Security work? How would you implement JWT-based auth?",
+          "answer": null
+        },
+        {
+          "id": "mmt-be-02-017",
+          "question": "What is Spring Cloud? How do you use service discovery with Eureka?",
+          "answer": null
+        }
+      ]
+    },
+    {
+      "id": "mmt-be-topic-03",
+      "title": "Microservices & Distributed Systems",
+      "icon": "📡",
+      "items": [
+        {
+          "id": "mmt-be-03-001",
+          "question": "How do you prevent double payment when the same request is made twice? (Explicitly asked at MMT)",
+          "answer": "<strong>Idempotency key pattern</strong>: Client generates a UUID per payment attempt and sends it as a header (<code>Idempotency-Key: abc123</code>). Server:<br>1. Check Redis/DB for this key. If found → return cached response (200/201).<br>2. If not found → process payment → store <code>{key → response}</code> in Redis with TTL (e.g. 24h) → return response.<br><br>In Spring Boot: implement as a <code>@Aspect</code> or middleware that intercepts payment endpoints. Store in Redis with <code>SET key value NX PX 86400000</code> (atomic set-if-not-exists). If the SET returns null, key existed → return cached response. Never process the payment a second time."
+        },
+        {
+          "id": "mmt-be-03-002",
+          "question": "How do you handle concurrent seat booking? (IRCTC-style — asked multiple times)",
+          "answer": "<strong>Option 1 — Optimistic Locking (preferred for read-heavy)</strong>: Add a <code>version</code> column to Seat table. <code>SELECT * FROM seat WHERE id=? AND status='AVAILABLE'</code>. Then <code>UPDATE seat SET status='BOOKED', version=version+1 WHERE id=? AND version=?</code>. If 0 rows updated → conflict → retry or show \"seat taken\". With Spring Data JPA: <code>@Version private Integer version;</code> — Spring throws <code>OptimisticLockingFailureException</code> automatically.<br><br><strong>Option 2 — Pessimistic Locking</strong>: <code>@Lock(LockModeType.PESSIMISTIC_WRITE)</code> → generates <code>SELECT ... FOR UPDATE</code>. Simpler but lower throughput.<br><br><strong>Option 3 — Redis Distributed Lock</strong> (Redisson): Lock the seat ID in Redis for the duration of the booking transaction (~2–3s TTL). Best for microservices where DB locking doesn't span service boundaries."
+        },
+        {
+          "id": "mmt-be-03-003",
+          "question": "What is the Circuit Breaker pattern? How does Resilience4j implement it?",
+          "answer": "Circuit Breaker prevents cascading failures by stopping calls to a failing downstream service. Three states:<ul><li><strong>CLOSED</strong>: Normal. Calls pass through. Failure rate tracked in a sliding window (count or time-based).</li><li><strong>OPEN</strong>: Failure threshold exceeded. All calls immediately fail (or return fallback) without hitting the service. Timer runs.</li><li><strong>HALF_OPEN</strong>: Timer elapsed. Limited calls permitted. If they succeed → CLOSED. If they fail → back to OPEN.</li></ul>In Spring Boot: <code>@CircuitBreaker(name=\"payment\", fallbackMethod=\"fallback\")</code>. Config: <code>failureRateThreshold=50</code>, <code>waitDurationInOpenState=10s</code>, <code>permittedNumberOfCallsInHalfOpenState=5</code>."
+        },
+        {
+          "id": "mmt-be-03-004",
+          "question": "Kafka — Topics, Partitions, Consumer Groups, Offset management, Exactly-once",
+          "answer": "<ul><li><strong>Topic</strong>: Named stream of records. Divided into <strong>Partitions</strong> for parallelism. Messages within a partition are ordered.</li><li><strong>Consumer Group</strong>: Multiple consumers sharing load. Each partition is consumed by exactly one consumer in a group. Scaling: add more consumers up to the number of partitions.</li><li><strong>Offset</strong>: Position within a partition. Auto-commit (at-least-once — may reprocess on crash) vs manual commit (control exactly when offset advances). Commit after successful processing for at-least-once.</li><li><strong>Exactly-once</strong>: Enable idempotent producer (<code>enable.idempotence=true</code>) + Kafka transactions (<code>transactional.id</code>) + <code>isolation.level=read_committed</code> on consumer. Or handle at application level with idempotency keys.</li></ul>"
+        },
+        {
+          "id": "mmt-be-03-005",
+          "question": "How do you reduce latency between two microservices? (Tech Lead core question Jul 2024)",
+          "answer": "Multi-pronged approach depending on root cause:<ul><li><strong>Async decoupling</strong>: If response isn't needed synchronously, use Kafka/SQS. Service A publishes event, Service B consumes. Eliminates synchronous wait.</li><li><strong>Caching</strong>: Redis read-through cache in Service A for data fetched from Service B. Reduces cross-service calls for static/semi-static data.</li><li><strong>gRPC instead of REST</strong>: Binary protocol (protobuf), HTTP/2 multiplexing, persistent connections. 5–10x faster than REST for internal service calls.</li><li><strong>Connection pooling</strong>: Use Apache HttpClient with connection pool instead of creating new connections per request.</li><li><strong>Bulk/Batch APIs</strong>: Replace N calls with 1 batch call (e.g. fetch 100 prices in one request).</li><li><strong>Co-location</strong>: Deploy both services in the same availability zone/region to minimise network hop latency.</li></ul>"
+        },
+        {
+          "id": "mmt-be-03-006",
+          "question": "What is the Saga Pattern? Choreography vs Orchestration?",
+          "answer": "Saga manages distributed transactions across microservices where 2PC is not feasible. Each step has a compensating transaction for rollback.<br><br><strong>Choreography</strong>: Each service publishes events and reacts to others' events (event-driven). No central coordinator. Pros: loose coupling. Cons: hard to track flow, distributed logic.<br><br><strong>Orchestration</strong>: A central Saga Orchestrator (e.g. Temporal, or a dedicated Spring service) calls each service in sequence and handles compensation on failure. Pros: clear flow, easier debugging. Cons: orchestrator is a central dependency.<br><br>MMT context: Booking saga — reserve seat → charge payment → send confirmation email. If payment fails → release seat (compensation)."
+        },
+        {
+          "id": "mmt-be-03-007",
+          "question": "How do microservices communicate? REST vs gRPC vs message queues — when to use which?",
+          "answer": null
+        },
+        {
+          "id": "mmt-be-03-009",
+          "question": "How do you ensure idempotency in a distributed system? (Explicitly asked at Tech Lead level)",
+          "answer": null
+        },
+        {
+          "id": "mmt-be-03-010",
+          "question": "How would you prevent double payment when the same request is made twice? (SDE/SSE-2 explicit question)",
+          "answer": null
+        },
+        {
+          "id": "mmt-be-03-012",
+          "question": "Explain eventual consistency vs strong consistency. When would you sacrifice consistency?",
+          "answer": null
+        },
+        {
+          "id": "mmt-be-03-013",
+          "question": "How do you handle distributed transactions (2PC, Saga, Outbox pattern)?",
+          "answer": null
+        },
+        {
+          "id": "mmt-be-03-014",
+          "question": "What is an API Gateway? What does it handle vs microservices themselves?",
+          "answer": null
+        },
+        {
+          "id": "mmt-be-03-015",
+          "question": "How would you design service discovery in a K8s/cloud environment?",
+          "answer": null
+        },
+        {
+          "id": "mmt-be-03-016",
+          "question": "Biggest problem you solved with Redis and Kafka in your project (explicitly asked at Director level)",
+          "answer": null
+        },
+        {
+          "id": "mmt-be-03-019",
+          "question": "How do you handle very high QPS? (Core Tech Lead question Jul 2024)",
+          "answer": null
+        }
+      ]
+    },
+    {
+      "id": "mmt-be-topic-04",
+      "title": "Databases — MySQL, Redis, NoSQL",
+      "icon": "💾",
+      "items": [
+        {
+          "id": "mmt-be-04-001",
+          "question": "SQL vs NoSQL — when would you choose MongoDB over MySQL?",
+          "answer": "Choose <strong>MySQL (relational)</strong> when: data is structured and relational (users, orders, payments), ACID transactions are required (financial data), complex JOINs needed, schema is stable.<br><br>Choose <strong>MongoDB (NoSQL)</strong> when: data is hierarchical/nested (hotel metadata with room types, amenities, photos as nested arrays), schema varies across documents (different hotel types have different fields), horizontal sharding needed for massive write scale, rapid schema iteration during product development.<br><br>At MMT: booking and payment tables → MySQL. Hotel/flight content catalogue (deeply nested, varies by type) → MongoDB."
+        },
+        {
+          "id": "mmt-be-04-002",
+          "question": "How do indexes work? How does a B-tree index work? When does an index hurt performance?",
+          "answer": "A B-tree index is a balanced tree structure stored separately from the table. Each leaf node contains the indexed value + a pointer to the row (or the clustered key). Lookups: O(log N). Range queries: O(log N + K) — tree traversal then leaf-level scan.<br><br>Indexes hurt when: (1) <strong>Write-heavy tables</strong>: every INSERT/UPDATE/DELETE must also update all indexes. (2) <strong>Low-cardinality columns</strong>: index on a boolean column with 2 values is useless — MySQL will do a full table scan anyway. (3) <strong>Too many indexes</strong>: optimizer must choose among many; storage overhead. (4) Functions on indexed columns: <code>WHERE YEAR(created_at) = 2024</code> can't use an index on <code>created_at</code> — rewrite as range query."
+        },
+        {
+          "id": "mmt-be-04-003",
+          "question": "What are Redis data structures and when to use each?",
+          "answer": "<ul><li><strong>String</strong>: Simple key-value, counters (<code>INCR</code>), rate limiting, session tokens, feature flags.</li><li><strong>Hash</strong>: User/session objects — store fields without serializing entire JSON. <code>HSET user:1 name \"Ashutosh\" age 27</code>.</li><li><strong>List</strong>: Message queues (LPUSH/BRPOP), activity feeds, recent items.</li><li><strong>Set</strong>: Unique tags, friend lists, deduplication, set operations (SUNION, SINTER).</li><li><strong>Sorted Set (ZSet)</strong>: Leaderboards (score = timestamp or points), rate limiting (sliding window log with timestamps as scores), geospatial indexes.</li><li><strong>HyperLogLog</strong>: Approximate distinct count (DAU) with ~1% error, fixed 12KB memory regardless of cardinality.</li></ul>"
+        },
+        {
+          "id": "mmt-be-04-004",
+          "question": "Cache invalidation strategies — Write-through vs Write-behind vs Cache-aside?",
+          "answer": "<ul><li><strong>Cache-aside (Lazy loading)</strong>: App checks cache first. Miss → fetch from DB → populate cache. Pros: only caches what's needed. Cons: initial miss penalty, potential stale data. Most common pattern.</li><li><strong>Write-through</strong>: Every write goes to cache AND DB synchronously. Pros: cache always fresh. Cons: writes are slower (two writes), caches data that may never be read.</li><li><strong>Write-behind (Write-back)</strong>: Write to cache immediately, persist to DB asynchronously. Pros: fastest writes. Cons: risk of data loss if cache crashes before DB write. Use only where eventual persistence is acceptable.</li></ul>Cache-aside is MMT's likely pattern for hotel/flight search results with configurable TTLs."
+        },
+        {
+          "id": "mmt-be-04-005",
+          "question": "How did you use caching to reduce API response time by 98%? (Prepare your STAR story)",
+          "answer": "Framework for your answer: <strong>Situation</strong>: API hitting DB on every request, 500ms+ response time under load. <strong>Task</strong>: Reduce to sub-10ms. <strong>Action</strong>: (1) Identified hot-path queries using Kibana (high frequency, same params). (2) Added Redis cache-aside with TTL = business-appropriate freshness (e.g. 5 min for hotel prices). (3) Used <code>@Cacheable(\"hotelPrices\")</code> in Spring with Lettuce Redis client. (4) Cache warming on startup for most popular routes. <strong>Result</strong>: 98% requests served from cache at ~2ms. DB load reduced 95%. (Match to your actual Paytm work.)"
+        },
+        {
+          "id": "mmt-be-04-007",
+          "question": "In which language is MongoDB written? (C++)",
+          "answer": null
+        },
+        {
+          "id": "mmt-be-04-008",
+          "question": "DB schema design for IRCTC/railway ticketing system — trains, routes, seats, bookings",
+          "answer": null
+        },
+        {
+          "id": "mmt-be-04-009",
+          "question": "SQL queries to find routes between two stations without ORM syntax",
+          "answer": null
+        },
+        {
+          "id": "mmt-be-04-010",
+          "question": "How do you handle concurrent seat booking (optimistic vs pessimistic locking)?",
+          "answer": null
+        },
+        {
+          "id": "mmt-be-04-012",
+          "question": "Explain query optimisation — EXPLAIN plan, covering indexes, avoiding full table scans",
+          "answer": null
+        },
+        {
+          "id": "mmt-be-04-013",
+          "question": "What is database normalisation? When would you denormalise?",
+          "answer": null
+        },
+        {
+          "id": "mmt-be-04-014",
+          "question": "How does Redis work? What data structures does it support natively?",
+          "answer": null
+        },
+        {
+          "id": "mmt-be-04-015",
+          "question": "How did caching reduce API response time in your project? (Preparation: have a story ready)",
+          "answer": null
+        },
+        {
+          "id": "mmt-be-04-017",
+          "question": "How do you handle cache stampede / thundering herd?",
+          "answer": null
+        }
+      ]
+    },
+    {
+      "id": "mmt-be-topic-05",
+      "title": "OS & Computer Networks",
+      "icon": "🔧",
+      "items": [
+        {
+          "id": "mmt-be-05-001",
+          "question": "Process vs Thread — difference? Why is context switching expensive for processes?",
+          "answer": "A <strong>process</strong> is an independent execution unit with its own memory space, file handles, and OS resources. A <strong>thread</strong> is a lightweight execution unit within a process, sharing the same heap/code/data segments.<br><br>Context switching is more expensive for processes because: (1) full memory address space must be saved/restored including page tables, (2) TLB (Translation Lookaside Buffer) must be flushed — next process needs its own virtual-to-physical mapping, (3) more kernel data structures. Thread switching only saves/restores CPU registers and stack pointer — no TLB flush needed within the same process."
+        },
+        {
+          "id": "mmt-be-05-002",
+          "question": "What is a deadlock? Coffman's conditions. How to prevent in Java?",
+          "answer": "Deadlock: two or more threads wait indefinitely for each other to release locks. Coffman's 4 conditions (all must hold): (1) Mutual Exclusion, (2) Hold &amp; Wait, (3) No Preemption, (4) Circular Wait.<br><br>Prevention in Java: (1) <strong>Lock ordering</strong>: always acquire locks in the same order across all threads. (2) <strong>tryLock with timeout</strong>: <code>lock.tryLock(1, TimeUnit.SECONDS)</code> — give up and retry rather than wait forever. (3) <strong>Avoid nested locks</strong>: redesign to avoid needing two locks simultaneously. (4) <strong>Use higher-level constructs</strong>: <code>java.util.concurrent</code> classes (ConcurrentHashMap, BlockingQueue) which handle their own synchronization safely."
+        },
+        {
+          "id": "mmt-be-05-003",
+          "question": "HTTP vs HTTPS — what happens during TLS handshake?",
+          "answer": "1. Client sends <strong>ClientHello</strong>: TLS version, supported cipher suites, random bytes.<br>2. Server sends <strong>ServerHello</strong>: chosen cipher suite, random bytes, <strong>SSL Certificate</strong> (contains server's public key, signed by CA).<br>3. Client verifies certificate against trusted CA store.<br>4. <strong>Key exchange</strong>: (TLS 1.3) Client/Server use ECDHE to derive a shared secret without transmitting it — perfect forward secrecy.<br>5. Both derive the same symmetric session key from the shared secret + random bytes.<br>6. All subsequent data encrypted with symmetric key (e.g. AES-256-GCM).<br><br>HTTPS adds confidentiality (encryption), integrity (HMAC), and authentication (certificate) over HTTP."
+        },
+        {
+          "id": "mmt-be-05-004",
+          "question": "What happens when you type \"www.google.com\" in a browser?",
+          "answer": "1. <strong>DNS Resolution</strong>: Browser cache → OS cache → Recursive resolver → Root NS → .com TLD NS → Google's authoritative NS → IP address returned.<br>2. <strong>TCP Handshake</strong>: SYN → SYN-ACK → ACK to the resolved IP on port 443.<br>3. <strong>TLS Handshake</strong>: As described above — establishes encrypted channel.<br>4. <strong>HTTP/2 Request</strong>: GET / HTTP/2 with headers (Host, Accept, Cookie).<br>5. <strong>Server Processing</strong>: Load balancer → web server → application server → (cache → DB if needed) → response built.<br>6. <strong>Response</strong>: HTML sent back → browser parses → fetches CSS/JS/images (parallel HTTP/2 streams) → renders page."
+        },
+        {
+          "id": "mmt-be-05-007",
+          "question": "Mutex vs Semaphore — when to use which?",
+          "answer": null
+        },
+        {
+          "id": "mmt-be-05-008",
+          "question": "What is the Critical Section Problem? Peterson's solution idea?",
+          "answer": null
+        },
+        {
+          "id": "mmt-be-05-009",
+          "question": "Synchronisation primitives in Java: synchronized, ReentrantLock, CountDownLatch, Semaphore",
+          "answer": null
+        },
+        {
+          "id": "mmt-be-05-010",
+          "question": "What is cache memory? L1/L2/L3 hierarchy and why it matters for performance",
+          "answer": null
+        },
+        {
+          "id": "mmt-be-05-011",
+          "question": "HTTP vs HTTPS — TLS handshake, certificate chain",
+          "answer": null
+        },
+        {
+          "id": "mmt-be-05-012",
+          "question": "What happens when you search \"www.google.com\"? (DNS, TCP, HTTP, rendering — full stack)",
+          "answer": null
+        },
+        {
+          "id": "mmt-be-05-013",
+          "question": "Different OSI/TCP layers — where does each protocol sit?",
+          "answer": null
+        },
+        {
+          "id": "mmt-be-05-014",
+          "question": "How would you secure an API? (Auth, rate limiting, HTTPS, input validation)",
+          "answer": null
+        }
+      ]
+    },
+    {
+      "id": "mmt-be-topic-06",
+      "title": "Design Patterns (Java) — Tested Live at MMT",
+      "icon": "🎨",
+      "items": [
+        {
+          "id": "mmt-be-06-001",
+          "question": "Thread-safe Singleton — implement it in Java",
+          "answer": "<div class=\"code-panel active\" data-lang=\"java\"><pre><span class=\"cm\">// Best approach: Initialization-on-Demand Holder (lazy, thread-safe, no sync overhead)</span>\n<span class=\"kw\">public class</span> <span class=\"ty\">Singleton</span> {\n    <span class=\"kw\">private</span> <span class=\"fn\">Singleton</span>() {}\n    <span class=\"kw\">private static class</span> <span class=\"ty\">Holder</span> {\n        <span class=\"kw\">static final</span> <span class=\"ty\">Singleton</span> INSTANCE = <span class=\"kw\">new</span> <span class=\"ty\">Singleton</span>();\n    }\n    <span class=\"kw\">public static</span> <span class=\"ty\">Singleton</span> <span class=\"fn\">getInstance</span>() { <span class=\"kw\">return</span> Holder.INSTANCE; }\n}\n\n<span class=\"cm\">// Alternative: Enum singleton (handles serialization + reflection attacks)</span>\n<span class=\"kw\">public enum</span> <span class=\"ty\">EnumSingleton</span> {\n    INSTANCE;\n    <span class=\"kw\">public void</span> <span class=\"fn\">doWork</span>() { <span class=\"cm\">/* ... */</span> }\n}</pre></div>\n          </div>",
+          "solutions": [
+            {
+              "lang": "java",
+              "label": "Java",
+              "code": "// Best approach: Initialization-on-Demand Holder (lazy, thread-safe, no sync overhead)\npublic class Singleton {\n    private Singleton() {}\n    private static class Holder {\n        static final Singleton INSTANCE = new Singleton();\n    }\n    public static Singleton getInstance() { return Holder.INSTANCE; }\n}\n\n// Alternative: Enum singleton (handles serialization + reflection attacks)\npublic enum EnumSingleton {\n    INSTANCE;\n    public void doWork() { /* ... */ }\n}"
+            }
+          ]
+        },
+        {
+          "id": "mmt-be-06-002",
+          "question": "State Pattern (for Vending Machine — explicitly asked at MMT)",
+          "answer": "<div class=\"code-panel active\" data-lang=\"java\"><pre><span class=\"kw\">interface</span> <span class=\"ty\">VendingState</span> {\n    <span class=\"kw\">void</span> <span class=\"fn\">insertCoin</span>(<span class=\"ty\">VendingMachine</span> vm);\n    <span class=\"kw\">void</span> <span class=\"fn\">selectItem</span>(<span class=\"ty\">VendingMachine</span> vm, String item);\n    <span class=\"kw\">void</span> <span class=\"fn\">dispense</span>(<span class=\"ty\">VendingMachine</span> vm);\n}\n\n<span class=\"kw\">class</span> <span class=\"ty\">IdleState</span> <span class=\"kw\">implements</span> <span class=\"ty\">VendingState</span> {\n    <span class=\"kw\">public void</span> <span class=\"fn\">insertCoin</span>(<span class=\"ty\">VendingMachine</span> vm) {\n        System.out.<span class=\"fn\">println</span>(<span class=\"st\">\"Coin accepted\"</span>);\n        vm.<span class=\"fn\">setState</span>(<span class=\"kw\">new</span> <span class=\"ty\">HasMoneyState</span>());\n    }\n    <span class=\"kw\">public void</span> <span class=\"fn\">selectItem</span>(<span class=\"ty\">VendingMachine</span> vm, String item) { System.out.<span class=\"fn\">println</span>(<span class=\"st\">\"Insert coin first\"</span>); }\n    <span class=\"kw\">public void</span> <span class=\"fn\">dispense</span>(<span class=\"ty\">VendingMachine</span> vm) { System.out.<span class=\"fn\">println</span>(<span class=\"st\">\"No money inserted\"</span>); }\n}\n\n<span class=\"kw\">class</span> <span class=\"ty\">VendingMachine</span> {\n    <span class=\"kw\">private</span> <span class=\"ty\">VendingState</span> state = <span class=\"kw\">new</span> <span class=\"ty\">IdleState</span>();\n    <span class=\"kw\">private final</span> ReentrantLock lock = <span class=\"kw\">new</span> ReentrantLock(); <span class=\"cm\">// thread safety</span>\n    <span class=\"kw\">public void</span> <span class=\"fn\">setState</span>(<span class=\"ty\">VendingState</span> s) { this.state = s; }\n    <span class=\"kw\">public void</span> <span class=\"fn\">insertCoin</span>() {\n        lock.<span class=\"fn\">lock</span>(); <span class=\"kw\">try</span> { state.<span class=\"fn\">insertCoin</span>(this); } <span class=\"kw\">finally</span> { lock.<span class=\"fn\">unlock</span>(); }\n    }\n    <span class=\"cm\">// selectItem, dispense similarly locked</span>\n}</pre></div>\n          </div>",
+          "solutions": [
+            {
+              "lang": "java",
+              "label": "Java",
+              "code": "interface VendingState {\n    void insertCoin(VendingMachine vm);\n    void selectItem(VendingMachine vm, String item);\n    void dispense(VendingMachine vm);\n}\n\nclass IdleState implements VendingState {\n    public void insertCoin(VendingMachine vm) {\n        System.out.println(\"Coin accepted\");\n        vm.setState(new HasMoneyState());\n    }\n    public void selectItem(VendingMachine vm, String item) { System.out.println(\"Insert coin first\"); }\n    public void dispense(VendingMachine vm) { System.out.println(\"No money inserted\"); }\n}\n\nclass VendingMachine {\n    private VendingState state = new IdleState();\n    private final ReentrantLock lock = new ReentrantLock(); // thread safety\n    public void setState(VendingState s) { this.state = s; }\n    public void insertCoin() {\n        lock.lock(); try { state.insertCoin(this); } finally { lock.unlock(); }\n    }\n    // selectItem, dispense similarly locked\n}"
+            }
+          ]
+        },
+        {
+          "id": "mmt-be-06-003",
+          "question": "Observer / Publisher-Subscriber pattern in microservices context",
+          "answer": "In microservices, this maps to event-driven architecture via Kafka/SQS. In Spring:<br><br><code>@EventListener</code> for in-process events: <code>applicationEventPublisher.publishEvent(new OrderCreatedEvent(order))</code> → any <code>@EventListener</code> method consuming <code>OrderCreatedEvent</code> reacts. For cross-service: publish to Kafka topic, consumers subscribe via <code>@KafkaListener</code>.<br><br>Example at MMT: BookingConfirmedEvent → (1) NotificationService sends email, (2) AnalyticsService records booking, (3) RewardsService credits points — all independently, without BookingService knowing about them."
+        },
+        {
+          "id": "mmt-be-06-005",
+          "question": "Builder Pattern — implement with static inner class; then make it thread-safe (Atomic)",
+          "answer": null
+        },
+        {
+          "id": "mmt-be-06-006",
+          "question": "Factory / Abstract Factory — where have you used it in production?",
+          "answer": null
+        },
+        {
+          "id": "mmt-be-06-008",
+          "question": "State Pattern — used in LLD of Vending Machine (explicit at MMT SDE-2)",
+          "answer": null
+        },
+        {
+          "id": "mmt-be-06-009",
+          "question": "Strategy Pattern — use for switching algorithms at runtime (e.g. pricing strategies)",
+          "answer": null
+        },
+        {
+          "id": "mmt-be-06-010",
+          "question": "Chain of Responsibility — for pipeline processing (cash denomination calculation)",
+          "answer": null
+        },
+        {
+          "id": "mmt-be-06-011",
+          "question": "Interceptor Pattern — for Spring-based middleware (request/response logging, auth)",
+          "answer": null
+        },
+        {
+          "id": "mmt-be-06-012",
+          "question": "MVC — how does Spring MVC implement it?",
+          "answer": null
+        },
+        {
+          "id": "mmt-be-06-013",
+          "question": "How many design patterns do you know? Name and briefly explain 5. (Explicitly asked at MMT)",
+          "answer": null
+        }
+      ]
+    },
+    {
+      "id": "mmt-be-topic-07",
+      "title": "Resume / Project Deep-Dive Questions (SDE-2+)",
+      "icon": "",
+      "items": [
+        {
+          "id": "mmt-be-07-001",
+          "question": "Walk me through the biggest performance problem you solved in your current project",
+          "answer": null
+        },
+        {
+          "id": "mmt-be-07-002",
+          "question": "What innovative ideas have you contributed to your team's architecture?",
+          "answer": null
+        },
+        {
+          "id": "mmt-be-07-003",
+          "question": "Have you suggested any architecture changes? What was the outcome?",
+          "answer": null
+        },
+        {
+          "id": "mmt-be-07-004",
+          "question": "Discuss your use of Kafka in your current project — design decision rationale",
+          "answer": null
+        },
+        {
+          "id": "mmt-be-07-005",
+          "question": "Discuss your use of Redis — eviction policy, data structure chosen and why",
+          "answer": null
+        },
+        {
+          "id": "mmt-be-07-006",
+          "question": "How have you approached high-throughput API design? What bottlenecks have you seen?",
+          "answer": null
+        },
+        {
+          "id": "mmt-be-07-007",
+          "question": "Describe a latency problem you solved — root cause analysis approach",
+          "answer": null
+        },
+        {
+          "id": "mmt-be-07-008",
+          "question": "How do you ensure observability? (Kibana, Grafana, Prometheus, distributed tracing)",
+          "answer": null
+        }
+      ]
+    }
+  ]
+}

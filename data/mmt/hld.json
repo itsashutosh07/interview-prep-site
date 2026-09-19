@@ -1,0 +1,155 @@
+{
+  "categories": [
+    {
+      "title": "General",
+      "questions": [
+        {
+          "id": "mmt-hld-001",
+          "title": "IRCTC / Railway Ticketing System — DB Schema + SQL + Concurrent Booking",
+          "freq": "high",
+          "tags": [
+            "HLD"
+          ],
+          "category": "General",
+          "body": "",
+          "answer": "<strong>Concurrency strategy</strong>: JPA <code>@Version</code> (optimistic locking) for low-contention routes. For peak-time (tatkal), use Redis distributed lock (Redisson) with 30s TTL: <code>SETNX seat:lock:{seatId} userId EX 30</code>. Lock acquired → book → release. Lock not acquired → seat taken. <br><strong>Scaling</strong>: Read replicas for availability queries. Write to primary only. Partition Seat table by train_id. Cache popular route seat counts in Redis (invalidate on booking).",
+          "solutions": [
+            {
+              "lang": "java",
+              "label": "Java",
+              "code": "-- Core Tables\nCREATE TABLE Station (id INT PK, name VARCHAR, city VARCHAR);\nCREATE TABLE Train   (id INT PK, name VARCHAR, type ENUM('Express','Local'));\nCREATE TABLE Schedule (\n    id INT PK, train_id INT FK, departure_station INT FK,\n    arrival_station INT FK, dept_time DATETIME, arr_time DATETIME\n);\nCREATE TABLE Seat (\n    id INT PK, train_id INT FK, coach VARCHAR, seat_number INT,\n    class ENUM('1A','2A','3A','SL'), status ENUM('AVAILABLE','BOOKED','LOCKED'),\n    version INT DEFAULT 0   -- for optimistic locking\n);\nCREATE TABLE Booking (\n    id INT PK, user_id INT FK, seat_id INT FK, schedule_id INT FK,\n    pnr VARCHAR UNIQUE, status ENUM('CONFIRMED','CANCELLED'),\n    idempotency_key VARCHAR UNIQUE,  -- prevent double booking\n    created_at TIMESTAMP\n);\n\n-- Find routes between Delhi and Mumbai\nSELECT s1.name src, s2.name dst, t.name train, sc.dept_time\nFROM Schedule sc\nJOIN Station s1 ON s1.id = sc.departure_station AND s1.city = 'Delhi'\nJOIN Station s2 ON s2.id = sc.arrival_station   AND s2.city = 'Mumbai'\nJOIN Train t ON t.id = sc.train_id;\n\n-- Concurrent booking with optimistic lock (JPA)\n-- @Version on Seat entity → Spring auto-appends AND version=? to UPDATE\n-- If 0 rows updated → OptimisticLockingFailureException → retry\n\n-- Available seats for a schedule\nSELECT * FROM Seat WHERE train_id=? AND status='AVAILABLE';"
+            }
+          ],
+          "links": [],
+          "source": "Reported: SSE-2 LeetCode Nov 2023, Tech Lead Jul 2024"
+        },
+        {
+          "id": "mmt-hld-002",
+          "title": "Idempotent Booking + Double Payment Prevention",
+          "freq": "high",
+          "tags": [
+            "HLD"
+          ],
+          "category": "General",
+          "body": "",
+          "answer": "<strong>Full flow:</strong><br>\n        1. Client generates <code>UUID idempotencyKey</code> per booking attempt.<br>\n        2. API: <code>POST /bookings</code> with header <code>Idempotency-Key: uuid</code>.<br>\n        3. Server atomically <code>SET booking:idem:{key} PROCESSING NX EX 300</code> in Redis.<br>\n        4. If key already exists → check if value is <code>DONE:{bookingId}</code> → return cached response (200).<br>\n        5. Process booking → charge payment → store result as <code>DONE:{bookingId}</code> in Redis with 24h TTL.<br>\n        6. Also store <code>idempotency_key</code> as UNIQUE column in Booking table — second layer of safety.<br><br>\n        <strong>For the payment charge itself</strong>: Payment gateway also supports idempotency keys. Pass the same key so even if you call the payment gateway twice (network retry), only one charge occurs.<br><br>\n        <strong>Outbox Pattern</strong> (for reliable event publishing): Write booking + outbox event in same DB transaction. Separate poller reads outbox and publishes to Kafka. Guarantees event is published exactly once even if service crashes.",
+          "solutions": [],
+          "links": [],
+          "source": "Reported: Tech Lead Jul 2024, SDE/SSE-2 Oct 2024 (verbal)"
+        },
+        {
+          "id": "mmt-hld-003",
+          "title": "URL Shortener / TinyURL — Production Design",
+          "freq": "high",
+          "tags": [
+            "HLD"
+          ],
+          "category": "General",
+          "body": "",
+          "answer": "<strong>Core design</strong>: Auto-increment ID → Base62 encode → 6-char short code (62^6 = 56 billion URLs).<br><br>\n        <strong>DB Schema</strong>: <code>url_mapping(id BIGINT PK AUTO_INCREMENT, short_code VARCHAR(8) UNIQUE, long_url TEXT, user_id BIGINT, expires_at DATETIME, created_at TIMESTAMP)</code><br><br>\n        <strong>Redirect flow</strong>: GET /{code} → Redis GET url:{code} (cache hit ~2ms) → miss → DB query → cache set (TTL 7 days) → HTTP 301 redirect.<br><br>\n        <strong>Auth for MMT variant</strong>: JWT in request → extract userId → verify url_mapping.user_id == requestUserId → else 403.<br><br>\n        <strong>Scale</strong>: 100B URLs/day redirect reads → Redis cluster. Writes: ~10M/day → single MySQL primary is fine. Use CDN in front for global redirect acceleration. Analytics: async Kafka event on each redirect → ClickHouse for stats.",
+          "solutions": [],
+          "links": [],
+          "source": "Reported: Senior SDE GFG 2019, SDE/SSE-2 Oct 2024"
+        },
+        {
+          "id": "mmt-hld-004",
+          "title": "Distributed Cache Design",
+          "freq": "med",
+          "tags": [
+            "HLD"
+          ],
+          "category": "General",
+          "body": "",
+          "answer": "<strong>Key components</strong>:<br>\n        1. <strong>Consistent Hashing</strong>: Map keys to nodes on a ring. Adding/removing a node only remaps ~K/N keys (vs. K/2 with simple modulo). Use virtual nodes for uniform distribution.<br>\n        2. <strong>Replication</strong>: Each key stored on N nodes (e.g., 3). Reads from any replica. Writes to primary → async replication.<br>\n        3. <strong>Eviction</strong>: LRU per shard with max memory limit. TTL expiry (lazy + active background sweep).<br>\n        4. <strong>Cache Coherence</strong>: On write, invalidate all replicas (delete-on-write) or use versioned values (read-your-writes consistency).<br>\n        5. <strong>Client-side routing</strong>: Clients use the same consistent hash ring to determine which node to contact — no central router bottleneck.<br><br>\n        Redis Cluster in production implements this with 16384 hash slots distributed across master nodes, each with replicas.",
+          "solutions": [],
+          "links": [],
+          "source": "Reported: SDE-2 GFG 2021"
+        },
+        {
+          "id": "mmt-hld-005",
+          "title": "Scalable System for Very High QPS",
+          "freq": "high",
+          "tags": [
+            "HLD"
+          ],
+          "category": "General",
+          "body": "",
+          "answer": "Layer by layer approach:<br>\n        1. <strong>Client/CDN</strong>: Static assets cached at edge. CDN absorbs 60–70% of traffic before it hits origin.<br>\n        2. <strong>API Gateway</strong>: Rate limiting, auth, request routing, SSL termination.<br>\n        3. <strong>Load Balancer</strong>: L7 (Application LB) → round-robin / least-connections across stateless service instances. Auto-scaling group expands horizontally.<br>\n        4. <strong>Services</strong>: Stateless microservices — no server-side session (JWT). Horizontally scalable.<br>\n        5. <strong>Cache</strong>: Redis cluster in front of DB. Cache-aside for hot data. Target 95%+ cache hit rate.<br>\n        6. <strong>DB</strong>: Read replicas for 80% read workload. Write to primary. Shard by user_id or booking_id for extreme scale.<br>\n        7. <strong>Async</strong>: Non-critical work (emails, analytics, rewards) offloaded to Kafka → workers. Reduces synchronous API latency.<br>\n        8. <strong>Circuit Breakers</strong>: Resilience4j on downstream calls. Fallback to stale cache or graceful degradation.",
+          "solutions": [],
+          "links": [],
+          "source": "Reported: Tech Lead LeetCode Jul 2024"
+        },
+        {
+          "id": "mmt-hld-006",
+          "title": "Reducing Latency Between Two Microservices",
+          "freq": "high",
+          "tags": [
+            "HLD"
+          ],
+          "category": "General",
+          "body": "Tech Lead on-site (Jul 2024). Given two services with high latency between them, what are the approaches? Cover: async (Kafka/event), caching (Redis read-through), connection pooling, gRPC instead of REST, co-location, bulk/batch APIs, circuit breakers.",
+          "answer": null,
+          "solutions": [],
+          "links": [],
+          "source": "Reported: Tech Lead LeetCode Jul 2024"
+        },
+        {
+          "id": "mmt-hld-007",
+          "title": "Chatbot System — Hotel/Flight booking queries routing",
+          "freq": "med",
+          "tags": [
+            "HLD"
+          ],
+          "category": "General",
+          "body": "SDE-2 (4 years exp) Round 3 (GFG). Chatbot for MMT: queries can be hotel or flight. Route to different internal APIs. Custom questions go to analytics for future training. Components: NLP classifier, intent router, internal API adapters, fallback/analytics pipeline.",
+          "answer": null,
+          "solutions": [],
+          "links": [],
+          "source": "Reported: SDE-2 GFG 4 years exp Round 3"
+        },
+        {
+          "id": "mmt-hld-008",
+          "title": "Facebook Messenger / Chat System",
+          "freq": "low",
+          "tags": [
+            "HLD"
+          ],
+          "category": "General",
+          "body": "Naukri Code360 SDE-2 campus (Jul 2022). 1-on-1 + group chat, delivered/read receipts, offline message storage, push notifications, end-to-end encryption, media.",
+          "answer": "<p>WebSocket for real-time. Fan-out on write for group chat. Message queue (Kafka) for delivery. Cassandra for message storage (wide column, time-series friendly).</p>",
+          "solutions": [],
+          "links": [],
+          "source": "Reported: Naukri Code360 Jul 2022"
+        },
+        {
+          "id": "mmt-hld-009",
+          "title": "Uber Driver Allocation — LLD of Uber (verbal)",
+          "freq": "low",
+          "tags": [
+            "HLD"
+          ],
+          "category": "General",
+          "body": "CodingKaro SSE/SDE Round 2. Verbal explanation of algorithm to allocate nearest driver + some basic HLD follow-up questions.",
+          "answer": "<p>Geospatial index (Redis Geo or PostGIS). Driver location updated via Kafka stream. Nearest driver: GEORADIUSBYMEMBER. Assignment: optimistic lock on driver availability flag.</p>",
+          "solutions": [],
+          "links": [],
+          "source": "Reported: CodingKaro SSE/SDE Round 2"
+        },
+        {
+          "id": "mmt-hld-010",
+          "title": "Dream11 / Fantasy Sports Platform HLD (unexpected swap)",
+          "freq": "low",
+          "tags": [
+            "HLD"
+          ],
+          "category": "General",
+          "body": "CodingKaro SSE-2 — the LLD round unexpectedly turned into a full Dream11-style HLD. High concurrency (massive spike at contest start/end), leaderboard updates, team management.",
+          "answer": null,
+          "solutions": [],
+          "links": [],
+          "source": "Reported: CodingKaro SSE-2"
+        }
+      ]
+    }
+  ]
+}

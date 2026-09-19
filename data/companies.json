@@ -1,0 +1,23 @@
+{
+  "companies": [
+    {
+      "id": "mmt",
+      "slug": "mmt",
+      "name": "MakeMyTrip",
+      "shortName": "MMT",
+      "role": "Backend / SDE",
+      "accent": "#CF142B",
+      "logo": "assets/logos/mmt.png",
+      "logoMark": "assets/logos/mmt-mark.svg",
+      "description": "DSA (C++), Backend Java Q&A, LLD & HLD for SDE-1 to SSE.",
+      "tabs": [
+        "overview",
+        "dsa",
+        "backend",
+        "lld",
+        "hld",
+        "tips"
+      ]
+    }
+  ]
+}

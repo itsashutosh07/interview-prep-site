@@ -1,0 +1,138 @@
+{
+  "title": "MakeMyTrip Technical Interview — Complete Prep Guide",
+  "intro": "Compiled from GFG, LeetCode Discuss, Glassdoor, Naukri Code360 — 2019–2025. DSA answers in C++. Backend/LLD/HLD answers in Java / Spring Boot / MySQL.",
+  "stats": [
+    {
+      "num": "44",
+      "label": "DSA Problems + C++ Code"
+    },
+    {
+      "num": "70+",
+      "label": "Backend Q&A (Java)"
+    },
+    {
+      "num": "12",
+      "label": "LLD + Java Code"
+    },
+    {
+      "num": "10",
+      "label": "HLD Problems"
+    },
+    {
+      "num": "3–5",
+      "label": "Interview Rounds"
+    }
+  ],
+  "process": [
+    {
+      "num": "0",
+      "title": "Online Assessment (HackerEarth/HackerRank)",
+      "desc": "22 questions = 2 algorithmic coding + 20 MCQs covering DBMS, OS, CN, Java OOP, SQL, aptitude. Medium difficulty."
+    },
+    {
+      "num": "1",
+      "title": "DSA / Problem Solving Round (60 min)",
+      "desc": "2 coding questions — arrays, linked lists, trees, DP, graphs. LeetCode Easy–Medium. Working code + dry-run + complexity required."
+    },
+    {
+      "num": "2",
+      "title": "LLD / Machine Coding Round (60 min)",
+      "desc": "Design and code a real system in Java. SOLID principles, design patterns, concurrency are tested hands-on. Java is a hard requirement."
+    },
+    {
+      "num": "3",
+      "title": "HLD / System Design Round (60–90 min)",
+      "desc": "Distributed, travel-domain-relevant systems. DB schema, SQL, scalability, concurrency, caching, microservices."
+    },
+    {
+      "num": "4",
+      "title": "Managerial / Director Round (SDE-2+)",
+      "desc": "Project depth, innovative contributions, latency problems solved, architecture decisions. Prepare STAR stories from production."
+    }
+  ],
+  "overviewWarn": {
+    "title": "⚠️ MMT-Specific Signals",
+    "body": "Java is a hard requirement — even if DSA is in Python/C++, expect Java follow-ups (records, streams, concurrency). SOLID principles and design patterns tested live in LLD. Idempotency and double-payment prevention are very commonly asked."
+  },
+  "tipBoxes": [
+    {
+      "title": "🎯 MMT Core Requirements",
+      "body": "(1) Java is mandatory even if you code DSA in C++. (2) Concurrency appears in every round. (3) Design patterns live-coded in LLD — State, Builder, Adapter, Observer are the most common. (4) Idempotency & double-payment — must have a crisp answer for this. (5) Production-readiness: every design decision needs trade-off rationale."
+    }
+  ],
+  "tipSections": [
+    {
+      "title": "DSA Priority List",
+      "items": [
+        "Must know (🔥 High freq): Sliding Window, Two Pointer, HashMap prefix-sum, Merge K sorted, Jump Game, LCA, LRU, FreqStack, Longest Consecutive Sequence, Permutations",
+        "Should know (⚡ Med): Dijkstra, Tarjan bridges, DP (MSIS, Dice throw), Multiply strings, Sort by frequency",
+        "Nice to know: Josephus, Tower of Hanoi, coordinate GCD, vertical tree traversal"
+      ]
+    },
+    {
+      "title": "Java Checklist",
+      "items": [
+        "✅ HashMap internals: capacity 16, load factor 0.75, bitmask hash & (n-1)",
+        "✅ Concurrency: volatile vs synchronized vs Atomic — know when to use each, live",
+        "✅ CompletableFuture: supplyAsync, thenApply, thenCompose, exceptionally, join",
+        "✅ @Transactional propagation: REQUIRED vs REQUIRES_NEW — self-invocation pitfall",
+        "✅ Spring Interceptors vs Filters — difference and use cases",
+        "✅ Records, sealed classes, Optional — Java 16+ features"
+      ]
+    },
+    {
+      "title": "DSA Strategy",
+      "items": [
+        "Priority topics: Arrays+Strings (Sliding Window, Two Pointer), Linked Lists, Trees (BFS/DFS/LCA), DP (subsequence patterns), Graphs (BFS/Dijkstra/Bridges), Heaps",
+        "Solve 2 questions per round — expect 60 mins per coding round. Budget 25 mins per question.",
+        "Always start with brute force → then optimise. MMT interviewers appreciate the thought process over jumping to optimal.",
+        "Always analyse time and space complexity. Do a dry-run on a sample test case when asked.",
+        "For LeetCode prep: focus on Medium difficulty. Hard is rarely asked; Easy is used only as warmup at senior levels.",
+        "Recommended list: LeetCode Top 100 Liked + all problems tagged \"MakeMyTrip\" on LeetCode"
+      ]
+    },
+    {
+      "title": "Java Preparation Checklist",
+      "items": [
+        "✅ Java 8–17 features: Streams, Optional, Records (Java 16+), sealed classes",
+        "✅ HashMap internals: hashing, load factor, rehashing, why size is power of 2",
+        "✅ Concurrency: synchronized, volatile, AtomicXxx, ReentrantLock, Semaphore, CountDownLatch",
+        "✅ ExecutorService: ThreadPoolExecutor, CompletableFuture, ForkJoinPool",
+        "✅ Collections: ConcurrentHashMap vs HashMap, CopyOnWriteArrayList",
+        "✅ Garbage Collection: G1GC basics, when to worry about GC pauses",
+        "✅ Spring: bean lifecycle, @Transactional propagation, AOP, interceptors",
+        "✅ Practice coding design patterns live in Java — not just knowing them theoretically"
+      ]
+    },
+    {
+      "title": "System Design Preparation",
+      "items": [
+        "✅ Go deep on: Ticket Booking (concurrency, optimistic locking), URL Shortener, Rate Limiter, Distributed Cache",
+        "✅ Know the trade-offs: SQL vs NoSQL, REST vs gRPC vs Kafka, sync vs async",
+        "✅ Practice DB schema design: normalisation, indexing, query optimisation",
+        "✅ Idempotency keys, outbox pattern, and saga are table-stakes for payments/booking domain",
+        "✅ Be ready to defend every decision — Why this DB? Why this cache strategy? What breaks at 10x load?"
+      ]
+    },
+    {
+      "title": "MMT-Specific Resume Prep (SDE-2+)",
+      "items": [
+        "Prepare 3 STAR stories: one latency fix, one architecture change you proposed, one innovative feature you shipped",
+        "For every tech in your resume (Redis, Kafka, Elasticsearch): know why you chose it, what alternatives existed, what trade-offs were made",
+        "Quantify achievements: \"reduced API response time by 98%\" is exactly what MMT probes on",
+        "Know your Spring Boot microservice flow end-to-end: request → controller → service → repository → DB → cache",
+        "Be ready for: \"Describe a production incident and how you debugged it\" with Kibana/Grafana as tools"
+      ]
+    }
+  ],
+  "tipWarn": {
+    "title": "⚠️ Top Rejection Reasons at MMT",
+    "items": [
+      "Using synchronized everywhere in LLD — interviewers want Atomic / non-blocking alternatives",
+      "Not using State pattern in Vending Machine LLD",
+      "No clear idempotency answer for double-payment scenario",
+      "Weak Java internals despite Spring Boot on resume",
+      "No production STAR stories for Director-level managerial round"
+    ]
+  }
+}
