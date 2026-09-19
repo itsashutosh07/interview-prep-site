@@ -17,7 +17,7 @@
             {
               "lang": "cpp",
               "label": "C++",
-              "code": "string minWindow(string s, string t) {\n    unordered_map<char,int> need, window;\n    for (char c : t) need[c]++;\n    int have = 0, required = need.size();\n    int l = 0, minLen = INT_MAX, start = 0;\n    for (int r = 0; r < s.size(); r++) {\n        window[s[r]]++;\n        if (need.count(s[r]) && window[s[r]] == need[s[r]]) have++;\n        while (have == required) {\n            if (r - l + 1 < minLen) { minLen = r-l+1; start = l; }\n            window[s[l]]--;\n            if (need.count(s[l]) && window[s[l]] < need[s[l]]) have--;\n            l++;\n        }\n    }\n    return minLen == INT_MAX ? \"\" : s.substr(start, minLen);\n}\n// Time: O(|S|+|T|)  Space: O(|T|)"
+              "code": "string minWindow(string s, string t) {\n    // need[c] > 0 means we still owe that many c's. Extras go negative and are ignored.\n    int need[128] = {};\n    for (char c : t) need[(unsigned char)c]++;\n    int missing = (int)t.size(); // counts duplicates, not distinct chars\n    int best = INT_MAX, start = 0, left = 0;\n    for (int right = 0; right < (int)s.size(); right++) {\n        unsigned char c = s[right];\n        if (need[c] > 0) missing--;\n        need[c]--;\n        while (missing == 0) { // window is valid — shrink it before moving on\n            if (right - left + 1 < best) {\n                best = right - left + 1;\n                start = left;\n            }\n            unsigned char d = s[left++];\n            need[d]++;\n            if (need[d] > 0) missing++; // this char was required; window just broke\n        }\n    }\n    return best == INT_MAX ? \"\" : s.substr(start, best);\n}\n// O(|s| + |t|) time, O(1) space — alphabet is fixed\n"
             }
           ],
           "links": [
@@ -38,12 +38,12 @@
           ],
           "category": "Arrays & Strings",
           "body": "<p>Given an integer array <code>nums</code>, return <strong>any</strong> contiguous subarray whose elements sum to <code>0</code>. If none exists, return an empty array. (Returning the start and end indices is also acceptable — state which you return.)</p><div class=\"example\"><div class=\"example-label\">Example 1</div><pre>Input: nums = [1, 2, -3, 4, -1]\nOutput: [1, 2, -3]\nExplanation: 1 + 2 + (-3) = 0. Indices [0, 2] are also a valid answer.</pre></div><div class=\"example\"><div class=\"example-label\">Example 2</div><pre>Input: nums = [1, 2, 3]\nOutput: []\nExplanation: No contiguous subarray sums to 0.</pre></div><p><strong>Constraints</strong></p><ul><li>1 &lt;= nums.length &lt;= 10^5</li><li>-10^9 &lt;= nums[i] &lt;= 10^9</li></ul>",
-          "answer": "<p><strong>Problem:</strong> Detect any contiguous subarray whose sum is 0 (or return its indices).</p>\n<p><strong>Idea — prefix sums + HashMap:</strong> let <code>pref[i] = a[0]+…+a[i]</code>. If <code>pref[j] == pref[i-1]</code>, then <code>a[i..j]</code> sums to 0. Also if <code>pref[j] == 0</code>, <code>a[0..j]</code> works.</p>\n<ol>\n<li>Scan left→right maintaining running sum <code>s</code>.</li>\n<li>Store first index where each prefix appeared (or a set if you only need yes/no).</li>\n<li>On seeing a repeated prefix (or 0), you found a zero-sum subarray.</li>\n</ol>\n<p><strong>Complexity:</strong> O(N) time, O(N) space. <strong>Edge cases:</strong> single 0; negatives; multiple answers — any is fine unless asked for longest/shortest.</p>",
+          "answer": "<p><strong>Problem:</strong> Detect any contiguous subarray whose sum is 0 (or return its indices).</p>\n<p><strong>Idea — prefix sums + HashMap:</strong> let <code>pref[i] = a[0]+…+a[i]</code>. If <code>pref[j] == pref[i-1]</code>, then <code>a[i..j]</code> sums to 0. Also if <code>pref[j] == 0</code>, <code>a[0..j]</code> works.</p>\n<ol>\n<li>Scan left→right maintaining running sum <code>s</code>.</li>\n<li>Store first index where each prefix appeared (or a set if you only need yes/no).</li>\n<li>On seeing a repeated prefix (or 0), you found a zero-sum subarray.</li>\n</ol>\n<p><strong>Complexity:</strong> O(N) time, O(N) space. <strong>Edge cases:</strong> single 0; negatives; multiple answers — any is fine unless asked for longest/shortest.</p><p>The code returns one such subarray (the values). Store the prefix in a <code>long long</code>: <code>N · 10^9</code> does not fit in 32 bits.</p>",
           "solutions": [
             {
               "lang": "cpp",
               "label": "C++",
-              "code": "bool hasZeroSumSubarray(vector<int>& arr) {\n    unordered_set<int> seen;\n    seen.insert(0);\n    int prefix = 0;\n    for (int x : arr) {\n        prefix += x;\n        if (seen.count(prefix)) return true;\n        seen.insert(prefix);\n    }\n    return false;\n}\n// Time: O(N)  Space: O(N)"
+              "code": "vector<int> zeroSumSubarray(vector<int>& a) {\n    // pref[j] == pref[i-1]  ⇒  a[i..j] sums to 0. Seed 0 at index -1 for a prefix that is itself 0.\n    unordered_map<long long, int> first; // long long: n * 1e9 does not fit in 32 bits\n    first[0] = -1;\n    long long sum = 0;\n    for (int i = 0; i < (int)a.size(); i++) {\n        sum += a[i];\n        auto it = first.find(sum);\n        if (it != first.end())\n            return vector<int>(a.begin() + it->second + 1, a.begin() + i + 1);\n        first.emplace(sum, i); // keep the earliest index; any subarray is acceptable\n    }\n    return {};\n}\n// O(N) time, O(N) space\n"
             }
           ],
           "links": [],
@@ -64,7 +64,7 @@
             {
               "lang": "cpp",
               "label": "C++",
-              "code": "struct ListNode {\n    int val;\n    ListNode* next;\n    ListNode() : val(0), next(nullptr) {}\n    ListNode(int x) : val(x), next(nullptr) {}\n};\n\nListNode* mergeKLists(vector<ListNode*>& lists) {\n    auto cmp = [](ListNode* a, ListNode* b){ return a->val > b->val; };\n    priority_queue<ListNode*, vector<ListNode*>, decltype(cmp)> pq(cmp);\n    for (auto node : lists)\n        if (node) pq.push(node);\n    ListNode dummy;              // default ctor — compiles\n    ListNode* cur = &dummy;\n    while (!pq.empty()) {\n        cur->next = pq.top(); pq.pop();\n        cur = cur->next;\n        if (cur->next) pq.push(cur->next);\n    }\n    return dummy.next;\n}\n// Time: O(N log K)  Space: O(K)"
+              "code": "struct ListNode {\n    int val;\n    ListNode* next;\n    ListNode() : val(0), next(nullptr) {}\n    ListNode(int x) : val(x), next(nullptr) {}\n};\n\nListNode* mergeKLists(vector<ListNode*>& lists) {\n    // Min-heap of the current head of each list. Default priority_queue is a max-heap,\n    // so the comparator is reversed.\n    auto cmp = [](ListNode* a, ListNode* b) { return a->val > b->val; };\n    priority_queue<ListNode*, vector<ListNode*>, decltype(cmp)> pq(cmp);\n    for (ListNode* node : lists)\n        if (node) pq.push(node);\n\n    ListNode dummy; // dummy so the first real node needs no special case\n    ListNode* tail = &dummy;\n    while (!pq.empty()) {\n        tail->next = pq.top();\n        pq.pop();\n        tail = tail->next;\n        if (tail->next) pq.push(tail->next); // advance only the list we just took from\n    }\n    return dummy.next;\n}\n// O(N log K) time, O(K) heap space\n"
             }
           ],
           "links": [
@@ -90,7 +90,7 @@
             {
               "lang": "cpp",
               "label": "C++",
-              "code": "int jump(vector<int>& nums) {\n    int jumps = 0, curEnd = 0, farthest = 0;\n    for (int i = 0; i < (int)nums.size() - 1; i++) {\n        farthest = max(farthest, i + nums[i]);\n        if (i == curEnd) { jumps++; curEnd = farthest; }\n    }\n    return jumps;\n}\n// Time: O(N)  Space: O(1)\n\n// Variant: also return indexes of jump landings (0 … n-1)\nvector<int> jumpWithPath(vector<int>& nums) {\n    int n = (int)nums.size();\n    if (n <= 1) return {0};\n    vector<int> prev(n, -1);\n    int start = 0, end = 0;\n    while (end < n - 1) {\n        int farthest = end;\n        for (int i = start; i <= end; i++) {\n            int reach = min(n - 1, i + nums[i]);\n            for (int j = end + 1; j <= reach; j++) {\n                if (prev[j] == -1) prev[j] = i;  // first (leftmost) parent\n            }\n            farthest = max(farthest, reach);\n        }\n        if (farthest <= end) return {}; // unreachable\n        start = end + 1;\n        end = farthest;\n    }\n    vector<int> path;\n    for (int i = n - 1; i != -1; i = prev[i]) path.push_back(i);\n    reverse(path.begin(), path.end());\n    return path;\n}\n// Time: O(N) amortized filling  Space: O(N)"
+              "code": "int jump(vector<int>& nums) {\n    // Implicit BFS: indices reachable in the same number of jumps are one layer.\n    // curEnd is the end of this layer; farthest is how far the next layer reaches.\n    int jumps = 0, curEnd = 0, farthest = 0;\n    for (int i = 0; i < (int)nums.size() - 1; i++) {\n        farthest = max(farthest, i + nums[i]);\n        if (i == curEnd) {\n            jumps++;\n            curEnd = farthest;\n        }\n    }\n    return jumps;\n}\n// O(N) time, O(1) space\n\n// Follow-up: one shortest path of indexes. The node inside the layer that\n// reaches farthest can also reach every newly opened index, because those\n// indexes sit strictly to its right and within its reach.\nvector<int> jumpWithPath(vector<int>& nums) {\n    int n = (int)nums.size();\n    if (n <= 1) return {0};\n    vector<int> prev(n, -1);\n    int left = 0, right = 0;\n    while (right < n - 1) {\n        int farthest = right, from = -1;\n        for (int i = left; i <= right; i++) {\n            int reach = min(n - 1, i + nums[i]);\n            if (reach > farthest) {\n                farthest = reach;\n                from = i;\n            }\n        }\n        if (from == -1) return {}; // this layer cannot move; unreachable\n        for (int j = right + 1; j <= farthest; j++) prev[j] = from;\n        left = right + 1;\n        right = farthest;\n    }\n    vector<int> path;\n    for (int i = n - 1; i != -1; i = prev[i]) path.push_back(i);\n    reverse(path.begin(), path.end());\n    return path;\n}\n// O(N) time, O(N) space\n"
             }
           ],
           "links": [
@@ -116,7 +116,7 @@
             {
               "lang": "cpp",
               "label": "C++",
-              "code": "vector<vector<int>> merge(vector<vector<int>>& intervals) {\n    sort(intervals.begin(), intervals.end());\n    vector<vector<int>> res;\n    for (auto& iv : intervals) {\n        if (res.empty() || res.back()[1] < iv[0])\n            res.push_back(iv);\n        else\n            res.back()[1] = max(res.back()[1], iv[1]);\n    }\n    return res;\n}\n// Time: O(N log N)  Space: O(N)"
+              "code": "vector<vector<int>> merge(vector<vector<int>>& intervals) {\n    sort(intervals.begin(), intervals.end()); // by start, then end\n    vector<vector<int>> merged;\n    for (auto& iv : intervals) {\n        // Strict < so touching ends ([1,4] and [4,5]) are merged, as required.\n        if (merged.empty() || merged.back()[1] < iv[0])\n            merged.push_back(iv);\n        else\n            merged.back()[1] = max(merged.back()[1], iv[1]);\n    }\n    return merged;\n}\n// O(N log N) time, O(N) output space. After the sort, an overlap can only\n// involve the interval we just emitted.\n"
             }
           ],
           "links": [
@@ -142,7 +142,7 @@
             {
               "lang": "cpp",
               "label": "C++",
-              "code": "string multiply(string num1, string num2) {\n    int m=num1.size(), n=num2.size();\n    vector<int> pos(m+n, 0);\n    for (int i=m-1; i>=0; i--)\n        for (int j=n-1; j>=0; j--) {\n            int mul = (num1[i]-'0')*(num2[j]-'0');\n            int p1=i+j, p2=i+j+1, sum=mul+pos[p2];\n            pos[p2]=sum%10; pos[p1]+=sum/10;\n        }\n    string res;\n    for (int d : pos) if (!(res.empty() && d==0)) res+=('0'+d);\n    return res.empty() ? \"0\" : res;\n}\n// Time: O(M*N)  Space: O(M+N)"
+              "code": "string multiply(string num1, string num2) {\n    int m = (int)num1.size(), n = (int)num2.size();\n    // Digit i (from the left) times digit j lands at positions i+j (carry) and i+j+1.\n    vector<int> pos(m + n, 0);\n    for (int i = m - 1; i >= 0; i--) {\n        for (int j = n - 1; j >= 0; j--) {\n            int sum = (num1[i] - '0') * (num2[j] - '0') + pos[i + j + 1];\n            pos[i + j + 1] = sum % 10;\n            pos[i + j] += sum / 10;\n        }\n    }\n    string res;\n    for (int d : pos)\n        if (!(res.empty() && d == 0)) res.push_back('0' + d); // drop leading zeros\n    return res.empty() ? \"0\" : res;\n}\n// O(M*N) time, O(M+N) space. Do not convert the inputs to an integer.\n"
             }
           ],
           "links": [
@@ -161,13 +161,13 @@
             "HashMap"
           ],
           "category": "Arrays & Strings",
-          "body": "<p>Given two integer arrays <code>A</code> and <code>B</code> and an integer <code>K</code>, print all pairs <code>(a, b)</code> such that <code>a</code> is from <code>A</code>, <code>b</code> is from <code>B</code>, and <code>a + b = K</code>. If a value appears multiple times, each occurrence can form a pair (do not drop duplicates).</p><div class=\"example\"><div class=\"example-label\">Example 1</div><pre>Input: A = [1, 2, 4, 5, 7], B = [5, 6, 3, 4, 8], K = 9\nOutput: (1, 8), (2, 7), (4, 5), (5, 4)\nExplanation: Order of pairs does not matter.</pre></div><div class=\"example\"><div class=\"example-label\">Example 2</div><pre>Input: A = [1, 1, 2], B = [3, 4], K = 5\nOutput: (1, 4), (1, 4), (2, 3)\nExplanation: Both 1's in A pair with 4.</pre></div><p><strong>Constraints</strong></p><ul><li>1 &lt;= A.length, B.length &lt;= 10^5</li><li>-10^9 &lt;= values, K &lt;= 10^9</li></ul>",
-          "answer": "<p><strong>Problem:</strong> All pairs <code>(a from A, b from B)</code> with <code>a+b = K</code>.</p>\n<p><strong>Idea:</strong> Put all of A into a multiset/map (or set if uniqueness allowed). For each <code>b</code> in B, check if <code>K-b</code> exists in A.</p>\n<p><strong>If duplicates matter:</strong> use frequency maps, not a plain set — a set drops duplicate keys and under-counts pairs.</p>\n<p><strong>Complexity:</strong> O(N+M) expected with hashing. <strong>Follow-up:</strong> sorted arrays → two pointers without extra space.</p>",
+          "body": "<p>Given two integer arrays <code>A</code> and <code>B</code> and an integer <code>K</code>, print all pairs <code>(a, b)</code> such that <code>a</code> is from <code>A</code>, <code>b</code> is from <code>B</code>, and <code>a + b = K</code>. If a value appears multiple times, each occurrence can form a pair (do not drop duplicates).</p><div class=\"example\"><div class=\"example-label\">Example 1</div><pre>Input: A = [1, 2, 4, 5, 7], B = [5, 6, 3, 4, 8], K = 9\nOutput: (1, 8), (4, 5), (5, 4)\nExplanation: Order of pairs does not matter.</pre></div><div class=\"example\"><div class=\"example-label\">Example 2</div><pre>Input: A = [1, 1, 2], B = [3, 4], K = 5\nOutput: (1, 4), (1, 4), (2, 3)\nExplanation: Both 1's in A pair with 4.</pre></div><p><strong>Constraints</strong></p><ul><li>1 &lt;= A.length, B.length &lt;= 10^5</li><li>-10^9 &lt;= values, K &lt;= 10^9</li></ul>",
+          "answer": "<p><strong>Problem:</strong> All pairs <code>(a from A, b from B)</code> with <code>a+b = K</code>.</p>\n<p><strong>Idea:</strong> Put all of A into a multiset/map (or set if uniqueness allowed). For each <code>b</code> in B, check if <code>K-b</code> exists in A.</p>\n<p><strong>If duplicates matter:</strong> use frequency maps, not a plain set — a set drops duplicate keys and under-counts pairs.</p>\n<p><strong>Complexity:</strong> O(N + M + P) where P is the number of emitted pairs. A set of A drops duplicate keys. <strong>Follow-up:</strong> sorted arrays → two pointers without extra space.</p>",
           "solutions": [
             {
               "lang": "cpp",
               "label": "C++",
-              "code": "vector<pair<int,int>> pairsWithSum(vector<int>& a, vector<int>& b, int k) {\n    unordered_set<int> setA(a.begin(), a.end());\n    vector<pair<int,int>> res;\n    for (int bv : b)\n        if (setA.count(k - bv))\n            res.push_back({k-bv, bv});\n    return res;\n}\n// Time: O(N+M)  Space: O(N)"
+              "code": "vector<pair<int,int>> pairsWithSum(vector<int>& a, vector<int>& b, int k) {\n    // Count B, then walk every element of A. A set would collapse the two 1's in\n    // A = [1,1,2], B = [3,4], K = 5 and drop a required pair.\n    unordered_map<int, int> countB;\n    for (int x : b) countB[x]++;\n    vector<pair<int,int>> res;\n    for (int av : a) {\n        long long need = (long long)k - av; // values are ±1e9; subtract in 64 bits\n        if (need < INT_MIN || need > INT_MAX) continue;\n        int times = countB[(int)need];\n        for (int t = 0; t < times; t++)\n            res.push_back({av, (int)need});\n    }\n    return res;\n}\n// O(N + M + P) time, P = number of pairs. Output size can be N*M.\n"
             }
           ],
           "links": [],
@@ -187,7 +187,7 @@
             {
               "lang": "cpp",
               "label": "C++",
-              "code": "bool increasingTriplet(vector<int>& nums) {\n    int first=INT_MAX, second=INT_MAX;\n    for (int n : nums) {\n        if (n <= first) first = n;\n        else if (n <= second) second = n;\n        else return true;\n    }\n    return false;\n}\n// Time: O(N)  Space: O(1)"
+              "code": "bool increasingTriplet(vector<int>& nums) {\n    // first = smallest value so far.\n    // second = smallest value that already has a strictly smaller value to its left.\n    // A later number below `first` still updates `first`: it can only help a future\n    // triplet, and `second` keeps the predecessor it already had.\n    int first = INT_MAX, second = INT_MAX;\n    for (int x : nums) {\n        if (x <= first) first = x;          // <= so equals are not a strict increase\n        else if (x <= second) second = x;\n        else return true;                   // x is a third value above both\n    }\n    return false;\n}\n// O(N) time, O(1) space\n"
             }
           ],
           "links": [
@@ -207,12 +207,12 @@
           ],
           "category": "Arrays & Strings",
           "body": "<p>Given an array <code>arr[]</code>, find the maximum value of <code>j - i</code> such that <code>arr[j] &gt; arr[i]</code> and <code>j &gt; i</code>. If no such pair exists, return <code>-1</code>.</p><div class=\"example\"><div class=\"example-label\">Example 1</div><pre>Input: arr = [34, 8, 10, 3, 2, 80, 30, 33, 1]\nOutput: 6\nExplanation: arr[1] = 8 and arr[7] = 33, and 7 - 1 = 6 is maximum.</pre></div><div class=\"example\"><div class=\"example-label\">Example 2</div><pre>Input: arr = [9, 2, 3, 4, 5, 6, 7, 8, 18, 0]\nOutput: 8\nExplanation: arr[0] = 9 and arr[8] = 18.</pre></div><p><strong>Constraints</strong></p><ul><li>1 &lt;= n &lt;= 10^5</li><li>1 &lt;= arr[i] &lt;= 10^9</li></ul>",
-          "answer": "<p><strong>Problem:</strong> Maximise <code>j−i</code> subject to <code>arr[j] &gt; arr[i]</code> (or ≥ depending on statement — confirm with interviewer).</p>\n<p><strong>Idea — left-min / right-max + two pointers:</strong></p>\n<ol>\n<li><code>Lmin[i]</code> = min on <code>[0..i]</code>; <code>Rmax[j]</code> = max on <code>[j..n-1]</code>.</li>\n<li>Two pointers from left/right: if <code>Lmin[i] &lt; Rmax[j]</code> (or ≤), update answer and try larger span by moving j; else move i.</li>\n</ol>\n<p><strong>Complexity:</strong> O(N). Clarify strict vs non-strict comparison — GFG “Maximum Index” often uses ≤.</p>",
+          "answer": "<p><strong>Problem:</strong> Maximise <code>j − i</code> with <code>arr[j] &gt; arr[i]</code>. If no such pair exists, return <code>-1</code>. Equals do not count.</p><p><strong>Idea:</strong> <code>Lmin[i]</code> = min on <code>[0..i]</code>, <code>Rmax[j]</code> = max on <code>[j..n−1]</code>. If <code>Lmin[i] &lt; Rmax[j]</code>, some pair covers at least <code>j − i</code>; move <code>j</code>. Otherwise move <code>i</code>.</p><p><strong>Complexity:</strong> O(N) time, O(N) space. A non-strict problem (<code>arr[j] ≥ arr[i]</code>) would compare with <code>≤</code>. This one does not.</p>",
           "solutions": [
             {
               "lang": "cpp",
               "label": "C++",
-              "code": "int maxDistance(vector<int>& arr) {\n    int n=arr.size();\n    vector<int> lmin(n), rmax(n);\n    lmin[0]=arr[0];\n    for (int i=1;i<n;i++) lmin[i]=min(lmin[i-1],arr[i]);\n    rmax[n-1]=arr[n-1];\n    for (int j=n-2;j>=0;j--) rmax[j]=max(rmax[j+1],arr[j]);\n    int i=0, j=0, ans=0;\n    while (i<n && j<n) {\n        if (lmin[i]<=rmax[j]) { ans=max(ans,j-i); j++; }\n        else i++;\n    }\n    return ans;\n}\n// Time: O(N)  Space: O(N)"
+              "code": "int maxIndexDiff(vector<int>& arr) {\n    int n = (int)arr.size();\n    vector<int> lmin(n), rmax(n);\n    lmin[0] = arr[0];\n    for (int i = 1; i < n; i++) lmin[i] = min(lmin[i - 1], arr[i]);\n    rmax[n - 1] = arr[n - 1];\n    for (int j = n - 2; j >= 0; j--) rmax[j] = max(rmax[j + 1], arr[j]);\n\n    // If the min on [0..i] is strictly below the max on [j..n-1], some pair\n    // spanning at least j-i exists. Equals must not count: the problem is arr[j] > arr[i].\n    int i = 0, j = 0, ans = -1;\n    while (i < n && j < n) {\n        if (lmin[i] < rmax[j]) {\n            if (j > i) ans = max(ans, j - i);\n            j++;\n        } else {\n            i++;\n        }\n    }\n    return ans; // -1 when the array is non-increasing\n}\n// O(N) time, O(N) space\n"
             }
           ],
           "links": [],
@@ -233,7 +233,7 @@
             {
               "lang": "cpp",
               "label": "C++",
-              "code": "int maxScore(vector<int>& c, int k) {\n    int n=c.size(), total=0;\n    for (int i=0;i<k;i++) total+=c[i];\n    int cur=total;\n    for (int i=1;i<=k;i++) {\n        cur += c[n-i] - c[k-i];\n        total = max(total, cur);\n    }\n    return total;\n}\n// Time: O(K)  Space: O(1)"
+              "code": "int maxScore(vector<int>& cards, int k) {\n    int n = (int)cards.size();\n    // There are only k+1 choices: take i cards from the right and k-i from the left.\n    // Start with the left k, then trade the rightmost of those for the next card from the right.\n    int window = 0;\n    for (int i = 0; i < k; i++) window += cards[i];\n    int best = window;\n    for (int i = 0; i < k; i++) {\n        window += cards[n - 1 - i] - cards[k - 1 - i];\n        best = max(best, window);\n    }\n    return best;\n}\n// O(K) time, O(1) space. Sum fits in 32 bits under the constraints.\n"
             }
           ],
           "links": [
@@ -254,12 +254,12 @@
           ],
           "category": "Arrays & Strings",
           "body": "<p>Given an integer array <code>nums</code>, sort it by <strong>decreasing frequency</strong> of values. If two values have the same frequency, the smaller value comes first.</p><div class=\"example\"><div class=\"example-label\">Example 1</div><pre>Input: nums = [2, 3, 1, 3, 2]\nOutput: [2, 2, 3, 3, 1]\nExplanation: 2 and 3 both appear twice; 2 is smaller, so it comes first. 1 appears once.</pre></div><div class=\"example\"><div class=\"example-label\">Example 2</div><pre>Input: nums = [1, 1, 2, 2, 2, 3]\nOutput: [2, 2, 2, 1, 1, 3]</pre></div><p><strong>Constraints</strong></p><ul><li>1 &lt;= nums.length &lt;= 10^5</li><li>-10^4 &lt;= nums[i] &lt;= 10^4</li></ul>",
-          "answer": "<p><strong>Problem:</strong> Sort by frequency (higher first); ties by value (define order with interviewer).</p>\n<p><strong>Idea:</strong> count frequencies → sort unique keys with comparator <code>(freq desc, value asc/desc)</code> → expand back to array.</p>\n<p><strong>Complexity:</strong> O(N log U) for U unique keys. <strong>Alt:</strong> bucket sort by frequency for O(N + maxFreq) if values bounded.</p>",
+          "answer": "<p><strong>Problem:</strong> Sort by frequency (higher first); ties broken by the smaller value first.</p>\n<p><strong>Idea:</strong> count frequencies → sort unique keys with comparator <code>(freq desc, value asc)</code> → expand back to array.</p>\n<p><strong>Complexity:</strong> O(N log U) for U unique keys. <strong>Alt:</strong> bucket sort by frequency for O(N + maxFreq) if values bounded.</p>",
           "solutions": [
             {
               "lang": "cpp",
               "label": "C++",
-              "code": "vector<int> sortByFreq(vector<int>& arr) {\n    map<int,int> freq;\n    for (int x : arr) freq[x]++;\n    sort(arr.begin(), arr.end(), [&](int a, int b){\n        if (freq[a] != freq[b]) return freq[a] < freq[b];\n        return a > b; // tie-break by value desc\n    });\n    return arr;\n}\n// Time: O(N log N)  Space: O(N)"
+              "code": "vector<int> frequencySort(vector<int>& nums) {\n    unordered_map<int, int> freq;\n    for (int x : nums) freq[x]++;\n    sort(nums.begin(), nums.end(), [&](int a, int b) {\n        if (freq[a] != freq[b]) return freq[a] > freq[b]; // higher frequency first\n        return a < b;                                     // tie: smaller value first\n    });\n    return nums;\n}\n// O(N log N) time, O(N) space. The comparator is a strict weak order.\n"
             }
           ],
           "links": [],
@@ -279,7 +279,7 @@
             {
               "lang": "cpp",
               "label": "C++",
-              "code": "vector<int> searchRange(vector<int>& nums, int target) {\n    auto bound = [&](bool lower) {\n        int lo=0, hi=nums.size()-1, res=-1;\n        while(lo<=hi){\n            int mid=lo+(hi-lo)/2;\n            if(nums[mid]==target){ res=mid; lower?hi=mid-1:lo=mid+1; }\n            else if(nums[mid]<target) lo=mid+1;\n            else hi=mid-1;\n        }\n        return res;\n    };\n    return {bound(true), bound(false)};\n}\n// Time: O(log N)  Space: O(1)"
+              "code": "vector<int> searchRange(vector<int>& nums, int target) {\n    auto bound = [&](bool lower) {\n        int lo = 0, hi = (int)nums.size() - 1, ans = -1;\n        while (lo <= hi) {\n            int mid = lo + (hi - lo) / 2;\n            if (nums[mid] == target) {\n                ans = mid;\n                // Don't stop: another copy may sit further on this side.\n                if (lower) hi = mid - 1;\n                else lo = mid + 1;\n            } else if (nums[mid] < target) {\n                lo = mid + 1;\n            } else {\n                hi = mid - 1;\n            }\n        }\n        return ans;\n    };\n    if (nums.empty()) return {-1, -1};\n    return {bound(true), bound(false)};\n}\n// O(log N) time, O(1) space. Two searches, not one.\n"
             }
           ],
           "links": [
@@ -309,7 +309,7 @@
             {
               "lang": "cpp",
               "label": "C++",
-              "code": "ListNode* reverseKGroup(ListNode* head, int k) {\n    ListNode* cur=head; int cnt=0;\n    while(cur && cnt<k){ cur=cur->next; cnt++; }\n    if(cnt<k) return head;\n    ListNode* prev=nullptr; cur=head;\n    for(int i=0;i<k;i++){\n        ListNode* nxt=cur->next; cur->next=prev; prev=cur; cur=nxt;\n    }\n    head->next = reverseKGroup(cur, k);\n    return prev;\n}\n// Time: O(N)  Space: O(N/K) recursive stack"
+              "code": "ListNode* reverseKGroup(ListNode* head, int k) {\n    ListNode dummy(0);\n    dummy.next = head;\n    ListNode* groupPrev = &dummy;\n    while (true) {\n        ListNode* kth = groupPrev;\n        for (int i = 0; i < k && kth; i++) kth = kth->next;\n        if (!kth) break; // leftover shorter than k stays in order\n\n        ListNode* groupNext = kth->next;\n        // Reverse this group. Starting prev at groupNext links the new tail for free.\n        ListNode* prev = groupNext;\n        ListNode* cur = groupPrev->next;\n        while (cur != groupNext) {\n            ListNode* nxt = cur->next;\n            cur->next = prev;\n            prev = cur;\n            cur = nxt;\n        }\n        ListNode* newTail = groupPrev->next;\n        groupPrev->next = kth;\n        groupPrev = newTail;\n    }\n    return dummy.next;\n}\n// O(N) time, O(1) space. Prefer this over the recursive version (depth N/k).\n"
             }
           ],
           "links": [
@@ -334,7 +334,7 @@
             {
               "lang": "cpp",
               "label": "C++",
-              "code": "struct Node { int val; Node*next,*random; };\n\nNode* copyRandomList(Node* head) {\n    unordered_map<Node*,Node*> mp;\n    Node* cur=head;\n    while(cur){ mp[cur]=new Node(); mp[cur]->val=cur->val; cur=cur->next; }\n    cur=head;\n    while(cur){\n        mp[cur]->next   = mp[cur->next];\n        mp[cur]->random = mp[cur->random];\n        cur=cur->next;\n    }\n    return mp[head];\n}\n// Time: O(N)  Space: O(N)"
+              "code": "struct Node {\n    int val = 0;\n    Node* next = nullptr;\n    Node* random = nullptr;\n};\n\n// O(1) extra space besides the output. Three passes:\n//   1. weave each copy in right after its original: A -> A' -> B -> B'\n//   2. A'.random = A.random's copy, which is the node immediately after A.random\n//   3. unweave the two lists\nNode* copyRandomList(Node* head) {\n    if (!head) return nullptr;\n    for (Node* cur = head; cur; cur = cur->next->next) {\n        Node* copy = new Node();\n        copy->val = cur->val;\n        copy->next = cur->next;\n        cur->next = copy;\n    }\n    for (Node* cur = head; cur; cur = cur->next->next) {\n        if (cur->random) cur->next->random = cur->random->next;\n    }\n    Node* copyHead = head->next;\n    for (Node* cur = head; cur; cur = cur->next) {\n        Node* copy = cur->next;\n        cur->next = copy->next;\n        copy->next = copy->next ? copy->next->next : nullptr;\n    }\n    return copyHead;\n}\n// O(N) time, O(1) extra space. A HashMap<Node*, Node*> is the version to\n// write first if you are short on time; this is the follow-up they ask for.\n"
             }
           ],
           "links": [
@@ -359,7 +359,7 @@
             {
               "lang": "cpp",
               "label": "C++",
-              "code": "struct Node{int val;Node*left,*right,*next;};\n// O(log N) space — use already set 'next' pointers as \"free\" traversal\nNode* connect(Node* root) {\n    if(!root) return nullptr;\n    Node* leftmost=root;\n    while(leftmost->left){\n        Node* head=leftmost;\n        while(head){\n            head->left->next=head->right;\n            if(head->next) head->right->next=head->next->left;\n            head=head->next;\n        }\n        leftmost=leftmost->left;\n    }\n    return root;\n}\n// Time: O(N)  Space: O(1) — the interviewer's expected O(log N) approach"
+              "code": "struct Node { int val; Node *left, *right, *next; };\n\n// Perfect tree: once a level's next pointers exist, walk that level and wire\n// the level below. No queue. This is O(1) extra space, not O(height).\nNode* connect(Node* root) {\n    if (!root) return nullptr;\n    Node* level = root;\n    while (level->left) {\n        for (Node* cur = level; cur; cur = cur->next) {\n            cur->left->next = cur->right;\n            if (cur->next) cur->right->next = cur->next->left; // cousin, not just sibling\n        }\n        level = level->left;\n    }\n    return root;\n}\n// O(N) time, O(1) extra space. A non-perfect tree (LC 117) cannot assume both children.\n"
             }
           ],
           "links": [
@@ -384,7 +384,7 @@
             {
               "lang": "cpp",
               "label": "C++",
-              "code": "ListNode* getIntersectionNode(ListNode* a, ListNode* b) {\n    ListNode* pa=a, *pb=b;\n    while(pa!=pb){\n        pa = pa ? pa->next : b;\n        pb = pb ? pb->next : a;\n    }\n    return pa;\n}\n// Time: O(M+N)  Space: O(1)"
+              "code": "ListNode* getIntersectionNode(ListNode* a, ListNode* b) {\n    // When a pointer hits the end, send it to the other head. The longer list's\n    // extra prefix is walked exactly once, so both pointers then have the same\n    // number of steps left and meet at the merge (or both become null).\n    ListNode* pa = a;\n    ListNode* pb = b;\n    while (pa != pb) {\n        pa = pa ? pa->next : b;\n        pb = pb ? pb->next : a;\n    }\n    return pa;\n}\n// O(M + N) time, O(1) space\n"
             }
           ],
           "links": [
@@ -409,7 +409,7 @@
             {
               "lang": "cpp",
               "label": "C++",
-              "code": "ListNode* reverseSecondHalf(ListNode* head) {\n    if (!head || !head->next) return head;  // 0 or 1 node — nothing to reverse\n    // Find mid with slow/fast (slow ends at last node of first half)\n    ListNode* slow = head, *fast = head;\n    while (fast->next && fast->next->next) {\n        slow = slow->next;\n        fast = fast->next->next;\n    }\n    // Reverse from slow->next\n    ListNode* prev = nullptr, *cur = slow->next;\n    while (cur) {\n        ListNode* nxt = cur->next;\n        cur->next = prev;\n        prev = cur;\n        cur = nxt;\n    }\n    slow->next = prev;\n    return head;\n}\n// Time: O(N)  Space: O(1)"
+              "code": "ListNode* reverseSecondHalf(ListNode* head) {\n    if (!head || !head->next) return head;\n    // slow stops on the last node of the first half (the middle, when the length is odd).\n    ListNode* slow = head;\n    ListNode* fast = head;\n    while (fast->next && fast->next->next) {\n        slow = slow->next;\n        fast = fast->next->next;\n    }\n    ListNode* prev = nullptr;\n    ListNode* cur = slow->next;\n    while (cur) {\n        ListNode* nxt = cur->next;\n        cur->next = prev;\n        prev = cur;\n        cur = nxt;\n    }\n    slow->next = prev;\n    return head;\n}\n// O(N) time, O(1) space\n"
             }
           ],
           "links": [],
@@ -434,7 +434,7 @@
             {
               "lang": "cpp",
               "label": "C++",
-              "code": "struct TreeNode{int val;TreeNode*left,*right;};\n\n// Binary Tree LCA (no parent pointer)\nTreeNode* lca(TreeNode* root, TreeNode* p, TreeNode* q) {\n    if(!root||root==p||root==q) return root;\n    TreeNode* L=lca(root->left,p,q);\n    TreeNode* R=lca(root->right,p,q);\n    if(L && R) return root;\n    return L ? L : R;\n}\n// Time: O(N)  Space: O(H)\n\n// With parent pointer (closer to real \"Emp\" class question)\nstruct Emp { int id; Emp* manager; };\nEmp* commonManager(Emp* e1, Emp* e2) {\n    unordered_set<Emp*> ancestors;\n    while(e1){ ancestors.insert(e1); e1=e1->manager; }\n    while(e2){ if(ancestors.count(e2)) return e2; e2=e2->manager; }\n    return nullptr;\n}\n// Time: O(D)  Space: O(D) where D = depth"
+              "code": "struct TreeNode { int val; TreeNode *left, *right; };\n\n// Both targets exist. A node that is p or q is the answer for its subtree:\n// the other target is either here or the caller will combine the two sides.\nTreeNode* lowestCommonAncestor(TreeNode* root, TreeNode* p, TreeNode* q) {\n    if (!root || root == p || root == q) return root;\n    TreeNode* left = lowestCommonAncestor(root->left, p, q);\n    TreeNode* right = lowestCommonAncestor(root->right, p, q);\n    if (left && right) return root; // p and q sit in different subtrees\n    return left ? left : right;\n}\n// O(N) time, O(H) stack\n\n// The \"common manager\" variant: employees point at their manager, not at children.\nstruct Emp { int id; Emp* manager; };\n\nEmp* commonManager(Emp* a, Emp* b) {\n    unordered_set<Emp*> seen;\n    for (Emp* e = a; e; e = e->manager) seen.insert(e);\n    for (Emp* e = b; e; e = e->manager)\n        if (seen.count(e)) return e; // first hit is the deepest shared manager\n    return nullptr;\n}\n// O(D) time and space, D = depth of the deeper employee\n"
             }
           ],
           "links": [
@@ -460,7 +460,7 @@
             {
               "lang": "cpp",
               "label": "C++",
-              "code": "bool isValid(TreeNode* n, long lo, long hi) {\n    if(!n) return true;\n    if(n->val<=lo || n->val>=hi) return false;\n    return isValid(n->left,lo,n->val) && isValid(n->right,n->val,hi);\n}\nbool isValidBST(TreeNode* r){ return isValid(r,LONG_MIN,LONG_MAX); }\n// Time: O(N)  Space: O(H)"
+              "code": "bool valid(TreeNode* node, long long lo, long long hi) {\n    if (!node) return true;\n    // Exclusive bounds. long long so a node holding INT_MIN / INT_MAX is still inside range.\n    if (node->val <= lo || node->val >= hi) return false;\n    return valid(node->left, lo, node->val) && valid(node->right, node->val, hi);\n}\n\nbool isValidBST(TreeNode* root) {\n    return valid(root, LLONG_MIN, LLONG_MAX);\n}\n// O(N) time, O(H) stack. Inorder \"previous value\" is the other standard write-up.\n"
             }
           ],
           "links": [
@@ -485,7 +485,7 @@
             {
               "lang": "cpp",
               "label": "C++",
-              "code": "vector<int> leftView(TreeNode* root) {\n    vector<int> res;\n    if(!root) return res;\n    queue<TreeNode*> q;\n    q.push(root);\n    while(!q.empty()){\n        int sz=q.size();\n        for(int i=0;i<sz;i++){\n            TreeNode* n=q.front(); q.pop();\n            if(i==0) res.push_back(n->val);\n            if(n->left) q.push(n->left);\n            if(n->right) q.push(n->right);\n        }\n    }\n    return res;\n}\n// Time: O(N)  Space: O(W) width"
+              "code": "vector<int> leftView(TreeNode* root) {\n    vector<int> view;\n    if (!root) return view;\n    queue<TreeNode*> q;\n    q.push(root);\n    while (!q.empty()) {\n        int level = (int)q.size();\n        for (int i = 0; i < level; i++) {\n            TreeNode* node = q.front();\n            q.pop();\n            if (i == 0) view.push_back(node->val); // first node visited on this level\n            if (node->left) q.push(node->left);\n            if (node->right) q.push(node->right);\n        }\n    }\n    return view;\n}\n// O(N) time, O(width) space. Push left before right or the \"first\" node is the right view.\n"
             }
           ],
           "links": [],
@@ -505,7 +505,7 @@
             {
               "lang": "cpp",
               "label": "C++",
-              "code": "vector<vector<int>> verticalTraversal(TreeNode* root) {\n    map<int,map<int,multiset<int>>> nodes;\n    queue<tuple<TreeNode*,int,int>> q;\n    q.push({root,0,0});\n    while(!q.empty()){\n        auto[node,col,row]=q.front(); q.pop();\n        nodes[col][row].insert(node->val);\n        if(node->left) q.push({node->left,col-1,row+1});\n        if(node->right) q.push({node->right,col+1,row+1});\n    }\n    vector<vector<int>> res;\n    for(auto&[col,rows]:nodes){\n        res.push_back({});\n        for(auto&[row,vals]:rows)\n            for(int v:vals) res.back().push_back(v);\n    }\n    return res;\n}\n// Time: O(N log N)  Space: O(N)"
+              "code": "vector<vector<int>> verticalOrder(TreeNode* root) {\n    vector<vector<int>> order;\n    if (!root) return order;\n    map<int, vector<int>> cols; // column -> values, left to right\n    queue<pair<TreeNode*, int>> q;\n    q.push({root, 0});\n    while (!q.empty()) {\n        auto [node, col] = q.front();\n        q.pop();\n        // BFS visits a column top to bottom. Left is enqueued before right,\n        // so two nodes on the same row stay left-to-right. Do not sort by value\n        // unless they explicitly ask for the LeetCode 987 rule.\n        cols[col].push_back(node->val);\n        if (node->left) q.push({node->left, col - 1});\n        if (node->right) q.push({node->right, col + 1});\n    }\n    for (auto& [col, vals] : cols) order.push_back(std::move(vals));\n    return order;\n}\n// O(N log C) time, C = number of columns, O(N) space\n"
             }
           ],
           "links": [
@@ -525,12 +525,12 @@
           ],
           "category": "Trees & Graphs",
           "body": "<p>You are given an <code>n x m</code> binary matrix <code>grid</code>. A cell with <code>0</code> is open; a cell with <code>1</code> is a wall. You start at <code>(0, 0)</code> and want to reach <code>(n-1, m-1)</code>. You may move up, down, left, or right through open cells. Return <code>true</code> if any path exists, otherwise <code>false</code>. Assume the start and end cells are open.</p><div class=\"example\"><div class=\"example-label\">Example 1</div><pre>Input: grid = [[0,0,1],[0,0,0],[1,0,0]]\nOutput: true\nExplanation: One path is (0,0) → (1,0) → (1,1) → (1,2) → (2,2).</pre></div><div class=\"example\"><div class=\"example-label\">Example 2</div><pre>Input: grid = [[0,1],[1,0]]\nOutput: false\nExplanation: The destination is blocked off from the start.</pre></div><p><strong>Constraints</strong></p><ul><li>1 &lt;= n, m &lt;= 100</li><li>grid[i][j] is 0 or 1.</li></ul>",
-          "answer": "<p><strong>Problem:</strong> Path in binary matrix / rat-in-maze — move to destination on open cells.</p>\n<p><strong>Backtracking / DFS:</strong> mark visited, try 4 (or 8) directions, unmark on failure (if paths must reuse). BFS if only existence/shortest path needed.</p>\n<p><strong>Complexity:</strong> exponential worst-case for all paths; BFS shortest is O(N²) on grid.</p>",
+          "answer": "<p><strong>Problem:</strong> Path in binary matrix / rat-in-maze — move to destination on open cells.</p>\n<p><strong>Backtracking / DFS:</strong> mark visited, try 4 (or 8) directions, unmark on failure (if paths must reuse). BFS if only existence/shortest path needed.</p>\n<p><strong>Complexity:</strong> exponential worst-case for all paths; BFS shortest is O(N²) on grid.</p><p>In this prompt <strong>0 is open and 1 is a wall</strong>. Existence is BFS or DFS with a visited set, O(NM). Unmarking cells (true backtracking) is only for listing every path, and that is exponential.</p>",
           "solutions": [
             {
               "lang": "cpp",
               "label": "C++",
-              "code": "bool dfs(vector<vector<int>>& g, int r, int c, int dr, int dc) {\n    if(r==dr && c==dc) return true;\n    int n=g.size(), m=g[0].size();\n    int dirs[][2]={{1,0},{-1,0},{0,1},{0,-1}};\n    g[r][c]=0; // mark visited\n    for(auto& d:dirs){\n        int nr=r+d[0],nc=c+d[1];\n        if(nr>=0&&nr<n&&nc>=0&&nc<m&&g[nr][nc]==1)\n            if(dfs(g,nr,nc,dr,dc)) return true;\n    }\n    g[r][c]=1; // backtrack\n    return false;\n}\n// Time: O(4^(N*M))  Space: O(N*M)"
+              "code": "bool pathExists(vector<vector<int>>& grid) {\n    // 0 is open, 1 is a wall. Existence does not need backtracking:\n    // the first time BFS reaches a cell is enough, so mark it visited and never return.\n    int n = (int)grid.size(), m = (int)grid[0].size();\n    if (grid[0][0] != 0 || grid[n - 1][m - 1] != 0) return false;\n    vector<vector<char>> seen(n, vector<char>(m, 0));\n    queue<pair<int, int>> q;\n    q.push({0, 0});\n    seen[0][0] = 1;\n    const int d[4][2] = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}};\n    while (!q.empty()) {\n        auto [r, c] = q.front();\n        q.pop();\n        if (r == n - 1 && c == m - 1) return true;\n        for (auto& dir : d) {\n            int nr = r + dir[0], nc = c + dir[1];\n            if (nr < 0 || nc < 0 || nr >= n || nc >= m) continue;\n            if (seen[nr][nc] || grid[nr][nc] != 0) continue;\n            seen[nr][nc] = 1;\n            q.push({nr, nc});\n        }\n    }\n    return false;\n}\n// O(NM) time and space. Backtracking (unmark on the way out) is only for listing every path,\n// and that is exponential. n, m <= 100, so a recursive DFS would also fit, but BFS will not blow the stack.\n"
             }
           ],
           "links": [],
@@ -550,7 +550,7 @@
             {
               "lang": "cpp",
               "label": "C++",
-              "code": "int total, ans = INT_MAX;\nint dfs(vector<vector<int>>& adj, vector<int>& val, int u, int p) {\n    int sub = val[u];\n    for (int v : adj[u]) if (v != p) sub += dfs(adj, val, v, u);\n    // Skip the root: cutting above root is not an edge cut (sub == total → diff 0)\n    if (p != -1) ans = min(ans, abs(total - 2 * sub));\n    return sub;\n}\n// Call: total = accumulate(val.begin(), val.end(), 0);\n//       ans = INT_MAX; dfs(adj, val, 0, -1); return ans;\n// Time: O(N)  Space: O(N)"
+              "code": "int minCutDiff(int n, vector<vector<int>>& edges, vector<int>& values) {\n    vector<vector<int>> adj(n);\n    for (auto& e : edges) {\n        adj[e[0]].push_back(e[1]);\n        adj[e[1]].push_back(e[0]);\n    }\n    long long total = 0;\n    for (int v : values) total += v; // values may be negative; the difference formula still holds\n\n    long long best = LLONG_MAX;\n    // sub(u) is the sum of u's component if we cut the edge up to parent.\n    // The other component is total - sub, so the difference is |total - 2*sub|.\n    // Skipping parent == -1: there is no edge above the root.\n    function<long long(int, int)> dfs = [&](int u, int parent) -> long long {\n        long long sub = values[u];\n        for (int v : adj[u])\n            if (v != parent) sub += dfs(v, u);\n        if (parent != -1) best = min(best, llabs(total - 2 * sub));\n        return sub;\n    };\n    dfs(0, -1);\n    return (int)best;\n}\n// O(N) time, O(N) space. n >= 2, so some edge is always cut. Keep this state\n// in locals — a file-scope `ans` breaks the next test case.\n"
             }
           ],
           "links": [],
@@ -570,7 +570,7 @@
             {
               "lang": "cpp",
               "label": "C++",
-              "code": "int timer=0;\nvoid dfs(vector<vector<int>>& g, int u, int par,\n         vector<int>& disc, vector<int>& low,\n         vector<vector<int>>& res) {\n    disc[u]=low[u]=timer++;\n    for(int v:g[u]){\n        if(disc[v]==-1){\n            dfs(g,v,u,disc,low,res);\n            low[u]=min(low[u],low[v]);\n            if(low[v]>disc[u]) res.push_back({u,v});\n        } else if(v!=par) low[u]=min(low[u],disc[v]);\n    }\n}\nvector<vector<int>> criticalConnections(int n, vector<vector<int>>& edges) {\n    vector<vector<int>> g(n), res;\n    vector<int> disc(n,-1), low(n);\n    for(auto& e:edges){ g[e[0]].push_back(e[1]); g[e[1]].push_back(e[0]); }\n    for(int i=0;i<n;i++) if(disc[i]==-1) dfs(g,i,-1,disc,low,res);\n    return res;\n}\n// Time: O(V+E)  Space: O(V+E)"
+              "code": "void tarjan(vector<vector<int>>& g, int u, int parent,\n            vector<int>& disc, vector<int>& low,\n            vector<vector<int>>& bridges, int& time) {\n    disc[u] = low[u] = time++;\n    for (int v : g[u]) {\n        if (disc[v] == -1) {\n            tarjan(g, v, u, disc, low, bridges, time);\n            low[u] = min(low[u], low[v]);\n            // v's subtree has no back edge to u or an ancestor of u, so u—v is a bridge.\n            if (low[v] > disc[u]) bridges.push_back({u, v});\n        } else if (v != parent) {\n            low[u] = min(low[u], disc[v]); // back edge; use discovery time, not low[v]\n        }\n    }\n}\n\nvector<vector<int>> criticalConnections(int n, vector<vector<int>>& edges) {\n    vector<vector<int>> g(n), bridges;\n    vector<int> disc(n, -1), low(n);\n    for (auto& e : edges) {\n        g[e[0]].push_back(e[1]);\n        g[e[1]].push_back(e[0]);\n    }\n    int time = 0; // local, not a global — a second call must start from zero\n    for (int i = 0; i < n; i++)\n        if (disc[i] == -1) tarjan(g, i, -1, disc, low, bridges, time);\n    return bridges;\n}\n// O(V + E) time and space\n"
             }
           ],
           "links": [
@@ -596,7 +596,7 @@
             {
               "lang": "cpp",
               "label": "C++",
-              "code": "vector<int> dijkstra(vector<vector<pair<int,int>>>& g, int src){\n    int n=g.size();\n    vector<int> dist(n,INT_MAX);\n    priority_queue<pair<int,int>,vector<pair<int,int>>,greater<>> pq;\n    dist[src]=0; pq.push({0,src});\n    while(!pq.empty()){\n        auto[d,u]=pq.top(); pq.pop();\n        if(d>dist[u]) continue;\n        for(auto[v,w]:g[u])\n            if(dist[u]+w<dist[v]){ dist[v]=dist[u]+w; pq.push({dist[v],v}); }\n    }\n    return dist;\n}\n// Time: O((V+E) log V)  Space: O(V)"
+              "code": "vector<long long> dijkstra(vector<vector<pair<int, int>>>& g, int src) {\n    int n = (int)g.size();\n    const long long INF = LLONG_MAX / 4; // leave room for dist[u] + w\n    vector<long long> dist(n, INF);\n    priority_queue<pair<long long, int>, vector<pair<long long, int>>, greater<>> pq;\n    dist[src] = 0;\n    pq.push({0, src});\n    while (!pq.empty()) {\n        auto [d, u] = pq.top();\n        pq.pop();\n        if (d != dist[u]) continue; // a better path to u was already finalized\n        for (auto [v, w] : g[u]) {\n            if (dist[u] + w < dist[v]) {\n                dist[v] = dist[u] + w;\n                pq.push({dist[v], v});\n            }\n        }\n    }\n    return dist;\n}\n// O((V + E) log V) time with a binary heap, O(V) extra space.\n// Non-negative weights only. A negative edge means Bellman-Ford.\n"
             }
           ],
           "links": [],
@@ -616,7 +616,7 @@
             {
               "lang": "cpp",
               "label": "C++",
-              "code": "bool canReach(long long x, long long y){\n    if(x==1 && y==1) return true;\n    if(x<1 || y<1) return false;\n    return __gcd(x,y)==1;\n}\n// Time: O(log(min(x,y)))  Space: O(1)"
+              "code": "bool canReach(int x, int y) {\n    // A move (a, b) -> (a+b, b) or (a, a+b) does not change gcd.\n    // Running the move backwards is Euclidean subtraction, so (x, y)\n    // reaches (1, 1) if and only if gcd(x, y) == 1.\n    return __gcd(x, y) == 1;\n}\n// O(log min(x, y)) time, O(1) space\n"
             }
           ],
           "links": [],
@@ -642,7 +642,7 @@
             {
               "lang": "cpp",
               "label": "C++",
-              "code": "int maxSumIS(vector<int>& arr){\n    int n=arr.size();\n    vector<int> dp(arr); // dp[i] = max sum ending at i\n    for(int i=1;i<n;i++)\n        for(int j=0;j<i;j++)\n            if(arr[j]<arr[i])\n                dp[i]=max(dp[i],dp[j]+arr[i]);\n    return *max_element(dp.begin(),dp.end());\n}\n// Time: O(N²)  Space: O(N)"
+              "code": "int maxSumIncreasing(vector<int>& arr) {\n    int n = (int)arr.size();\n    if (n == 0) return 0;\n    // dp[i] = best increasing-subsequence sum that ends at i. Must include arr[i].\n    vector<int> dp(arr.begin(), arr.end());\n    for (int i = 1; i < n; i++) {\n        for (int j = 0; j < i; j++) {\n            if (arr[j] < arr[i])\n                dp[i] = max(dp[i], dp[j] + arr[i]);\n        }\n    }\n    return *max_element(dp.begin(), dp.end());\n}\n// O(N^2) time, O(N) space. This is not LIS length — the values are the cost.\n"
             }
           ],
           "links": [],
@@ -663,7 +663,7 @@
             {
               "lang": "cpp",
               "label": "C++",
-              "code": "int longestConsecutive(vector<int>& nums){\n    unordered_set<int> s(nums.begin(),nums.end());\n    int best=0;\n    for(int n:s){\n        if(!s.count(n-1)){\n            int cur=n, len=1;\n            while(s.count(++cur)) len++;\n            best=max(best,len);\n        }\n    }\n    return best;\n}\n// Time: O(N)  Space: O(N)"
+              "code": "int longestConsecutive(vector<int>& nums) {\n    unordered_set<int> have(nums.begin(), nums.end());\n    int best = 0;\n    for (int x : have) {\n        if (have.count(x - 1)) continue; // only start at the beginning of a run\n        int y = x, len = 1;\n        while (have.count(++y)) len++;\n        best = max(best, len);\n    }\n    return best;\n}\n// O(N) expected time: each number is the inner-loop cursor of exactly one run. O(N) space.\n"
             }
           ],
           "links": [
@@ -689,7 +689,7 @@
             {
               "lang": "cpp",
               "label": "C++",
-              "code": "void permute(string& s, int l, set<string>& res){\n    if(l==s.size()-1){ res.insert(s); return; }\n    for(int i=l;i<s.size();i++){\n        swap(s[l],s[i]);\n        permute(s,l+1,res);\n        swap(s[l],s[i]); // backtrack\n    }\n}\n// Time: O(N! * N)  Space: O(N! * N)\n// Using set handles duplicate characters automatically"
+              "code": "vector<string> permutations(string s) {\n    sort(s.begin(), s.end()); // groups equal chars so the skip below is valid\n    vector<string> out;\n    string path;\n    vector<char> used(s.size(), 0);\n    function<void()> build = [&]() {\n        if (path.size() == s.size()) {\n            out.push_back(path);\n            return;\n        }\n        for (int i = 0; i < (int)s.size(); i++) {\n            if (used[i]) continue;\n            // Same char as the previous one, and that previous one is unused:\n            // this choice is a duplicate of a branch we already built.\n            if (i > 0 && s[i] == s[i - 1] && !used[i - 1]) continue;\n            used[i] = 1;\n            path.push_back(s[i]);\n            build();\n            path.pop_back();\n            used[i] = 0;\n        }\n    };\n    build();\n    return out;\n}\n// Distinct input: N! leaves. With duplicates the skip cuts the repeated branches.\n// N <= 8, so the N factor from copying each string is fine.\n"
             }
           ],
           "links": [],
@@ -709,7 +709,7 @@
             {
               "lang": "cpp",
               "label": "C++",
-              "code": "long long diceThrow(int D, int F, int S){\n    // dp[i][j] = ways to get sum j using i dice\n    vector<vector<long long>> dp(D+1,vector<long long>(S+1,0));\n    dp[0][0]=1;\n    for(int d=1;d<=D;d++)\n        for(int s=d;s<=S;s++)\n            for(int f=1;f<=F && f<=s;f++)\n                dp[d][s]+=dp[d-1][s-f];\n    return dp[D][S];\n}\n// Time: O(D*S*F)  Space: O(D*S)"
+              "code": "long long diceWays(int dice, int faces, int target) {\n    // dp[d][s] = ways to make sum s with d dice, each showing 1..faces.\n    vector<vector<long long>> dp(dice + 1, vector<long long>(target + 1, 0));\n    dp[0][0] = 1; // one way to make 0 with no dice\n    for (int d = 1; d <= dice; d++) {\n        for (int sum = d; sum <= target; sum++) { // d dice make at least d\n            for (int face = 1; face <= faces && face <= sum; face++)\n                dp[d][sum] += dp[d - 1][sum - face];\n        }\n    }\n    return dp[dice][target];\n}\n// O(dice * target * faces) time, O(dice * target) space.\n// A rolling 1D array drops the space to O(target) if they ask.\n"
             }
           ],
           "links": [],
@@ -729,7 +729,7 @@
             {
               "lang": "cpp",
               "label": "C++",
-              "code": "vector<string> generateParenthesis(int n){\n    vector<string> res;\n    function<void(string,int,int)> bt = [&](string s,int o,int c){\n        if(s.size()==2*n){ res.push_back(s); return; }\n        if(o<n) bt(s+'(',o+1,c);\n        if(c<o) bt(s+')',o,c+1);\n    };\n    bt(\"\",0,0); return res;\n}\n// Time: O(4^N / sqrt(N))  Space: O(N)"
+              "code": "vector<string> generateParenthesis(int n) {\n    vector<string> out;\n    string cur;\n    function<void(int, int)> build = [&](int open, int close) {\n        if ((int)cur.size() == 2 * n) {\n            out.push_back(cur);\n            return;\n        }\n        if (open < n) {\n            cur.push_back('(');\n            build(open + 1, close);\n            cur.pop_back();\n        }\n        if (close < open) { // a close is only legal while it does not outnumber opens\n            cur.push_back(')');\n            build(open, close + 1);\n            cur.pop_back();\n        }\n    };\n    build(0, 0);\n    return out;\n}\n// Catalan number of strings. Passing the string by reference avoids copying it on every call.\n"
             }
           ],
           "links": [
@@ -754,7 +754,7 @@
             {
               "lang": "cpp",
               "label": "C++",
-              "code": "string longestRepeating(string s){\n    int n=s.size();\n    vector<vector<int>> dp(n+1,vector<int>(n+1,0));\n    int len=0, idx=0;\n    for(int i=1;i<=n;i++)\n        for(int j=i+1;j<=n;j++)\n            if(s[i-1]==s[j-1] && dp[i-1][j-1]<j-i){\n                dp[i][j]=dp[i-1][j-1]+1;\n                if(dp[i][j]>len){ len=dp[i][j]; idx=i-1; }\n            }\n    return s.substr(idx-len+1,len);\n}\n// Time: O(N²)  Space: O(N²)"
+              "code": "string longestRepeating(string s) {\n    int n = (int)s.size();\n    // dp[i][j] = length of a repeated substring ending at s[i-1] and at s[j-1].\n    vector<vector<int>> dp(n + 1, vector<int>(n + 1, 0));\n    int best = 0, end = 0;\n    for (int i = 1; i <= n; i++) {\n        for (int j = i + 1; j <= n; j++) {\n            if (s[i - 1] != s[j - 1]) continue;\n            // The match so far must be shorter than the gap between the two ends,\n            // otherwise the two copies overlap.\n            if (dp[i - 1][j - 1] >= j - i) continue;\n            dp[i][j] = dp[i - 1][j - 1] + 1;\n            if (dp[i][j] > best) {\n                best = dp[i][j];\n                end = i - 1;\n            }\n        }\n    }\n    if (best == 0) return \"\";\n    return s.substr(end - best + 1, best);\n}\n// O(N^2) time and space. N <= 500, so this is the expected solution.\n"
             }
           ],
           "links": [],
@@ -779,7 +779,7 @@
             {
               "lang": "cpp",
               "label": "C++",
-              "code": "class FreqStack {\n    unordered_map<int,int> freq;\n    unordered_map<int,vector<int>> group;\n    int maxFreq=0;\npublic:\n    void push(int x){\n        maxFreq=max(maxFreq,++freq[x]);\n        group[freq[x]].push_back(x);\n    }\n    int pop(){\n        int x=group[maxFreq].back();\n        group[maxFreq].pop_back();\n        if(group[maxFreq].empty()) maxFreq--;\n        freq[x]--;\n        return x;\n    }\n};\n// push/pop: O(1) amortized  Space: O(N)"
+              "code": "class FreqStack {\n    unordered_map<int, int> freq;\n    // group[f] holds the values whose *current* frequency is f, most recent at the back.\n    // Popping the most frequent, then the most recent, is just the back of group[maxFreq].\n    unordered_map<int, vector<int>> group;\n    int maxFreq = 0;\npublic:\n    void push(int x) {\n        int f = ++freq[x];\n        group[f].push_back(x);\n        maxFreq = max(maxFreq, f);\n    }\n    int pop() {\n        int x = group[maxFreq].back();\n        group[maxFreq].pop_back();\n        freq[x]--;\n        if (group[maxFreq].empty()) maxFreq--;\n        return x;\n    }\n};\n// push and pop are O(1) amortized. Space O(N).\n"
             }
           ],
           "links": [
@@ -804,7 +804,7 @@
             {
               "lang": "cpp",
               "label": "C++",
-              "code": "int findKthLargest(vector<int>& nums, int k){\n    priority_queue<int,vector<int>,greater<int>> minHeap;\n    for(int n:nums){\n        minHeap.push(n);\n        if(minHeap.size()>k) minHeap.pop();\n    }\n    return minHeap.top();\n}\n// Time: O(N log K)  Space: O(K)"
+              "code": "int findKthLargest(vector<int>& nums, int k) {\n    // Min-heap of the k largest seen so far. The top is the smallest of those, i.e. the kth largest.\n    priority_queue<int, vector<int>, greater<int>> heap;\n    for (int x : nums) {\n        heap.push(x);\n        if ((int)heap.size() > k) heap.pop();\n    }\n    return heap.top();\n}\n// O(N log K) time, O(K) space.\n// Follow-up: quickselect is O(N) average, O(N^2) worst. The heap is what you write first.\n"
             }
           ],
           "links": [
@@ -829,7 +829,7 @@
             {
               "lang": "cpp",
               "label": "C++",
-              "code": "class LRUCache {\n    int cap;\n    list<pair<int,int>> dll;  // {key,val} — front=most recent\n    unordered_map<int,list<pair<int,int>>::iterator> mp;\npublic:\n    LRUCache(int c):cap(c){}\n    int get(int key){\n        if(!mp.count(key)) return -1;\n        dll.splice(dll.begin(),dll,mp[key]);\n        return mp[key]->second;\n    }\n    void put(int key, int val){\n        if(mp.count(key)) dll.erase(mp[key]);\n        else if(dll.size()==cap){ mp.erase(dll.back().first); dll.pop_back(); }\n        dll.push_front({key,val}); mp[key]=dll.begin();\n    }\n};\n// get/put: O(1)  Space: O(cap)"
+              "code": "class LRUCache {\n    int cap;\n    // Front is most recently used, back is the eviction candidate.\n    list<pair<int, int>> order;\n    unordered_map<int, list<pair<int, int>>::iterator> pos;\npublic:\n    explicit LRUCache(int capacity) : cap(capacity) {}\n\n    int get(int key) {\n        auto it = pos.find(key);\n        if (it == pos.end()) return -1;\n        order.splice(order.begin(), order, it->second); // O(1) move to front\n        return it->second->second;\n    }\n\n    void put(int key, int value) {\n        auto it = pos.find(key);\n        if (it != pos.end()) {\n            order.erase(it->second); // update must not evict a different key\n        } else if ((int)order.size() == cap) {\n            pos.erase(order.back().first);\n            order.pop_back();\n        }\n        order.push_front({key, value});\n        pos[key] = order.begin();\n    }\n};\n// get and put O(1) average. A map ordered by timestamp is O(log N) and fails the requirement.\n"
             }
           ],
           "links": [
@@ -854,7 +854,7 @@
             {
               "lang": "cpp",
               "label": "C++",
-              "code": "class MyStack {\n    queue<int> q;\npublic:\n    void push(int x){\n        q.push(x);\n        for(int i=0;i<q.size()-1;i++){ q.push(q.front()); q.pop(); }\n    }\n    int pop(){ int x=q.front(); q.pop(); return x; }\n    int  top(){ return q.front(); }\n    bool empty(){ return q.empty(); }\n};\n// push O(N), pop O(1)"
+              "code": "class MyStack {\n    queue<int> q;\npublic:\n    void push(int x) { // O(N): rotate so x sits at the front and pop stays O(1)\n        q.push(x);\n        for (int i = 0; i < (int)q.size() - 1; i++) {\n            q.push(q.front());\n            q.pop();\n        }\n    }\n    int pop() { int x = q.front(); q.pop(); return x; } // O(1)\n    int top() { return q.front(); }\n    bool empty() { return q.empty(); }\n};\n\nclass MyQueue {\n    stack<int> in, out;\n    void pour() { // O(N) once, then the next pops are O(1) — amortized O(1)\n        if (out.empty()) {\n            while (!in.empty()) {\n                out.push(in.top());\n                in.pop();\n            }\n        }\n    }\npublic:\n    void push(int x) { in.push(x); } // O(1)\n    int pop() { pour(); int x = out.top(); out.pop(); return x; }\n    int peek() { pour(); return out.top(); }\n    bool empty() { return in.empty() && out.empty(); }\n};\n"
             }
           ],
           "links": [
@@ -868,7 +868,7 @@
       ]
     },
     {
-      "title": "Concurrency Coding (C++ reference; implement in Java at MMT)",
+      "title": "Concurrency Coding (Java)",
       "questions": [
         {
           "id": "mmt-dsa-037",
@@ -877,14 +877,14 @@
           "tags": [
             "Design+Concurrency"
           ],
-          "category": "Concurrency Coding (C++ reference; implement in Java at MMT)",
+          "category": "Concurrency Coding (Java)",
           "body": "<p>Implement a hash map from scratch in Java with <code>put(key, value)</code>, <code>get(key)</code>, and <code>remove(key)</code>. Handle collisions with separate chaining. Then make <code>put</code> thread-safe. Be ready to explain why the default capacity is 16 and why capacity stays a power of two.</p><div class=\"example\"><div class=\"example-label\">Example 1</div><pre>Input: put(1, 10), put(2, 20), get(1), put(2, 30), get(2), remove(1), get(1)\nOutput: 10, 30, null\nExplanation: The second put updates key 2. After remove, key 1 is absent.</pre></div><div class=\"example\"><div class=\"example-label\">Example 2</div><pre>Input: two threads call put on different keys at the same time\nOutput: both entries are visible afterwards; neither write is lost.\nExplanation: A global synchronized put is correct but coarse. Per-bucket / striped locking is the expected discussion.</pre></div><p><strong>Constraints</strong></p><ul><li>Keys and values are integers for the coding part.</li><li>Load factor 0.75; rehash when size exceeds capacity * load factor.</li></ul>",
           "answer": "<p><strong>Problem:</strong> Thread-safe HashMap from scratch (MMT loves Java follow-up).</p>\n<p><strong>Core:</strong> array of buckets; hash &amp; (cap−1) requires power-of-two capacity; separate chaining; rehash at load factor 0.75.</p>\n<p><strong>Thread-safety:</strong> synchronize per bucket / striped locks (ConcurrentHashMap inspiration), or ConcurrentHashMap segments. Naive global <code>synchronized</code> is correct but contended.</p>\n<p>Explain why capacity 16 and bitmask vs modulo — classic MMT Q.</p>",
           "solutions": [
             {
-              "lang": "cpp",
-              "label": "C++",
-              "code": "// Conceptual — MMT asks Java impl with synchronized\ntemplate<typename K, typename V>\nclass HashMap {\n    static const int CAP = 16;  // power of 2!\n    vector<list<pair<K,V>>> buckets{CAP};\n    int idx(K k){ return hash<K>{}(k) & (CAP-1); } // bitmask!\npublic:\n    void put(K k, V v){\n        auto& b=buckets[idx(k)];\n        for(auto& p:b) if(p.first==k){ p.second=v; return; }\n        b.push_back({k,v});\n    }\n    V get(K k){\n        for(auto& p:buckets[idx(k)])\n            if(p.first==k) return p.second;\n        throw runtime_error(\"not found\");\n    }\n};\n// Java thread-safe: synchronized(buckets[idx(k))){ ... }\n// Or use ConcurrentHashMap's segment-level locking approach"
+              "lang": "java",
+              "label": "Java",
+              "code": "import java.util.Arrays;\n\n/**\n * Separate chaining, power-of-two capacity, rehash at load 0.75.\n * Methods are synchronized: correct, and the answer to \"make put thread-safe\".\n * The follow-up is striped locks (one monitor per bucket). Resize then has to\n * take every stripe, or a single resize lock, or the two puts race on the table.\n * A global lock is what you code; stripes are what you discuss.\n */\nclass MyHashMap {\n    private static final class Node {\n        final int key;\n        int val;\n        Node next;\n        Node(int key, int val, Node next) {\n            this.key = key;\n            this.val = val;\n            this.next = next;\n        }\n    }\n\n    private Node[] table = new Node[16]; // 16 so the first mask is 4 bits; must stay a power of two\n    private int size = 0;\n\n    public synchronized void put(int key, int val) {\n        int i = index(key, table.length);\n        for (Node n = table[i]; n != null; n = n.next) {\n            if (n.key == key) { n.val = val; return; } // update, do not grow size\n        }\n        table[i] = new Node(key, val, table[i]);\n        if (++size > table.length * 3 / 4) resize();\n    }\n\n    public synchronized Integer get(int key) {\n        for (Node n = table[index(key, table.length)]; n != null; n = n.next)\n            if (n.key == key) return n.val;\n        return null;\n    }\n\n    public synchronized void remove(int key) {\n        int i = index(key, table.length);\n        Node prev = null;\n        for (Node n = table[i]; n != null; n = n.next) {\n            if (n.key == key) {\n                if (prev == null) table[i] = n.next;\n                else prev.next = n.next;\n                size--;\n                return;\n            }\n            prev = n;\n        }\n    }\n\n    private void resize() {\n        Node[] bigger = new Node[table.length << 1];\n        for (Node head : table) {\n            for (Node n = head; n != null; n = n.next) {\n                int i = index(n.key, bigger.length);\n                bigger[i] = new Node(n.key, n.val, bigger[i]);\n            }\n        }\n        table = bigger;\n    }\n\n    // Bitmask, not %. Java's % on a negative hash is negative and is not a bucket index.\n    private static int index(int key, int cap) {\n        int h = key ^ (key >>> 16);\n        return h & (cap - 1);\n    }\n}\n"
             }
           ],
           "links": [],
@@ -898,14 +898,14 @@
           "tags": [
             "Threading"
           ],
-          "category": "Concurrency Coding (C++ reference; implement in Java at MMT)",
+          "category": "Concurrency Coding (Java)",
           "body": "<p>You are given a list of URLs and a keyword. Download the HTML of each URL <strong>concurrently</strong> and count how many times the keyword occurs in each page. Return a list of <code>[url, keyword, count]</code>. A failed download should not fail the whole batch — record count <code>-1</code> for that URL.</p><div class=\"example\"><div class=\"example-label\">Example 1</div><pre>Input: urls = [\"https://a.example\", \"https://b.example\"], keyword = \"offer\"\nPage a contains \"offer\" twice; page b contains it zero times.\nOutput: [[\"https://a.example\",\"offer\",2], [\"https://b.example\",\"offer\",0]]</pre></div><div class=\"example\"><div class=\"example-label\">Example 2</div><pre>Input: urls = [\"https://down.example\"], keyword = \"mmt\"\nThe download throws / times out.\nOutput: [[\"https://down.example\",\"mmt\",-1]]</pre></div><p><strong>Constraints</strong></p><ul><li>1 &lt;= urls.length &lt;= 100</li><li>Use a thread pool or CompletableFuture, not one thread per URL unbounded.</li><li>Do not block the common ForkJoinPool on network I/O.</li></ul>",
           "answer": "<p><strong>Problem:</strong> Download several HTML pages concurrently; count occurrences of a keyword; gather results.</p>\n<p><strong>Java approach:</strong> <code>ExecutorService</code> / <code>CompletableFuture</code> per URL; each task returns <code>(url, keyword, count)</code>; <code>AtomicInteger</code> only if sharing one counter. Join with <code>invokeAll</code> / <code>allOf</code>.</p>\n<p>Discuss timeouts, failure isolation, and not blocking the common ForkJoin pool on I/O — use a dedicated executor.</p>",
           "solutions": [
             {
-              "lang": "cpp",
-              "label": "C++",
-              "code": "// Java — CompletableFuture approach\nList<CompletableFuture<String[]>> futures = urls.stream()\n    .map(url -> CompletableFuture.supplyAsync(() -> {\n        String html = fetchHtml(url);   // HTTP GET\n        long count = countOccurrences(html, keyword);\n        return new String[]{url, keyword, String.valueOf(count)};\n    }, executor))\n    .collect(Collectors.toList());\n\nList<String[]> results = futures.stream()\n    .map(CompletableFuture::join)\n    .collect(Collectors.toList());\n\n// countOccurrences: simple regex or KMP\nlong countOccurrences(String text, String kw) {\n    return Pattern.compile(Pattern.quote(kw))\n                  .matcher(text).results().count();\n}"
+              "lang": "java",
+              "label": "Java",
+              "code": "import java.util.ArrayList;\nimport java.util.List;\nimport java.util.concurrent.CompletableFuture;\nimport java.util.concurrent.ExecutorService;\nimport java.util.concurrent.Executors;\n\nclass HtmlWordCounter {\n    private final ExecutorService pool;\n\n    HtmlWordCounter(int threads) {\n        // Do not call supplyAsync() with no executor. That uses the common ForkJoinPool,\n        // and a blocked HTTP read pins a worker the rest of the JVM also needs.\n        this.pool = Executors.newFixedThreadPool(threads);\n    }\n\n    List<Hit> countAll(List<String> urls, String keyword) {\n        List<CompletableFuture<Hit>> jobs = new ArrayList<>();\n        for (String url : urls)\n            jobs.add(CompletableFuture.supplyAsync(() -> countOne(url, keyword), pool));\n        List<Hit> out = new ArrayList<>();\n        for (CompletableFuture<Hit> job : jobs) out.add(job.join());\n        return out;\n    }\n\n    private Hit countOne(String url, String keyword) {\n        try {\n            return new Hit(url, keyword, occurrences(fetchHtml(url), keyword));\n        } catch (Exception failed) {\n            return new Hit(url, keyword, -1); // one bad URL must not fail the batch\n        }\n    }\n\n    static long occurrences(String text, String keyword) {\n        if (keyword.isEmpty()) return 0;\n        long n = 0;\n        for (int from = 0; from <= text.length() - keyword.length(); ) {\n            int at = text.indexOf(keyword, from);\n            if (at < 0) break;\n            n++;\n            from = at + keyword.length(); // non-overlapping\n        }\n        return n;\n    }\n\n    /** HTTP GET. Anything thrown here becomes count -1. */\n    String fetchHtml(String url) throws Exception {\n        throw new UnsupportedOperationException(url);\n    }\n\n    record Hit(String url, String keyword, long count) {}\n}\n"
             }
           ],
           "links": [],
@@ -919,14 +919,14 @@
           "tags": [
             "Concurrency"
           ],
-          "category": "Concurrency Coding (C++ reference; implement in Java at MMT)",
+          "category": "Concurrency Coding (Java)",
           "body": "<p>Implement a thread-safe Builder that several threads may use to set fields of an object and then <code>build()</code> it. The interviewer will reject a solution that synchronizes every setter as “blocking”. Prefer an immutable builder (each setter returns a new builder) or <code>AtomicReference</code> / CAS.</p><div class=\"example\"><div class=\"example-label\">Example 1</div><pre>Input: thread A sets name = \"Ash\", thread B sets role = \"SDE\"; then build()\nOutput: a single object {name: \"Ash\", role: \"SDE\"} with no torn fields.\nExplanation: Immutable copies (or a CAS loop on the product) publish a consistent snapshot.</pre></div><div class=\"example\"><div class=\"example-label\">Example 2</div><pre>Input: two threads set the same field, last write wins\nOutput: exactly one of the two values is visible; never a partial string / half-updated reference.</pre></div><p><strong>Constraints</strong></p><ul><li>Fields are references or immutables.</li><li>build() must be safe to call once the setters that should be included have happened.</li></ul>",
-          "answer": "<p><strong>Problem:</strong> Thread-safe Builder — interviewers may reject coarse <code>synchronized</code>.</p>\n<p><strong>Options:</strong></p>\n<ul>\n<li><strong>Immutable builder:</strong> each setter returns a new builder copy — no shared mutable state.</li>\n<li><strong>AtomicReference&lt;T&gt;:</strong> CAS the product being built.</li>\n</ul>\n<p>Explain why synchronized works but is “blocking”; show you know non-blocking alternatives.</p>",
+          "answer": "<p><strong>Problem:</strong> Two threads set different fields on one builder; <code>build()</code> must see both writes, with no torn fields.</p><p><strong>Approach:</strong> keep an immutable snapshot in an <code>AtomicReference</code>. Each setter copies the other field and CAS-swaps the reference. A failed CAS retries against the latest snapshot, so the other thread's field is kept. Last write wins on the same field.</p><p>A setter that only returns a new builder to its caller never publishes that write, so it does not solve the shared-builder case. <code>synchronized</code> is correct, but the interviewer called it blocking.</p>",
           "solutions": [
             {
-              "lang": "cpp",
-              "label": "C++",
-              "code": "// Immutable builder — naturally thread-safe (no shared mutable state)\nfinal class Person {\n    final String name; final int age;\n    private Person(Builder b){ this.name=b.name; this.age=b.age; }\n\n    static class Builder {\n        private final String name; private final int age;\n        Builder(String n,int a){ this.name=n; this.age=a; }\n        Builder(){ this(\"\",0); }\n        Builder withName(String n){ return new Builder(n,age); } // returns NEW\n        Builder withAge(int a)  { return new Builder(name,a); } // returns NEW\n        Person build(){ return new Person(this); }\n    }\n}\n// Thread 1 and Thread 2 can both .withName().withAge().build()\n// without any locking — each gets their own Builder chain"
+              "lang": "java",
+              "label": "Java",
+              "code": "import java.util.concurrent.atomic.AtomicReference;\n\n/**\n * Two threads must be able to set different fields and both writes must survive.\n * A setter that returns a new builder to its caller does not publish that write\n * to the other thread, so it fails the shared-builder case.\n * The shared state is an immutable snapshot. CAS swaps the whole snapshot;\n * a lost race retries and copies the field the other thread just published.\n */\nfinal class ConfigBuilder {\n    static final class Config {\n        final String name;\n        final String role;\n        Config(String name, String role) {\n            this.name = name;\n            this.role = role;\n        }\n    }\n\n    private final AtomicReference<Config> ref =\n            new AtomicReference<>(new Config(null, null));\n\n    void setName(String name) {\n        Config cur, next;\n        do {\n            cur = ref.get();\n            next = new Config(name, cur.role); // keep the role we just observed\n        } while (!ref.compareAndSet(cur, next));\n    }\n\n    void setRole(String role) {\n        Config cur, next;\n        do {\n            cur = ref.get();\n            next = new Config(cur.name, role);\n        } while (!ref.compareAndSet(cur, next));\n    }\n\n    Config build() {\n        return ref.get(); // immutable, so the caller cannot observe a torn pair of fields\n    }\n}\n"
             }
           ],
           "links": [],
@@ -952,7 +952,7 @@
             {
               "lang": "cpp",
               "label": "C++",
-              "code": "void hanoi(int n, char from, char to, char aux){\n    if(n==1){ cout<<\"Move disk 1 from \"<<from<<\" to \"<<to<<\"\\n\"; return; }\n    hanoi(n-1,from,aux,to);\n    cout<<\"Move disk \"<<n<<\" from \"<<from<<\" to \"<<to<<\"\\n\";\n    hanoi(n-1,aux,to,from);\n}\n// Time: O(2^N)  Moves: 2^N - 1"
+              "code": "void hanoi(int n, char from, char to, char aux) {\n    if (n == 0) return;\n    hanoi(n - 1, from, aux, to);                 // free the largest disk\n    cout << \"Move disk \" << n << \" from \" << from << \" to \" << to << \"\\n\";\n    hanoi(n - 1, aux, to, from);                 // stack the n-1 tower on top of it\n}\n// 2^n - 1 moves. Each call does constant work besides the two recursive calls.\n"
             }
           ],
           "links": [],
@@ -973,7 +973,7 @@
             {
               "lang": "cpp",
               "label": "C++",
-              "code": "int findUnsortedSubarray(vector<int>& nums){\n    int n=nums.size(), lo=n, hi=-1;\n    int mn=INT_MAX, mx=INT_MIN;\n    for(int i=0;i<n;i++){\n        mx=max(mx,nums[i]);\n        if(nums[i]<mx) hi=i;\n    }\n    for(int i=n-1;i>=0;i--){\n        mn=min(mn,nums[i]);\n        if(nums[i]>mn) lo=i;\n    }\n    return hi==-1 ? 0 : hi-lo+1;\n}\n// Time: O(N)  Space: O(1)"
+              "code": "int findUnsortedSubarray(vector<int>& nums) {\n    int n = (int)nums.size();\n    int right = -1, maxSoFar = INT_MIN;\n    for (int i = 0; i < n; i++) {\n        maxSoFar = max(maxSoFar, nums[i]);\n        if (nums[i] < maxSoFar) right = i; // i is out of order relative to the prefix\n    }\n    int left = n, minSoFar = INT_MAX;\n    for (int i = n - 1; i >= 0; i--) {\n        minSoFar = min(minSoFar, nums[i]);\n        if (nums[i] > minSoFar) left = i;\n    }\n    return right == -1 ? 0 : right - left + 1;\n}\n// O(N) time, O(1) space. Sorting a copy and comparing is the O(N log N) answer\n// you can fall back to if you blank on the two passes.\n"
             }
           ],
           "links": [
@@ -998,7 +998,7 @@
             {
               "lang": "cpp",
               "label": "C++",
-              "code": "int josephus(int n, int k){\n    int pos=0; // survivor position in 0-indexed\n    for(int i=2;i<=n;i++) pos=(pos+k)%i;\n    return pos+1; // 1-indexed\n}\n// Time: O(N)  Space: O(1)"
+              "code": "int josephus(int n, int k) {\n    // 0-based: f(1) = 0, f(i) = (f(i-1) + k) % i.\n    // After the first person is removed, the next count starts at the next seat,\n    // which is a rotation of an (i-1)-person problem.\n    int pos = 0;\n    for (int i = 2; i <= n; i++) pos = (pos + k) % i;\n    return pos + 1; // the prompt numbers people from 1\n}\n// O(N) time, O(1) space. The recursive form is the same recurrence and uses O(N) stack.\n"
             }
           ],
           "links": [],
@@ -1013,12 +1013,12 @@
           ],
           "category": "Misc / OA Problems",
           "body": "<p>A prisoner must cross <code>n</code> walls. Wall <code>i</code> has height <code>h[i]</code>. In one jump the prisoner gains <code>H</code> units of height. If the wall is not yet cleared, they slip down <code>L</code> units before the next jump. After a wall is cleared, height resets to 0 for the next wall. Return the total number of jumps needed to clear every wall. If it is impossible (no net progress, and a wall is taller than <code>H</code>), return <code>-1</code>.</p><div class=\"example\"><div class=\"example-label\">Example 1</div><pre>Input: h = [10, 10], H = 5, L = 1\nOutput: 6\nExplanation: For one wall of 10: jump to 5 (slip to 4), jump to 9 (slip to 8), jump to 13 (cleared). 3 jumps × 2 walls = 6.</pre></div><div class=\"example\"><div class=\"example-label\">Example 2</div><pre>Input: h = [10], H = 5, L = 5\nOutput: -1\nExplanation: After a failed jump, height returns to 0, so a wall taller than H can never be cleared.</pre></div><p><strong>Constraints</strong></p><ul><li>1 &lt;= n &lt;= 10^4</li><li>1 &lt;= h[i], H &lt;= 10^5</li><li>0 &lt;= L &lt;= 10^5</li></ul>",
-          "answer": "<p><strong>Problem:</strong> Prisoner jumps walls of heights <code>h[i]</code> with jump H and slip L each failed attempt.</p>\n<p><strong>Per wall:</strong> accumulate height += H each jump; if still below wall, slip −L and continue. Count jumps.</p>\n<p><strong>Critical:</strong> if <code>H ≤ L</code>, net progress after a failed jump is ≤0 → infinite loop on tall walls. Return −1 (impossible) unless <code>h[i] ≤ H</code> (cleared in one jump).</p>",
+          "answer": "<p><strong>Problem:</strong> Prisoner jumps walls of heights <code>h[i]</code> with jump H and slip L each failed attempt.</p>\n<p><strong>Per wall:</strong> accumulate height += H each jump; if still below wall, slip −L and continue. Count jumps.</p>\n<p><strong>Critical:</strong> if <code>H ≤ L</code>, net progress after a failed jump is ≤0 → infinite loop on tall walls. Return −1 (impossible) unless <code>h[i] ≤ H</code> (cleared in one jump).</p><p><strong>Closed form, per wall:</strong> if <code>w ≤ H</code>, one jump. Otherwise <code>failed = ceil((w − H) / (H − L))</code> and the answer is <code>failed + 1</code>. The slip does not happen on the jump that clears the wall. Simulating is the same math and is too slow when <code>H − L = 1</code>.</p>",
           "solutions": [
             {
               "lang": "cpp",
               "label": "C++",
-              "code": "int totalJumps(vector<int>& walls, int H, int L) {\n    // If slip >= jump, you never gain net height past the first jump\n    if (H <= 0) return -1;\n    int jumps = 0;\n    for (int w : walls) {\n        if (w <= 0) continue;\n        if (H <= L) {\n            if (w > H) return -1;  // impossible — would infinite-loop otherwise\n            jumps += 1;           // one jump clears it\n            continue;\n        }\n        int cur = 0;\n        while (cur < w) {\n            cur += H;\n            jumps++;\n            if (cur >= w) break;\n            cur -= L;             // slip only when wall not yet cleared\n        }\n    }\n    return jumps;\n}\n// Time: O(N * jumps_per_wall)  Space: O(1)"
+              "code": "int totalJumps(vector<int>& walls, int H, int L) {\n    // One failed attempt gains H then loses L. The last jump does not slip.\n    // So a wall of height w <= H is one jump, and a taller wall needs\n    //   failed = ceil((w - H) / (H - L))\n    //   jumps  = failed + 1.\n    // Simulating the climb is the same answer and is too slow when H - L is 1 and w is 1e5.\n    long long jumps = 0;\n    long long gain = (long long)H - L;\n    for (int w : walls) {\n        if (w <= H) { jumps++; continue; }\n        if (gain <= 0) return -1; // no net progress, and this wall is taller than one jump\n        long long failed = ((long long)w - H + gain - 1) / gain;\n        jumps += failed + 1;\n    }\n    return (int)jumps;\n}\n// O(N) time, O(1) space\n"
             }
           ],
           "links": [],
@@ -1034,12 +1034,12 @@
           ],
           "category": "Misc / OA Problems",
           "body": "<p>A store has several open intervals. <code>open[i]</code> and <code>close[i]</code> are the opening and closing times of interval <code>i</code>, in hours on the same day (<code>0 &lt;= open[i] &lt; close[i] &lt;= 24</code>). The store is open during <code>[open[i], close[i])</code>. Implement <code>isOpen(int t)</code> that returns whether the store is open at hour <code>t</code>.</p><div class=\"example\"><div class=\"example-label\">Example 1</div><pre>Input: open = [9, 14], close = [12, 18], t = 10\nOutput: true\nExplanation: 10 is inside [9, 12).</pre></div><div class=\"example\"><div class=\"example-label\">Example 2</div><pre>Input: open = [9, 14], close = [12, 18], t = 13\nOutput: false\nExplanation: 13 is in the gap between 12 and 14. t = 12 is also false (half-open). t = 18 is false.</pre></div><p><strong>Constraints</strong></p><ul><li>1 &lt;= open.length == close.length &lt;= 100</li><li>0 &lt;= t &lt;= 24</li><li>Intervals may overlap; treat the store as open if t falls in any interval.</li></ul>",
-          "answer": "<p><strong>Problem:</strong> Given open/close time arrays, check if store is open at time T.</p>\n<p><strong>Idea:</strong> for each interval <code>[open[i], close[i])</code> (clarify inclusive bounds), test membership. Or merge intervals then binary search.</p>\n<p>Discuss midnight wrap-around if close &lt; open (overnight hours).</p>",
+          "answer": "<p><strong>Problem:</strong> Given open/close time arrays, check if store is open at time T.</p>\n<p><strong>Idea:</strong> for each interval <code>[open[i], close[i])</code> (clarify inclusive bounds), test membership. Or merge intervals then binary search.</p>\n<p>Discuss midnight wrap-around if close &lt; open (overnight hours).</p><p>Intervals may overlap and are unsorted, and <code>N ≤ 100</code>, so a linear scan is the answer. <code>upper_bound</code> on <code>open[]</code> alone is wrong when intervals overlap.</p>",
           "solutions": [
             {
               "lang": "cpp",
               "label": "C++",
-              "code": "bool isOpen(vector<int>& open, vector<int>& close, int T){\n    for(int i=0;i<open.size();i++)\n        if(T>=open[i] && T<close[i]) return true;\n    return false;\n}\n// For sorted intervals use binary search: O(log N)\nbool isOpenBS(vector<int>& open, vector<int>& close, int T){\n    int idx = upper_bound(open.begin(),open.end(),T)-open.begin()-1;\n    return idx>=0 && T<close[idx];\n}\n// Time: O(log N) with binary search"
+              "code": "bool isOpen(const vector<int>& open, const vector<int>& close, int t) {\n    // Intervals may overlap and are not sorted, and n <= 100, so scan.\n    // Half-open: t == open[i] is inside, t == close[i] is not.\n    // Binary search on open[] is wrong here — overlapping intervals do not\n    // have a single \"the interval that contains t\".\n    for (int i = 0; i < (int)open.size(); i++) {\n        if (t >= open[i] && t < close[i]) return true;\n    }\n    return false;\n}\n// O(N) time. If they first ask you to merge, then a sorted non-overlapping\n// list can be answered with upper_bound. That is a different problem.\n"
             }
           ],
           "links": [],

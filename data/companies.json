@@ -8,7 +8,6 @@
       "role": "Backend / SDE",
       "accent": "#CF142B",
       "logo": "assets/logos/mmt.png",
-      "logoMark": "assets/logos/mmt-mark.svg",
       "description": "DSA (C++), Backend Java Q&A, LLD & HLD for SDE-1 to SSE.",
       "tabs": [
         "overview",

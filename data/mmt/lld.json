@@ -134,8 +134,14 @@
           ],
           "category": "General",
           "body": "SDE/SSE-2 Round 2 (LeetCode Discuss Oct 2024). Implement Builder pattern, spin up 2 threads running it. Key: synchronized is blocking — use AtomicReference or make builder immutable (each .withX() returns new builder).",
-          "answer": "<p>Immutable builder approach: each setter returns a new builder with the updated field. Thread-safe because no shared mutable state. For mutable: use AtomicReference<T> on the final object.</p>",
-          "solutions": [],
+          "answer": "<p>Two threads set different fields on one builder; <code>build()</code> must see both, with no torn fields.</p><p>Keep an immutable snapshot in an <code>AtomicReference</code>. Each setter copies the other field and CAS-swaps. A failed CAS retries, so the other thread's write is kept. A setter that only returns a new builder to its caller never publishes that write.</p>",
+          "solutions": [
+            {
+              "lang": "java",
+              "label": "Java",
+              "code": "import java.util.concurrent.atomic.AtomicReference;\n\n/**\n * Two threads must be able to set different fields and both writes must survive.\n * A setter that returns a new builder to its caller does not publish that write\n * to the other thread, so it fails the shared-builder case.\n * The shared state is an immutable snapshot. CAS swaps the whole snapshot;\n * a lost race retries and copies the field the other thread just published.\n */\nfinal class ConfigBuilder {\n    static final class Config {\n        final String name;\n        final String role;\n        Config(String name, String role) {\n            this.name = name;\n            this.role = role;\n        }\n    }\n\n    private final AtomicReference<Config> ref =\n            new AtomicReference<>(new Config(null, null));\n\n    void setName(String name) {\n        Config cur, next;\n        do {\n            cur = ref.get();\n            next = new Config(name, cur.role); // keep the role we just observed\n        } while (!ref.compareAndSet(cur, next));\n    }\n\n    void setRole(String role) {\n        Config cur, next;\n        do {\n            cur = ref.get();\n            next = new Config(cur.name, role);\n        } while (!ref.compareAndSet(cur, next));\n    }\n\n    Config build() {\n        return ref.get(); // immutable, so the caller cannot observe a torn pair of fields\n    }\n}\n"
+            }
+          ],
           "links": [],
           "source": "Reported: SDE/SSE-2 LeetCode Discuss Oct 2024",
           "hint": "Immutable builder approach: each setter returns a new builder with the updated field. Thread-safe because no shared mutable state. For mutable: use AtomicReference<T> on the final object."

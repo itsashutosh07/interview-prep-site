@@ -26,7 +26,7 @@ import {
   tabProgress,
   escapeHtml,
   companyLogoHtml,
-} from "./render.js?v=20";
+} from "./render.js?v=24";
 
 const app = document.getElementById("app");
 let state = loadState();
@@ -36,7 +36,7 @@ const inflight = {}; // slug -> Promise
 let routeGen = 0;
 
 /** Bust browser cache for ES modules + JSON after deploys */
-const ASSET_V = "15";
+const ASSET_V = "24";
 
 function withV(path) {
   const join = path.includes("?") ? "&" : "?";
@@ -78,8 +78,7 @@ function renderSidebarHtml(activeSlug) {
   const companyLinks = companies
     .map((c) => {
       const active = c.slug === activeSlug ? "active" : "";
-      // Prefer full wordmark logo in sidebar (not the mark SVG)
-      const logo = companyLogoHtml(c, { mark: false, className: "sidebar-logo" });
+      const logo = companyLogoHtml(c, { className: "sidebar-logo" });
       const displayName = c.name || c.shortName || c.slug;
       return `
         <button type="button" class="sidebar-link sidebar-company ${active}" data-nav-company="${escapeHtml(c.slug)}">

@@ -1,5 +1,5 @@
 /**
- * Lightweight syntax highlighter for C++, Java, and Python.
+ * Lightweight syntax highlighter for C++, Java, Python, and SQL.
  * Returns HTML with <span class="tok-*"> tokens (already escaped).
  */
 
@@ -83,11 +83,46 @@ const PYTHON = {
   stringModes: ['"', "'"],
 };
 
+const SQL = {
+  keywords: new Set([
+    "select", "from", "where", "and", "or", "not", "in", "is", "null",
+    "as", "on", "join", "inner", "left", "right", "full", "outer", "cross",
+    "create", "table", "primary", "key", "unique", "foreign", "references",
+    "constraint", "index", "default", "insert", "into", "values", "update",
+    "set", "delete", "drop", "alter", "add", "column", "if", "exists",
+    "order", "by", "group", "having", "limit", "offset", "asc", "desc",
+    "distinct", "union", "all", "case", "when", "then", "else", "end",
+    "between", "like", "with", "view", "begin", "commit", "rollback",
+    "transaction", "cascade", "check", "using", "replace", "ignore",
+    "returning", "over", "partition", "window", "true", "false", "for",
+    "update", "share", "lock", "nowait", "skip", "locked",
+  ]),
+  types: new Set([
+    "int", "integer", "bigint", "smallint", "tinyint", "varchar", "char",
+    "text", "boolean", "bool", "date", "time", "timestamp", "datetime",
+    "enum", "decimal", "numeric", "float", "double", "real", "blob",
+    "json", "uuid", "serial", "bigserial",
+  ]),
+  functions: new Set([
+    "count", "sum", "avg", "min", "max", "coalesce", "nullif", "cast",
+    "convert", "extract", "now", "concat", "lower", "upper", "length",
+    "substring", "substr", "trim", "round", "abs", "ifnull", "nvl",
+    "greatest", "least", "row_number", "rank", "dense_rank",
+  ]),
+  lineComment: "--",
+  hashComment: true,
+  blockComment: true,
+  doubledQuotes: true,
+  backticks: true,
+  caseInsensitive: true,
+};
+
 function langConfig(lang) {
   const l = (lang || "").toLowerCase();
   if (l === "cpp" || l === "c++" || l === "c") return CPP;
   if (l === "java") return JAVA;
   if (l === "python" || l === "py") return PYTHON;
+  if (l === "sql") return SQL;
   return null;
 }
 
@@ -101,7 +136,7 @@ function isIdent(ch) {
 
 /**
  * @param {string} code
- * @param {string} lang  cpp | java | python
+ * @param {string} lang  cpp | java | python | sql
  * @returns {string} HTML
  */
 export function highlight(code, lang) {
@@ -122,6 +157,15 @@ export function highlight(code, lang) {
 
     // Line comment
     if (cfg.lineComment && code.startsWith(cfg.lineComment, i)) {
+      let j = i;
+      while (j < n && code[j] !== "\n") j++;
+      push("cm", code.slice(i, j));
+      i = j;
+      continue;
+    }
+
+    // MySQL # comment
+    if (cfg.hashComment && ch === "#") {
       let j = i;
       while (j < n && code[j] !== "\n") j++;
       push("cm", code.slice(i, j));
@@ -150,6 +194,25 @@ export function highlight(code, lang) {
       continue;
     }
 
+    // Quoted identifiers (`table`)
+    if (cfg.backticks && ch === "`") {
+      let j = i + 1;
+      while (j < n) {
+        if (code[j] === "`" && code[j + 1] === "`") {
+          j += 2;
+          continue;
+        }
+        if (code[j] === "`") {
+          j++;
+          break;
+        }
+        j++;
+      }
+      push("st", code.slice(i, j));
+      i = j;
+      continue;
+    }
+
     // Strings
     if (ch === '"' || ch === "'") {
       const quote = ch;
@@ -160,6 +223,10 @@ export function highlight(code, lang) {
           continue;
         }
         if (code[j] === quote) {
+          if (cfg.doubledQuotes && code[j + 1] === quote) {
+            j += 2;
+            continue;
+          }
           j++;
           break;
         }
@@ -197,11 +264,13 @@ export function highlight(code, lang) {
       while (k < n && /\s/.test(code[k])) k++;
       const isFn = code[k] === "(";
 
-      if (cfg.keywords.has(word)) {
+      const key = cfg.caseInsensitive ? word.toLowerCase() : word;
+      const knownFn = cfg.functions ? cfg.functions.has(key) : isFn;
+      if (cfg.keywords.has(key)) {
         push("kw", word);
-      } else if (cfg.types.has(word)) {
+      } else if (cfg.types.has(key)) {
         push("ty", word);
-      } else if (isFn) {
+      } else if (isFn && knownFn) {
         push("fn", word);
       } else if (/^[A-Z]/.test(word) && word.length > 1) {
         // PascalCase → type-ish (ListNode, HashMap, etc.)

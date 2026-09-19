@@ -6,7 +6,7 @@ import {
   setNote,
   progressForIds,
 } from "./storage.js?v=15";
-import { highlight } from "./highlight.js?v=15";
+import { highlight } from "./highlight.js?v=22";
 
 const FREQ_LABEL = { high: "🔥 High", med: "⚡ Med", low: "🟢 Once" };
 const TAB_LABELS = {
@@ -119,8 +119,8 @@ export function collectQuestionIds(data) {
   return ids;
 }
 
-export function companyLogoHtml(c, { mark = false, className = "company-logo" } = {}) {
-  const src = mark ? c.logoMark || c.logo : c.logo || c.logoMark;
+export function companyLogoHtml(c, { className = "company-logo" } = {}) {
+  const src = c.logo;
   if (!src) return "";
   const alt = escapeHtml(c.shortName || c.name || "Logo");
   return `<img class="${escapeHtml(className)}" src="${escapeHtml(src)}" alt="${alt}" loading="lazy" decoding="async" />`;

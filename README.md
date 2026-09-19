@@ -68,8 +68,7 @@ Question `id` values must stay stable so saved progress keeps matching.
 Optional logo fields per company:
 
 ```json
-"logo": "assets/logos/mmt.png",
-"logoMark": "assets/logos/mmt-mark.svg"
+"logo": "assets/logos/mmt.png"
 ```
 
 Shown on the home card, sidebar, top bar, and Overview.
