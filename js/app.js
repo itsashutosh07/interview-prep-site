@@ -26,7 +26,7 @@ import {
   tabProgress,
   escapeHtml,
   companyLogoHtml,
-} from "./render.js?v=15";
+} from "./render.js?v=20";
 
 const app = document.getElementById("app");
 let state = loadState();
@@ -300,8 +300,10 @@ function renderCompanyShell(company, tab, progressLabel) {
         <span class="topbar-progress" data-top-progress>${escapeHtml(progressLabel)}</span>
         <button type="button" class="topbar-settings" data-settings aria-label="Settings">⋮</button>
       </header>
-      <nav class="chip-tabs" aria-label="Sections">${chips}</nav>
-      ${needsSearch ? `<div class="sticky-tools"><input class="search-box" type="search" placeholder="Filter…" data-search inputmode="search" /></div>` : ""}
+      <nav class="chip-tabs" aria-label="Sections">
+        <div class="chip-tabs-scroll">${chips}</div>
+        ${needsSearch ? `<input class="search-box chip-search" type="search" placeholder="Filter…" data-search inputmode="search" aria-label="Filter questions" />` : ""}
+      </nav>
       <main class="page" data-page></main>
       <nav class="bottom-nav" aria-label="Sections">${bottom}</nav>
     </div>`;

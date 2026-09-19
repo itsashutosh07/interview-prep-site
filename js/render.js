@@ -91,6 +91,7 @@ function updateCatProgress(section) {
   if (bar) {
     bar.style.width = total ? `${Math.round((done / total) * 100)}%` : "0%";
   }
+  section.classList.toggle("complete", total > 0 && done === total);
 }
 
 export function collectQuestionIds(data) {
@@ -287,7 +288,7 @@ function renderQuestionCard(q, idx, tab, state, companyId) {
             ${tagPills(q.tags, tab)}
           </div>
         </div>
-        <span class="q-expand" aria-hidden="true">›</span>
+        <span class="q-expand" aria-hidden="true"><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M5.75 4.25 10.25 8 5.75 11.75" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
       </div>
       <div class="q-panel">
         <div class="q-panel-inner">
@@ -303,8 +304,9 @@ function renderQuestionCard(q, idx, tab, state, companyId) {
 
 function renderSectionShell({ title, icon, done, total, searchBlob, bodyHtml, collapsed = false }) {
   const pct = total ? Math.round((done / total) * 100) : 0;
+  const complete = total > 0 && done === total;
   return `
-    <div class="cat-section ${collapsed ? "collapsed" : ""}" data-cat data-search="${searchBlob}">
+    <div class="cat-section ${collapsed ? "collapsed" : ""} ${complete ? "complete" : ""}" data-cat data-search="${searchBlob}">
       <div class="cat-header" data-cat-toggle role="button" tabindex="0" aria-expanded="${collapsed ? "false" : "true"}" title="Expand / collapse topic">
         <span class="cat-chevron" aria-hidden="true"><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M5.75 4.25 10.25 8 5.75 11.75" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
         ${icon ? `<span class="cat-icon">${icon}</span>` : ""}
@@ -375,7 +377,7 @@ function renderQaItem(item, state, companyId, idx) {
             <span class="q-title">${escapeHtml(item.question)}</span>
           </div>
         </div>
-        <span class="q-expand" aria-hidden="true">›</span>
+        <span class="q-expand" aria-hidden="true"><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M5.75 4.25 10.25 8 5.75 11.75" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
       </div>
       <div class="q-panel">
         <div class="q-panel-inner">
