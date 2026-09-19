@@ -26,7 +26,8 @@ import {
   tabProgress,
   escapeHtml,
   companyLogoHtml,
-} from "./render.js?v=24";
+  siteTitleHtml,
+} from "./render.js?v=26";
 
 const app = document.getElementById("app");
 let state = loadState();
@@ -36,7 +37,7 @@ const inflight = {}; // slug -> Promise
 let routeGen = 0;
 
 /** Bust browser cache for ES modules + JSON after deploys */
-const ASSET_V = "24";
+const ASSET_V = "25";
 
 function withV(path) {
   const join = path.includes("?") ? "&" : "?";
@@ -97,7 +98,7 @@ function renderSidebarHtml(activeSlug) {
     <div class="sidebar-backdrop" data-sidebar-close></div>
     <aside class="sidebar" aria-label="Main menu">
       <div class="sidebar-head">
-        <div class="sidebar-brand">Interview Prep</div>
+        <div class="sidebar-brand"><img class="site-mark" src="assets/logos/site-mark.svg" alt="" />Interview Prep</div>
         <button type="button" class="sidebar-close" data-sidebar-close aria-label="Close menu">×</button>
       </div>
       <nav class="sidebar-nav">
@@ -284,18 +285,12 @@ function renderCompanyShell(company, tab, progressLabel) {
     .join("");
 
   const needsSearch = ["dsa", "backend", "lld", "hld"].includes(tab);
-  const logo = companyLogoHtml(company, { className: "topbar-logo" });
-  const titleHtml = logo
-    ? ""
-    : `<div class="topbar-title">${escapeHtml(company.name || company.shortName)}</div>`;
 
   return `
     <div class="company-shell" data-company="${escapeHtml(company.id)}">
       <header class="topbar">
         <button type="button" class="topbar-menu-btn" data-sidebar-open aria-label="Open menu">☰</button>
-        ${logo}
-        ${titleHtml}
-        <div class="topbar-spacer"></div>
+        ${siteTitleHtml()}
         <span class="topbar-progress" data-top-progress>${escapeHtml(progressLabel)}</span>
         <button type="button" class="topbar-settings" data-settings aria-label="Settings">⋮</button>
       </header>

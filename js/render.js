@@ -119,6 +119,10 @@ export function collectQuestionIds(data) {
   return ids;
 }
 
+export function siteTitleHtml() {
+  return `<div class="topbar-title"><img class="site-mark" src="assets/logos/site-mark.svg" alt="" />Interview Prep</div>`;
+}
+
 export function companyLogoHtml(c, { className = "company-logo" } = {}) {
   const src = c.logo;
   if (!src) return "";
@@ -146,9 +150,9 @@ export function renderHome(companies, state, onOpen) {
     .join("");
 
   return `
-    <header class="topbar">
+      <header class="topbar">
       <button type="button" class="topbar-menu-btn" data-sidebar-open aria-label="Open menu">☰</button>
-      <div class="topbar-title">Interview Prep</div>
+      ${siteTitleHtml()}
     </header>
     <div class="home">
       <div class="home-hero">

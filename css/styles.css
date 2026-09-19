@@ -98,8 +98,14 @@ code {
 
 .topbar-title {
   flex: 1; min-width: 0;
+  display: flex; align-items: center; gap: 8px;
   font-size: 16px; font-weight: 700; color: var(--accent);
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.site-mark {
+  width: 22px; height: 22px;
+  flex-shrink: 0;
+  display: block;
 }
 .topbar-spacer { flex: 1; min-width: 0; }
 
@@ -172,7 +178,9 @@ code {
   min-height: var(--header-h);
 }
 .sidebar-brand {
-  flex: 1; font-size: 15px; font-weight: 700; color: var(--accent);
+  flex: 1;
+  display: flex; align-items: center; gap: 8px;
+  font-size: 15px; font-weight: 700; color: var(--accent);
 }
 .sidebar-close {
   width: var(--tap); height: var(--tap);
