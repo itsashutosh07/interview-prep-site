@@ -5,8 +5,8 @@ import {
   setDone,
   setNote,
   progressForIds,
-} from "./storage.js?v=12";
-import { highlight } from "./highlight.js?v=12";
+} from "./storage.js?v=13";
+import { highlight } from "./highlight.js?v=13";
 
 const FREQ_LABEL = { high: "🔥 High", med: "⚡ Med", low: "🟢 Once" };
 const TAB_LABELS = {
