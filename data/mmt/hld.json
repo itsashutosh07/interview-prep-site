@@ -65,7 +65,8 @@
           "answer": "<strong>Key components</strong>:<br>\n        1. <strong>Consistent Hashing</strong>: Map keys to nodes on a ring. Adding/removing a node only remaps ~K/N keys (vs. K/2 with simple modulo). Use virtual nodes for uniform distribution.<br>\n        2. <strong>Replication</strong>: Each key stored on N nodes (e.g., 3). Reads from any replica. Writes to primary → async replication.<br>\n        3. <strong>Eviction</strong>: LRU per shard with max memory limit. TTL expiry (lazy + active background sweep).<br>\n        4. <strong>Cache Coherence</strong>: On write, invalidate all replicas (delete-on-write) or use versioned values (read-your-writes consistency).<br>\n        5. <strong>Client-side routing</strong>: Clients use the same consistent hash ring to determine which node to contact — no central router bottleneck.<br><br>\n        Redis Cluster in production implements this with 16384 hash slots distributed across master nodes, each with replicas.",
           "solutions": [],
           "links": [],
-          "source": "Reported: SDE-2 GFG 2021"
+          "source": "Reported: SDE-2 GFG 2021",
+          "hint": "Consistent hashing for key distribution. Each node has replicas. Eviction: LRU or LFU with TTL. Write strategy: write-through for consistency, write-behind for performance."
         },
         {
           "id": "mmt-hld-005",
@@ -91,11 +92,11 @@
           ],
           "category": "General",
           "body": "Tech Lead on-site (Jul 2024). Given two services with high latency between them, what are the approaches? Cover: async (Kafka/event), caching (Redis read-through), connection pooling, gRPC instead of REST, co-location, bulk/batch APIs, circuit breakers.",
-          "answer": null,
+          "answer": "<p><strong>Reduce latency between two microservices:</strong></p>\n<ul>\n<li><strong>Async:</strong> if caller does not need sync reply, publish Kafka event (booking → notification).</li>\n<li><strong>Cache:</strong> Redis read-through for semi-static data (fares metadata, hotel content).</li>\n<li><strong>Protocol:</strong> gRPC + HTTP/2 multiplexing for internal sync calls.</li>\n<li><strong>Pooling / batch:</strong> shared HTTP/gRPC pools; replace N chatty calls with 1 bulk API.</li>\n<li><strong>Topology:</strong> co-locate in same AZ/region; circuit breaker + timeouts to fail fast.</li>\n</ul>\n<p>Pick the lever that matches the measured bottleneck (network vs serialization vs downstream compute).</p>",
           "solutions": [],
           "links": [],
           "source": "Reported: Tech Lead LeetCode Jul 2024",
-          "hint": "Consistent hashing for key distribution. Each node has replicas. Eviction: LRU or LFU with TTL. Write strategy: write-through for consistency, write-behind for performance."
+          "hint": "Cover: async decoupling (Kafka), Redis read-through cache, gRPC vs REST, connection pooling, bulk/batch APIs, co-location/AZ affinity, circuit breakers. Pick 2–3 and defend trade-offs for MMT booking/payment traffic."
         },
         {
           "id": "mmt-hld-007",
@@ -106,10 +107,11 @@
           ],
           "category": "General",
           "body": "SDE-2 (4 years exp) Round 3 (GFG). Chatbot for MMT: queries can be hotel or flight. Route to different internal APIs. Custom questions go to analytics for future training. Components: NLP classifier, intent router, internal API adapters, fallback/analytics pipeline.",
-          "answer": null,
+          "answer": "<p><strong>MMT chatbot routing HLD:</strong></p>\n<ul>\n<li><strong>Ingress:</strong> chat gateway (WebSocket/HTTP) → session store.</li>\n<li><strong>NLU:</strong> classify intent (hotel_search, flight_status, refund_faq, unknown).</li>\n<li><strong>Router:</strong> map intent → Hotel API / Flight API / FAQ KB adapters.</li>\n<li><strong>Analytics sink:</strong> low-confidence / unknown queries written for offline training.</li>\n<li><strong>Safety:</strong> auth context, PII redaction in logs, rate limits per user.</li>\n</ul>",
           "solutions": [],
           "links": [],
-          "source": "Reported: SDE-2 GFG 4 years exp Round 3"
+          "source": "Reported: SDE-2 GFG 4 years exp Round 3",
+          "hint": "Components: NLP/intent classifier → router (hotel vs flight vs FAQ) → internal API adapters → response composer. Unknown intents → analytics queue for training. Fallback to human/agent when confidence low."
         },
         {
           "id": "mmt-hld-008",
@@ -150,10 +152,11 @@
           ],
           "category": "General",
           "body": "CodingKaro SSE-2 — the LLD round unexpectedly turned into a full Dream11-style HLD. High concurrency (massive spike at contest start/end), leaderboard updates, team management.",
-          "answer": null,
+          "answer": "<p><strong>Fantasy sports (Dream11-style) HLD sketch:</strong></p>\n<ul>\n<li><strong>Traffic shape:</strong> huge spike at contest open/close — edge rate limit + admission queue.</li>\n<li><strong>Write path:</strong> join contest / submit team via sharded services keyed by contestId; idempotency keys.</li>\n<li><strong>Leaderboard:</strong> Redis ZSET updated async from scoring workers; do not block submits on rank write.</li>\n<li><strong>Read path:</strong> CDN/cache for static contest config; eventually consistent ranks OK mid-contest.</li>\n<li><strong>Data:</strong> players/credits in primary DB; hot counters in Redis.</li>\n</ul>",
           "solutions": [],
           "links": [],
-          "source": "Reported: CodingKaro SSE-2"
+          "source": "Reported: CodingKaro SSE-2",
+          "hint": "Spike at contest start/end: waitlist/queue + rate limits, sharded contests, Redis leaderboards (ZSET), eventual consistency for ranks, CQRS for team edits vs reads. Idempotent join/submit APIs."
         }
       ]
     }

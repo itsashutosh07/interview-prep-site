@@ -149,11 +149,11 @@
           ],
           "category": "General",
           "body": "Java machine coding (Glassdoor, Bangalore office, 7-round experience). Design using Spring Boot. REST APIs for borrow, return, catalogue. Discussion on the design choices made.",
-          "answer": null,
+          "answer": "<p><strong>Goal:</strong> Spring Boot library system — catalogue, borrow, return.</p>\n<ul>\n<li><strong>Entities:</strong> Book (ISBN, copies), Member, Loan (book, member, dueAt, status).</li>\n<li><strong>APIs:</strong> <code>POST /loans</code> (borrow), <code>POST /loans/{id}/return</code>, <code>GET /books?q=</code>.</li>\n<li><strong>Service rules:</strong> decline borrow if no AVAILABLE copy; set due date; on return mark copy AVAILABLE.</li>\n<li><strong>Concurrency:</strong> optimistic lock / version on copy row so two members cannot borrow the last copy.</li>\n<li><strong>Discuss:</strong> layered architecture, DTO vs entity, pagination, Soft delete vs status enums.</li>\n</ul>",
           "solutions": [],
           "links": [],
           "source": "Reported: Glassdoor Bangalore Java Developer",
-          "hint": "Approach: maintain cumulative thresholds [0,50), [50,80), [80,100). Generate random 0-99, find bucket. Alternatively: modulo counters."
+          "hint": "Spring Boot machine coding: Book/Member/Loan entities, REST for borrow/return/search catalogue, service layer for due dates & availability, JPA repos. Discuss idempotent borrow, optimistic lock on copies, and API versioning."
         },
         {
           "id": "mmt-lld-009",
@@ -164,10 +164,11 @@
           ],
           "category": "General",
           "body": "SSE BLR Offer (LeetCode Discuss 2022). Open-ended design. Approach: time-series DB for error events → Grafana/Prometheus for threshold alerting → Slack/ServiceNow/Email notification. Interviewer added other notification channels mid-discussion.",
-          "answer": null,
+          "answer": "<p><strong>Alerting on error thresholds</strong> (LLD/HLD hybrid):</p>\n<ul>\n<li><strong>Ingest:</strong> services emit error events (status, route, serviceId) to Kafka or push metrics to Prometheus.</li>\n<li><strong>Evaluate:</strong> sliding window counts for 4xx/5xx; fire when rate &gt; threshold for N minutes.</li>\n<li><strong>Notify:</strong> <code>Notifier</code> interface with Slack/Email/PagerDuty adapters — interviewer will ask to add a channel live.</li>\n<li><strong>Dedup:</strong> alert fingerprint + cooldown so you do not spam.</li>\n</ul>",
           "solutions": [],
           "links": [],
-          "source": "Reported: SSE BLR LeetCode Discuss 2022"
+          "source": "Reported: SSE BLR LeetCode Discuss 2022",
+          "hint": "Pipeline: ingest 4xx/5xx events → time-series store (Prometheus/Influx) → threshold rules → notification adapters (Slack/Email/ServiceNow). Make channels pluggable (Strategy/Observer) so interviewers can add channels mid-discussion."
         },
         {
           "id": "mmt-lld-010",
@@ -181,7 +182,8 @@
           "answer": "<p>Approach: maintain cumulative thresholds [0,50), [50,80), [80,100). Generate random 0-99, find bucket. Alternatively: modulo counters.</p>",
           "solutions": [],
           "links": [],
-          "source": "Reported: Senior SDE GFG 2019"
+          "source": "Reported: Senior SDE GFG 2019",
+          "hint": "Approach: maintain cumulative thresholds [0,50), [50,80), [80,100). Generate random 0-99, find bucket. Alternatively: modulo counters."
         },
         {
           "id": "mmt-lld-011",
@@ -207,11 +209,11 @@
           ],
           "category": "General",
           "body": "Naukri Code360 SDE-1 campus (Oct 2022). Design a commodity exchange using OOP. Discuss networking protocols — MQTT for real-time price feeds, CQRS for separating reads/writes.",
-          "answer": null,
+          "answer": "<p><strong>Commodity exchange (OOP + protocols):</strong></p>\n<ul>\n<li><strong>Core types:</strong> Instrument, Order (LIMIT/MARKET), OrderBook, MatchingEngine, Trade.</li>\n<li><strong>MQTT / WebSocket:</strong> publish price ticks &amp; trade prints to subscribers.</li>\n<li><strong>CQRS:</strong> command side mutates books; query side serves order status / market depth from read models.</li>\n<li><strong>Talk track:</strong> matching fairness, idempotent order ids, backpressure when feed is hot.</li>\n</ul>",
           "solutions": [],
           "links": [],
           "source": "Reported: Naukri Code360 Oct 2022",
-          "hint": "Rule interface: boolean matches(int n); String output(). Rules are injected as a list. New rules added without modifying existing code."
+          "hint": "Domain: OrderBook, Instrument, Trader, MatchingEngine. MQTT (or WS) for live price feeds; CQRS — write path updates book, read path serves queries/projections. Discuss consistency between command and query models."
         }
       ]
     }

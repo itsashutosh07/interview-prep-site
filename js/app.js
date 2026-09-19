@@ -9,7 +9,7 @@ import {
   importState,
   clearCompanyProgress,
   clearAll,
-} from "./storage.js";
+} from "./storage.js?v=11";
 import {
   TAB_LABELS,
   TAB_ICONS,
@@ -26,12 +26,22 @@ import {
   tabProgress,
   escapeHtml,
   companyLogoHtml,
-} from "./render.js";
+} from "./render.js?v=11";
 
 const app = document.getElementById("app");
 let state = loadState();
 let companies = [];
-const cache = {}; // slug -> { meta, dsa, backend, lld, hld }
+const cache = {}; // slug -> data
+const inflight = {}; // slug -> Promise
+let routeGen = 0;
+
+/** Bust browser cache for ES modules + JSON after deploys */
+const ASSET_V = "11";
+
+function withV(path) {
+  const join = path.includes("?") ? "&" : "?";
+  return `${path}${join}v=${ASSET_V}`;
+}
 
 function parseHash() {
   const raw = (location.hash || "#/").replace(/^#/, "") || "/";
@@ -132,7 +142,7 @@ function withSidebar(contentHtml, activeSlug) {
 }
 
 async function fetchJson(path) {
-  const res = await fetch(path);
+  const res = await fetch(withV(path), { cache: "no-cache" });
   if (!res.ok) throw new Error(`Failed to load ${path}`);
   return res.json();
 }
@@ -144,16 +154,23 @@ async function loadCompanies() {
 
 async function loadCompanyData(slug) {
   if (cache[slug]) return cache[slug];
+  if (inflight[slug]) return inflight[slug];
   const base = `data/${slug}`;
-  const [meta, dsa, backend, lld, hld] = await Promise.all([
+  inflight[slug] = Promise.all([
     fetchJson(`${base}/meta.json`),
     fetchJson(`${base}/dsa.json`),
     fetchJson(`${base}/backend.json`),
     fetchJson(`${base}/lld.json`),
     fetchJson(`${base}/hld.json`),
-  ]);
-  cache[slug] = { meta, dsa, backend, lld, hld };
-  return cache[slug];
+  ])
+    .then(([meta, dsa, backend, lld, hld]) => {
+      cache[slug] = { meta, dsa, backend, lld, hld };
+      return cache[slug];
+    })
+    .finally(() => {
+      delete inflight[slug];
+    });
+  return inflight[slug];
 }
 
 function companyBySlug(slug) {
@@ -297,7 +314,7 @@ function updateProgressUI(shell, state, company, data) {
   if (el) el.textContent = prog.total ? `${prog.done}/${prog.total}` : "—";
 }
 
-async function renderCompanyView(slug, tabIn) {
+async function renderCompanyView(slug, tabIn, gen = routeGen) {
   document.body.classList.remove("view-home");
   document.body.classList.add("view-company");
   closeSidebar();
@@ -310,11 +327,12 @@ async function renderCompanyView(slug, tabIn) {
 
   const tabs = company.tabs || [];
   let tab = tabIn || getLastTab(state, company.id) || "overview";
-  if (!tabs.includes(tab)) tab = tabs[0] || "overview";
-
-  const desired = `#/${slug}/${tab}`;
-  if (location.hash !== desired && !tabIn) {
-    history.replaceState(null, "", desired);
+  if (!tabs.includes(tab)) {
+    tab = tabs[0] || "overview";
+    history.replaceState(null, "", `#/${slug}/${tab}`);
+  } else if (!tabIn) {
+    const desired = `#/${slug}/${tab}`;
+    if (location.hash !== desired) history.replaceState(null, "", desired);
   }
 
   setLastTab(state, company.id, tab);
@@ -324,14 +342,18 @@ async function renderCompanyView(slug, tabIn) {
   try {
     data = await loadCompanyData(slug);
   } catch (err) {
+    if (gen !== routeGen) return;
     app.innerHTML = withSidebar(
       `<div class="page"><p class="muted">Failed to load company data: ${escapeHtml(err.message)}</p>
-      <button type="button" class="btn" data-nav-home>← Home</button></div>`,
+      <button type="button" class="btn" data-error-home>← Home</button></div>`,
       slug
     );
     bindSidebar();
+    app.querySelector("[data-error-home]")?.addEventListener("click", () => navigate("/"));
     return;
   }
+
+  if (gen !== routeGen) return;
 
   const ids = collectQuestionIds(data);
   const prog = progressForIds(state, company.id, ids);
@@ -403,14 +425,16 @@ async function renderCompanyView(slug, tabIn) {
 }
 
 async function route() {
+  const gen = ++routeGen;
   const r = parseHash();
   try {
     if (r.view === "home") {
       await renderHomeView();
     } else {
-      await renderCompanyView(r.slug, r.tab);
+      await renderCompanyView(r.slug, r.tab, gen);
     }
   } catch (err) {
+    if (gen !== routeGen) return;
     console.error(err);
     app.innerHTML = `<div class="page"><p class="muted">Something went wrong.</p><pre style="color:var(--muted);font-size:12px">${escapeHtml(err.stack || err.message)}</pre></div>`;
   }

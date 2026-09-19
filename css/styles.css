@@ -208,7 +208,14 @@ code {
 }
 
 .sidebar-company {
-  display: flex; flex-direction: column; align-items: flex-start; gap: 2px;
+  /* keep row layout from .sidebar-link — name/role stack in the text span */
+  align-items: center;
+}
+.sidebar-company > span:last-child {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
 }
 .sidebar-company-name { font-size: 14px; font-weight: 600; }
 .sidebar-company-role { font-size: 11px; font-weight: 500; color: var(--muted); }

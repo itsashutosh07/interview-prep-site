@@ -20,7 +20,15 @@ export function loadState() {
 }
 
 export function saveState(state) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  } catch (err) {
+    // Private mode / quota — keep in-memory state; surface once per session
+    if (!saveState._warned) {
+      saveState._warned = true;
+      console.warn("Could not persist progress:", err?.message || err);
+    }
+  }
 }
 
 function ensureCompany(state, companyId) {

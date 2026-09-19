@@ -126,7 +126,7 @@
             }
           ],
           "source": "Reported: SDE-2 GFG 2021 Round 1",
-          "hint": "Pre-compute leftMin[] and rightMax[], then use two-pointer to find max (j-i)."
+          "hint": "Sort intervals by start. Scan and merge when current.start <= last.end; else push new interval."
         },
         {
           "id": "mmt-dsa-006",
@@ -216,7 +216,8 @@
             }
           ],
           "links": [],
-          "source": "Reported: SDE GFG 2020 Round 2"
+          "source": "Reported: SDE GFG 2020 Round 2",
+          "hint": "Pre-compute leftMin[] and rightMax[], then use two-pointer to find max (j-i)."
         },
         {
           "id": "mmt-dsa-010",
@@ -242,7 +243,7 @@
             }
           ],
           "source": "Reported: SSE BLR LeetCode 2022",
-          "hint": "For general tree with parent pointers: walk both nodes to root, collect ancestors, find first common one."
+          "hint": "Equivalent to minimising the sum of a middle window of length n−K (complement of picks from both ends). Or expand prefix/suffix sums of length K."
         },
         {
           "id": "mmt-dsa-011",
@@ -645,7 +646,8 @@
             }
           ],
           "links": [],
-          "source": "Reported: SDE-2 GFG Round 1"
+          "source": "Reported: SDE-2 GFG Round 1",
+          "hint": "dp[i] = max sum increasing subsequence ending at i. O(N²) naive, O(N log N) with BIT."
         },
         {
           "id": "mmt-dsa-028",
@@ -671,7 +673,7 @@
             }
           ],
           "source": "Reported: SDE-1 GFG 2022, 2024",
-          "hint": "Thread-safe: synchronized block on bucket, or use ConcurrentHashMap segment-level locking as inspiration."
+          "hint": "Put all nums in a HashSet. Only start a streak from x when x−1 is absent; walk x, x+1, … O(N)."
         },
         {
           "id": "mmt-dsa-029",
@@ -955,7 +957,7 @@
           ],
           "links": [],
           "source": "Reported: SDE On-Campus GFG",
-          "hint": "Josephus formula: f(n,k) = (f(n-1,k) + k) % n where f(1,k)=0, then +1 for 1-indexed."
+          "hint": "Classic recursion: move n−1 to aux, move largest to target, move n−1 onto target. T(n)=2T(n−1)+1."
         },
         {
           "id": "mmt-dsa-041",
