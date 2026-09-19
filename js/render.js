@@ -5,8 +5,8 @@ import {
   setDone,
   setNote,
   progressForIds,
-} from "./storage.js?v=11";
-import { highlight } from "./highlight.js?v=11";
+} from "./storage.js?v=12";
+import { highlight } from "./highlight.js?v=12";
 
 const FREQ_LABEL = { high: "🔥 High", med: "⚡ Med", low: "🟢 Once" };
 const TAB_LABELS = {
@@ -212,13 +212,18 @@ function renderHintPanel(hintHtml) {
 }
 
 function renderAnswerPanel(answerHtml, solsHtml) {
-  const body = `${answerHtml || ""}${solsHtml || ""}`.trim();
-  if (!body) return "";
+  const parts = [];
+  if (answerHtml) {
+    parts.push(`<div class="q-section-label">Explanation</div>${answerHtml}`);
+  }
+  if (solsHtml) {
+    parts.push(`<div class="q-section-label">${answerHtml ? "Code" : "Answer"}</div>${solsHtml}`);
+  }
+  if (!parts.length) return "";
   return `
     <div class="q-answer-panel" hidden>
       <div class="reveal-inner">
-        <div class="q-section-label">Answer</div>
-        ${body}
+        ${parts.join("")}
       </div>
     </div>`;
 }

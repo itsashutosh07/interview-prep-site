@@ -338,7 +338,7 @@
         {
           "id": "mmt-be-06-001",
           "question": "Thread-safe Singleton — implement it in Java",
-          "answer": null,
+          "answer": "<p><strong>What they want:</strong> a Singleton that is lazy, thread-safe, and cheap under contention — not <code>synchronized</code> on every <code>getInstance()</code>.</p>\n<ul>\n<li><strong>Initialization-on-Demand Holder:</strong> the JVM loads the nested <code>Holder</code> class lazily on first <code>getInstance()</code>; class init is thread-safe by the JLS. No explicit lock, no double-checked locking bugs.</li>\n<li><strong>Enum singleton:</strong> Joshua Bloch’s preferred form. Handles serialization and reflection edge cases; one <code>INSTANCE</code> constant.</li>\n<li><strong>Avoid:</strong> eager <code>static final</code> if you need lazy init; naive <code>synchronized getInstance()</code> (coarse lock); broken DCL without <code>volatile</code>.</li>\n</ul>\n<p><strong>Follow-ups:</strong> clone, reflection, multi-classloader; when a Singleton is the wrong design (prefer DI).</p>",
           "solutions": [
             {
               "lang": "java",
@@ -350,7 +350,7 @@
         {
           "id": "mmt-be-06-002",
           "question": "State Pattern (for Vending Machine — explicitly asked at MMT)",
-          "answer": null,
+          "answer": "<p><strong>Why State at MMT:</strong> Vending Machine is repeatedly asked — interviewers expect a <code>VendingState</code> interface with <code>Idle</code> / <code>HasMoney</code> / <code>Dispensing</code> (and often <code>OutOfStock</code>), not a giant <code>if-else</code> on status.</p>\n<ul>\n<li>Machine holds <code>currentState</code> and delegates <code>insertCoin</code> / <code>selectItem</code> / <code>dispense</code> / <code>cancel</code>.</li>\n<li>Each state implements legal transitions and rejects illegal ones with clear messages.</li>\n<li><strong>Concurrency:</strong> lock per machine (or per slot) so two users cannot dispense the same item; prefer fine-grained locks / atomics over synchronizing everything.</li>\n</ul>\n<p>Code below sketches the pattern; in a live round fill every state method and inventory checks.</p>",
           "solutions": [
             {
               "lang": "java",

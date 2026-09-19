@@ -694,8 +694,11 @@ body.sidebar-open { overflow: hidden; }
 .ans-text {
   background: var(--surface2); border: 1px solid var(--border);
   border-radius: 6px; padding: 12px; margin-top: 8px;
-  font-size: 13px; color: var(--muted); line-height: 1.65;
+  font-size: 13px; color: var(--text); line-height: 1.65;
 }
+.ans-text + .q-section-label { margin-top: 14px; }
+.code-block + .q-section-label,
+.ans-text + .code-block { margin-top: 12px; }
 .ans-text strong { color: var(--text); }
 .ans-text ul { margin: 6px 0 6px 18px; }
 .ans-text li { margin-bottom: 3px; }

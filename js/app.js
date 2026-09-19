@@ -9,7 +9,7 @@ import {
   importState,
   clearCompanyProgress,
   clearAll,
-} from "./storage.js?v=11";
+} from "./storage.js?v=12";
 import {
   TAB_LABELS,
   TAB_ICONS,
@@ -26,7 +26,7 @@ import {
   tabProgress,
   escapeHtml,
   companyLogoHtml,
-} from "./render.js?v=11";
+} from "./render.js?v=12";
 
 const app = document.getElementById("app");
 let state = loadState();
@@ -36,7 +36,7 @@ const inflight = {}; // slug -> Promise
 let routeGen = 0;
 
 /** Bust browser cache for ES modules + JSON after deploys */
-const ASSET_V = "11";
+const ASSET_V = "12";
 
 function withV(path) {
   const join = path.includes("?") ? "&" : "?";
