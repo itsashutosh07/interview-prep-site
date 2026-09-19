@@ -7,7 +7,7 @@
       "label": "DSA Problems + C++ Code"
     },
     {
-      "num": "30+",
+      "num": "76",
       "label": "Backend Q&A (Java)"
     },
     {
@@ -77,7 +77,7 @@
         "✅ CompletableFuture: supplyAsync, thenApply, thenCompose, exceptionally, join",
         "✅ @Transactional propagation: REQUIRED vs REQUIRES_NEW — self-invocation pitfall",
         "✅ Spring Interceptors vs Filters — difference and use cases",
-        "✅ Records, sealed classes, Optional — Java 16+ features"
+        "✅ Optional (Java 8); Records (16+); sealed classes (17+)"
       ]
     },
     {
@@ -94,7 +94,7 @@
     {
       "title": "Java Preparation Checklist",
       "items": [
-        "✅ Java 8–17 features: Streams, Optional, Records (Java 16+), sealed classes",
+        "✅ Java 8–17: Streams, Optional (8+), Records (16+), sealed classes (17+)",
         "✅ HashMap internals: hashing, load factor, rehashing, why size is power of 2",
         "✅ Concurrency: synchronized, volatile, AtomicXxx, ReentrantLock, Semaphore, CountDownLatch",
         "✅ ExecutorService: ThreadPoolExecutor, CompletableFuture, ForkJoinPool",

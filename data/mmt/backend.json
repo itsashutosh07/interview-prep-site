@@ -8,7 +8,7 @@
         {
           "id": "mmt-be-01-001",
           "question": "What is a Record in Java? How is it different from a POJO?",
-          "answer": "A <code>record</code> (Java 16+) is a concise immutable data carrier. The compiler auto-generates constructor, getters, <code>equals()</code>, <code>hashCode()</code>, and <code>toString()</code>. Fields are implicitly <code>private final</code>. A POJO requires you to write all of these manually and fields can be mutable. Records are ideal for DTOs and value objects where immutability is desired.<br><br>Example: <code>record Point(int x, int y) {}</code> — that's the entire class."
+          "answer": "A <code>record</code> (Java 16+) is a concise immutable data carrier. The compiler auto-generates constructor, accessors (<code>x()</code> not <code>getX()</code>), <code>equals()</code>, <code>hashCode()</code>, and <code>toString()</code>. Fields are implicitly <code>private final</code>. A POJO requires you to write all of these manually and fields can be mutable. Records are ideal for DTOs and value objects where immutability is desired.<br><br>Example: <code>record Point(int x, int y) {}</code> — that's the entire class."
         },
         {
           "id": "mmt-be-01-002",
@@ -38,42 +38,42 @@
         {
           "id": "mmt-be-01-010",
           "question": "What are immutable classes? How do you implement one? Why are they important for concurrency?",
-          "answer": null
+          "answer": "<p>Interviewers ask how you design objects that cannot change after construction, and why that helps concurrent systems.</p><p>An <strong>immutable class</strong> has all fields <code>private final</code>, no setters, a constructor (or factory) that fully initializes state, and defensive copies for mutable inputs/outputs (e.g. clone a <code>Date</code> or wrap with <code>List.copyOf</code>). Mark the class <code>final</code> (or use a <code>record</code> in Java 16+) so subclasses cannot reintroduce mutability. All methods must not mutate fields.</p><p><strong>Why it matters for concurrency:</strong> once published, immutable objects need no locks — they are inherently thread-safe for reads. Multiple booking/payment threads can share a <code>Money</code>, <code>FareQuote</code>, or itinerary DTO without races. Prefer immutable value objects in caches and event payloads so Redis/Kafka consumers never see half-updated state.</p><p><strong>Follow-ups / pitfalls:</strong> shallow immutability (mutable field still shared); publishing <code>this</code> from the constructor; confusing <code>final</code> reference with immutable contents; records use accessors like <code>x()</code>, not <code>getX()</code>.</p>"
         },
         {
           "id": "mmt-be-01-011",
           "question": "Java Generics — how does type erasure work?",
-          "answer": null
+          "answer": "<p>The question checks whether you understand that generics are largely a compile-time feature in Java.</p><p><strong>Type erasure</strong> means the compiler checks and inserts casts for type parameters, then strips them from bytecode. At runtime, <code>List&lt;String&gt;</code> and <code>List&lt;Integer&gt;</code> are both raw <code>List</code>. You cannot use <code>new T()</code>, create <code>T[]</code> easily, or check <code>instanceof List&lt;String&gt;</code>. Bridges and synthetic casts preserve type safety after erasure.</p><p><strong>When it matters:</strong> designing generic repositories, mappers, or response wrappers for booking APIs. You use bounded wildcards (<code>? extends</code>/<code>? super</code>) for PECS, and often pass a <code>Class&lt;T&gt;</code> or <code>TypeReference</code> when frameworks need reified types (Jackson, Redis serializers).</p><p><strong>Pitfalls:</strong> heap pollution via raw types; assuming runtime generics exist (they do not like C#); overusing wildcards; forgetting that primitive generics need boxing (<code>List&lt;Integer&gt;</code> not <code>List&lt;int&gt;</code> until Valhalla).</p>"
         },
         {
           "id": "mmt-be-01-013",
           "question": "Difference between ArrayList and LinkedList internals",
-          "answer": null
+          "answer": "<p>They want internal structure and complexity trade-offs, not just “ArrayList is array, LinkedList is nodes.”</p><p><strong>ArrayList</strong> backs data with a contiguous Object array, grows by ~1.5× on resize (amortized O(1) add at end). Random access is O(1); insert/remove in the middle is O(n) due to shifting. Better locality → CPU-cache friendly.</p><p><strong>LinkedList</strong> is a doubly linked list of nodes (prev/next + item). Mid insert/remove is O(1) <em>if you already hold the node</em>; getting there via index is still O(n). Extra pointer overhead and poor cache locality make it slower for most real workloads.</p><p><strong>Travel context:</strong> use ArrayList for result lists (search hits, seat maps, fare options). Prefer <code>ArrayDeque</code> over LinkedList for queues/stacks. Almost never choose LinkedList in production Java unless you need frequent splice from known iterators.</p><p><strong>Pitfalls:</strong> LinkedList for random access; measuring only asymptotic cost and ignoring cache miss cost; using LinkedList as a queue instead of <code>ArrayDeque</code>/<code>ConcurrentLinkedQueue</code>.</p>"
         },
         {
           "id": "mmt-be-01-014",
           "question": "String pool, intern(), difference between == and .equals() for Strings",
-          "answer": null
+          "answer": "<p>This tests String internals and reference vs value equality.</p><p>Java maintains a <strong>string pool</strong> (interned strings in the heap). Literals like <code>\"DEL\"</code> are interned automatically. <code>new String(\"DEL\")</code> creates a distinct heap object. <code>s.intern()</code> returns the pooled instance for that content.</p><p><code>==</code> compares references (same object?). <code>equals()</code> compares character content. Two equal literals usually share a pool entry so <code>==</code> may be true; two constructed strings with same text usually have <code>==</code> false but <code>equals</code> true. Always use <code>equals</code> (or <code>Objects.equals</code>) for content; never rely on <code>==</code> for business strings (PNR, city codes, coupon codes).</p><p><strong>Use:</strong> pooling saves memory for repeated constants; <code>intern()</code> rarely belongs in hot booking paths — it can contend on the pool.</p><p><strong>Pitfalls:</strong> using <code>==</code> in auth/token checks; interning unbounded user input (memory leak); confusing pool behavior across JVMs/versions.</p>"
         },
         {
           "id": "mmt-be-01-015",
           "question": "What is a static inner class? Static method? When to use them? (Candidate lost marks on this)",
-          "answer": null
+          "answer": "<p>Candidates often mix up nested classes vs static methods — clarify both.</p><p>A <strong>static nested class</strong> is nested for packaging but does <em>not</em> hold an implicit reference to an outer instance. It can access only static members of the outer class. Use it for helpers tightly coupled to the outer type (e.g. <code>Booking.Builder</code>, Holder idiom for Singleton) without leaking the outer <code>this</code>.</p><p>A <strong>static method</strong> belongs to the class, not an instance — no <code>this</code>, cannot access instance fields. Use for pure utilities, factories (<code>Money.of</code>), or entry points.</p><p><strong>When:</strong> static nested for Builder/DTO companions; avoid non-static inner classes in long-lived caches/listeners (memory leaks via outer reference). Prefer instance methods when polymorphic behavior or test doubles are needed.</p><p><strong>Pitfalls:</strong> calling static methods via instances (confusing); overusing static (harder to mock); non-static inner class retaining outer BookingService in a thread pool.</p>"
         },
         {
           "id": "mmt-be-01-016",
           "question": "What is a functional interface? Give 3 examples from java.util.function",
-          "answer": null
+          "answer": "<p>They want the Java 8 functional programming building block.</p><p>A <strong>functional interface</strong> has exactly one abstract method (SAM). It may have defaults/statics. Annotate with <code>@FunctionalInterface</code> so the compiler enforces the contract. Lambdas and method references target these types.</p><p>Three from <code>java.util.function</code>: <strong><code>Function&lt;T,R&gt;</code></strong> (<code>apply</code>) — map DTO→entity; <strong><code>Predicate&lt;T&gt;</code></strong> (<code>test</code>) — filter available rooms; <strong><code>Consumer&lt;T&gt;</code></strong> (<code>accept</code>) — side effects like metrics. Also know <code>Supplier</code>, <code>BiFunction</code>, <code>UnaryOperator</code>.</p><p><strong>Why:</strong> Streams, Spring callbacks, CompletableFuture transforms, Strategy-style pricing lambdas without anonymous classes.</p><p><strong>Pitfalls:</strong> multiple abstract methods break lambdas; checked exceptions inside lambdas are awkward; confusing functional interfaces with “any interface with methods.”</p>"
         },
         {
           "id": "mmt-be-01-017",
           "question": "Optional — when and why to use it vs. null checks",
-          "answer": null
+          "answer": "<p>Optional (Java 8+) expresses possibly-absent return values without raw nulls.</p><p>Use <code>Optional&lt;T&gt;</code> as a <strong>return type</strong> when absence is a valid outcome: <code>findBookingByPnr</code>, optional add-ons. Prefer <code>Optional.ofNullable</code>, then <code>map</code>/<code>flatMap</code>/<code>orElse</code>/<code>orElseGet</code>/<code>orElseThrow</code>. Do not use Optional for fields, method parameters, or collections elements — that adds allocation and noise. Never store null inside Optional.</p><p><strong>Travel use:</strong> optional meal preference, missing hotel amenity, soft-fail enrichment from a secondary catalog service — make absence explicit at API boundaries.</p><p><strong>Pitfalls:</strong> <code>optional.get()</code> without check; <code>orElse(heavy())</code> evaluating eagerly (use <code>orElseGet</code>); returning <code>Optional</code> from JPA entities; wrapping everything in Optional and still returning null from other methods.</p>"
         },
         {
           "id": "mmt-be-01-019",
           "question": "What happens when you create more threads than CPU cores? (Context switching overhead)",
-          "answer": null
+          "answer": "<p>They want awareness of scheduling cost when threads ≫ cores.</p><p>A CPU core runs one thread (or two with HT) at a time. Extra threads are time-sliced: the OS saves/restores registers, may invalidate cache locality, and incurs <strong>context-switch overhead</strong>. For CPU-bound work, more threads than cores usually <em>slows</em> throughput. For I/O-bound work (DB, Redis, airline GDS calls), more threads can help hide latency — until queueing, lock contention, and memory (stack ~1MB each) dominate.</p><p><strong>Booking systems:</strong> size pools for I/O (Tomcat/WebFlux, JDBC pool) separately from CPU pools (ForkJoin for CPU tasks). Prefer async/reactive or bounded executors over unbounded <code>new Thread</code>.</p><p><strong>Pitfalls:</strong> unbounded thread creation on traffic spikes; equating “more threads = faster”; ignoring that blocking on locks with huge pools amplifies latency.</p>"
         }
       ]
     },
@@ -115,32 +115,32 @@
         {
           "id": "mmt-be-02-010",
           "question": "Explain Dependency Injection types (constructor vs field vs setter) — pros/cons",
-          "answer": null
+          "answer": "<p>Dependency Injection wires collaborators without hard <code>new</code> — Spring supports three styles.</p><ul><li><strong>Constructor injection (preferred):</strong> required deps as final fields. Immutable, easy to test, fails fast if a bean is missing, works with required args. Spring Boot recommends this.</li><li><strong>Setter injection:</strong> optional dependencies after construction. Mutable; circular deps sometimes “fixed” this way (usually a design smell).</li><li><strong>Field injection (<code>@Autowired</code> on fields):</strong> concise but hides deps, breaks immutability, harder unit tests without Spring, reflection-based.</li></ul><p><strong>Travel services:</strong> inject <code>PaymentClient</code>, <code>InventoryService</code> via constructors so BookingService is explicit and testable.</p><p><strong>Pitfalls:</strong> circular dependencies; injecting concrete classes instead of interfaces; mixing field injection with finals; huge constructors (split the class).</p>"
         },
         {
           "id": "mmt-be-02-012",
           "question": "What are Spring Profiles? How do you switch configurations between environments?",
-          "answer": null
+          "answer": "<p>Profiles activate environment-specific beans and properties.</p><p>Define <code>application-dev.yml</code>, <code>application-prod.yml</code>, etc. Activate via <code>spring.profiles.active=prod</code> (env var, JVM arg, or IDE). Annotate beans with <code>@Profile(\"prod\")</code> so e.g. real payment gateway loads only in prod, while sandbox beans load in <code>dev</code>/<code>qa</code>. You can combine profiles and use <code>@ActiveProfiles</code> in tests.</p><p><strong>MMT-style use:</strong> different Redis/Kafka clusters, feature flags, and GDS credentials per env without code forks.</p><p><strong>Pitfalls:</strong> forgetting to set active profile in prod (falls back to defaults); secrets in git’d yml instead of env/secret manager; overlapping profile-specific beans causing duplicate definitions.</p>"
         },
         {
           "id": "mmt-be-02-013",
           "question": "Difference between @Component, @Service, @Repository, @Controller",
-          "answer": null
+          "answer": "<p>All four are stereotype annotations that mark a class as a Spring-managed component; scanning picks them up.</p><ul><li><strong><code>@Component</code>:</strong> generic stereotype.</li><li><strong><code>@Service</code>:</strong> business/application logic (booking orchestration).</li><li><strong><code>@Repository</code>:</strong> persistence; enables exception translation to <code>DataAccessException</code>.</li><li><strong><code>@Controller</code>/<code>@RestController</code>:</strong> web layer; maps HTTP to handlers. <code>@RestController</code> = controller + <code>@ResponseBody</code>.</li></ul><p>Functionally similar for bean creation; the distinction documents layering and enables AOP pointcuts (e.g. tx around <code>@Service</code>, persistence advice on <code>@Repository</code>).</p><p><strong>Pitfalls:</strong> putting business logic in controllers; using <code>@Component</code> everywhere and losing clear architecture; forgetting <code>@Repository</code> then missing exception translation.</p>"
         },
         {
           "id": "mmt-be-02-014",
           "question": "Bean lifecycle in Spring — init, post-construct, pre-destroy callbacks",
-          "answer": null
+          "answer": "<p>They want the ordered lifecycle of a Spring bean.</p><p>Rough flow: instantiate → populate properties/DI → aware interfaces (<code>BeanNameAware</code>, <code>ApplicationContextAware</code>) → <code>BeanPostProcessor.postProcessBeforeInitialization</code> → <code>@PostConstruct</code> / <code>InitializingBean.afterPropertiesSet</code> / custom <code>init-method</code> → <code>postProcessAfterInitialization</code> (proxies often wrap here) → bean ready. On shutdown: <code>@PreDestroy</code> / <code>DisposableBean.destroy</code> / custom destroy method.</p><p><strong>Use:</strong> warm Redis connections, register health checks, start Kafka listeners carefully, flush buffers on destroy.</p><p><strong>Pitfalls:</strong> heavy work in constructors before DI; relying on <code>@PostConstruct</code> for cross-bean ordering without <code>@DependsOn</code>; forgetting destroy hooks for thread pools (leaks).</p>"
         },
         {
           "id": "mmt-be-02-015",
           "question": "Spring MVC request lifecycle — DispatcherServlet → HandlerMapping → Controller → ViewResolver",
-          "answer": null
+          "answer": "<p>Spring MVC request flow centers on <code>DispatcherServlet</code>.</p><p>Request hits the servlet → <strong>HandlerMapping</strong> finds a handler (controller method) → <strong>HandlerAdapter</strong> invokes it (after <code>HandlerInterceptor.preHandle</code>) → controller returns ModelAndView / body → interceptors <code>postHandle</code> → for view-based apps <strong>ViewResolver</strong> resolves a View and renders; for REST, message converters write JSON → <code>afterCompletion</code>.</p><p><strong>Travel APIs:</strong> typically <code>@RestController</code> — no JSP ViewResolver; still the same DispatcherServlet pipeline for auth interceptors, logging, and exception handlers (<code>@ControllerAdvice</code>).</p><p><strong>Pitfalls:</strong> confusing Filters (servlet container) with Interceptors (Spring MVC); assuming ViewResolver always runs for JSON APIs; blocking long GDS calls on the servlet thread without timeouts.</p>"
         },
         {
           "id": "mmt-be-02-017",
           "question": "What is Spring Cloud? How do you use service discovery with Eureka?",
-          "answer": null
+          "answer": "<p>Spring Cloud is a toolkit for microservice patterns on Spring Boot: discovery, config, gateway, circuit breakers, etc.</p><p><strong>Eureka</strong> is a client-server service registry. Services annotate <code>@EnableEurekaClient</code>/<code>@EnableDiscoveryClient</code>, register heartbeat + host/port/metadata. Callers use the logical name (e.g. <code>payment-service</code>) with <code>DiscoveryClient</code>, Ribbon/Spring Cloud LoadBalancer, or OpenFeign instead of hard-coded IPs.</p><p><strong>When:</strong> classic VM/EC2 microservice fleets. In Kubernetes, prefer native Service DNS + kube-proxy; Eureka is less common unless migrating legacy Spring Cloud stacks.</p><p><strong>Pitfalls:</strong> treating Eureka as CAP-strong consistency; stale registry after crashes (self-preservation mode); mixing Eureka with K8s without clear ownership of discovery.</p>"
         }
       ]
     },
@@ -182,32 +182,32 @@
         {
           "id": "mmt-be-03-007",
           "question": "How do microservices communicate? REST vs gRPC vs message queues — when to use which?",
-          "answer": null
+          "answer": "<p>Pick the communication style based on sync needs, latency, and coupling.</p><ul><li><strong>REST/HTTP+JSON:</strong> human-debuggable, language-agnostic, great for public/BFF APIs (search, booking status). Higher overhead, weaker typing unless OpenAPI.</li><li><strong>gRPC:</strong> protobuf + HTTP/2, multiplexed, low latency, strong contracts. Best for internal sync calls (pricing → inventory) where you control both ends.</li><li><strong>Queues/Kafka:</strong> async, buffer spikes, fan-out. Use for booking confirmations, notifications, payment webhooks processing, inventory sync — when the caller should not block on downstream.</li></ul><p><strong>Rule of thumb:</strong> user waits → REST/gRPC with timeouts + CB; fire-and-forget / eventual → queue. Avoid chatty sync webs of services for a single booking click.</p><p><strong>Pitfalls:</strong> using Kafka for request/response RPC; no idempotency on consumers; REST without timeouts.</p>"
         },
         {
           "id": "mmt-be-03-012",
           "question": "Explain eventual consistency vs strong consistency. When would you sacrifice consistency?",
-          "answer": null
+          "answer": "<p>Consistency models describe when all replicas/readers agree on the latest write.</p><p><strong>Strong consistency:</strong> after a write commits, every subsequent read sees it (or fails). Needed for payments, seat inventory, wallet balances — double-bookings and double-charges are unacceptable.</p><p><strong>Eventual consistency:</strong> replicas converge over time; interim stale reads allowed. Fine for hotel content, review counts, “recently viewed,” search indexes, loyalty point displays with delayed credit.</p><p><strong>When to sacrifice strong consistency:</strong> cross-region scale, availability under partition (AP in CAP), read-heavy catalogs. Mitigate with versioning, read-your-writes for the booking user, and clear UX (“confirmation pending”).</p><p><strong>Pitfalls:</strong> caching strongly consistent data without invalidation; assuming Kafka consumers imply strong consistency across services.</p>"
         },
         {
           "id": "mmt-be-03-013",
           "question": "How do you handle distributed transactions (2PC, Saga, Outbox pattern)?",
-          "answer": null
+          "answer": "<p>Distributed transactions need patterns because a single DB ACID TX cannot span services.</p><ul><li><strong>2PC:</strong> prepare then commit across resources. Strong, but blocking, poorly scalable, coordinator SPOF — rarely used across microservices.</li><li><strong>Saga:</strong> sequence of local txs with compensations (release seat if payment fails). Orchestration or choreography.</li><li><strong>Transactional Outbox:</strong> write business row + outbox event in one local TX; a relay publishes to Kafka. Avoids “DB committed but event lost.” Pair with inbox/idempotent consumers.</li></ul><p><strong>Booking flow:</strong> reserve inventory → charge → confirm; outbox emits <code>BookingConfirmed</code>; compensations unwind on failure.</p><p><strong>Pitfalls:</strong> saga without idempotent steps; dual-write (DB then Kafka without outbox); long 2PC locks under GDS latency.</p>"
         },
         {
           "id": "mmt-be-03-014",
           "question": "What is an API Gateway? What does it handle vs microservices themselves?",
-          "answer": null
+          "answer": "<p>An <strong>API Gateway</strong> is the single entry for clients into many backends.</p><p>It typically handles: routing, TLS termination, authn (JWT validation), rate limiting, request logging, aggregation/BFF shaping, canary routing, and protocol translation. Microservices keep domain logic: booking rules, pricing, inventory, payments.</p><p><strong>Travel:</strong> mobile/web hit gateway → route to search, booking, trips services; gateway enforces API keys/OAuth and shields internal mesh.</p><p><strong>Pitfalls:</strong> stuffing business logic into the gateway; gateway as bottleneck without horizontal scale; duplicating auth in every service <em>and</em> ignoring zero-trust internals.</p>"
         },
         {
           "id": "mmt-be-03-015",
           "question": "How would you design service discovery in a K8s/cloud environment?",
-          "answer": null
+          "answer": "<p>In Kubernetes, service discovery is mostly platform-native.</p><p>Pods get ephemeral IPs. You expose a <strong>Service</strong> (ClusterIP/headless) with a stable DNS name <code>payment.default.svc.cluster.local</code>. kube-proxy or eBPF (Cilium) load-balances to ready endpoints from Endpoints/EndpointSlices. Health probes remove bad pods. For multi-cluster/mesh, use Istio/Linkerd for mTLS and advanced routing; optionally an external registry for hybrid legacy.</p><p><strong>Vs Eureka:</strong> prefer K8s DNS + Services unless you must keep Spring Cloud Netflix. Clients call logical service names; avoid hard-coding pod IPs.</p><p><strong>Pitfalls:</strong> missing readiness probes (traffic to starting pods); relying on client-side caching of IPs; mixing Eureka heartbeats with K8s without dual registration plan.</p>"
         },
         {
           "id": "mmt-be-03-016",
           "question": "Biggest problem you solved with Redis and Kafka in your project (explicitly asked at Director level)",
-          "answer": null
+          "answer": "<p><strong>Fill this STAR for your interview (example scenario: flash-sale flight inventory).</strong></p><p><strong>Situation:</strong> During a sale, search/hold APIs hammered MySQL for seat maps; cache stampedes and async confirmation lags caused timeouts and duplicate holds. [Your system/year].</p><p><strong>Task:</strong> Cut p99 latency and eliminate double-holds under spike traffic while keeping booking correctness.</p><p><strong>Action — Redis:</strong> Cache-aside seat-map/fare snapshots with short TTL; distributed lock / SET NX for hold keys; rate-limit buckets per user; stampede protection (single-flight / probabilistic early expire).</p><p><strong>Action — Kafka:</strong> Publish <code>HoldCreated</code>/<code>PaymentCaptured</code> via outbox; consumers update inventory projections and notify; idempotent keys on PNR/holdId; partition by flightId for ordering.</p><p><strong>Result:</strong> Fill metrics — e.g. p99 ___ → ___ ms, DB QPS −___%, zero duplicate holds in ___ days, consumer lag &lt; ___ s. Tie to dashboards you owned.</p><p><strong>Follow-ups:</strong> eviction policy, exactly-once vs idempotent at-least-once, poison messages, why not only Redis or only Kafka.</p>"
         }
       ]
     },
@@ -244,32 +244,32 @@
         {
           "id": "mmt-be-04-007",
           "question": "In which language is MongoDB written? (C++)",
-          "answer": null
+          "answer": "<p>Trivia with a systems-thinking follow-up: MongoDB’s core server is written primarily in <strong>C++</strong> (with some JS for server-side scripting historically, and other languages in the ecosystem/tools/drivers).</p><p><strong>Why interviewers ask:</strong> it signals you know Mongo is a native, performance-oriented database engine—not a JVM app. Memory management, WiredTiger storage, and concurrency live in C++ land; your Java driver is a client talking BSON over the wire.</p><p><strong>Why it matters in practice:</strong> tuning (cache, WiredTiger, indexes) and failure modes are server-side; language of the DB ≠ language of your Spring service. Choose Mongo for flexible hotel content documents; don’t expect JVM tooling to “see inside” the engine beyond metrics/logs.</p><p><strong>Pitfall:</strong> confusing MongoDB (C++) with the shell/driver languages, or assuming “NoSQL = slow scripting language DB.”</p>"
         },
         {
           "id": "mmt-be-04-008",
           "question": "DB schema design for IRCTC/railway ticketing system — trains, routes, seats, bookings",
-          "answer": null
+          "answer": "<p>Design a normalized relational model for railway ticketing with clear concurrency boundaries.</p><ul><li><strong>Train</strong>: train_no, name, type.</li><li><strong>Station</strong>: code, name.</li><li><strong>Route/Schedule</strong>: train_id, station_id, seq, arrival, departure, day_offset — ordered path.</li><li><strong>Coach/Seat inventory</strong>: run_date, train_id, coach, seat_no, status (AVAILABLE/HELD/BOOKED), version for optimistic lock.</li><li><strong>Booking</strong>: pnr, user_id, status, amount, created_at.</li><li><strong>Booking_Passenger / Booking_Seat</strong>: links passengers to specific seats for a date; segment from_station→to_station.</li></ul><p>Inventory is per <strong>train + date</strong>; booking must atomically transition seats. Segment occupancy: a seat is free for A→C only if no overlapping booked segment.</p><p><strong>Pitfalls:</strong> storing only city pairs without sequence; no version/lock; denormalizing seat status into booking only (races).</p>"
         },
         {
           "id": "mmt-be-04-009",
           "question": "SQL queries to find routes between two stations without ORM syntax",
-          "answer": null
+          "answer": "<p>They want raw SQL thinking on graph-like station connectivity via route tables.</p><p>Given <code>route(train_id, station_id, seq)</code>, trains from A to B:</p><p><code>SELECT r1.train_id FROM route r1 JOIN route r2 ON r1.train_id = r2.train_id WHERE r1.station_id = :from AND r2.station_id = :to AND r1.seq &lt; r2.seq;</code></p><p>Add schedule joins for time windows; for one stop change, self-join two train legs on an intermediate station with timing constraints (arrival before departure). Prefer recursive CTEs or a precomputed connectivity table for multi-hop.</p><p><strong>Indexes:</strong> <code>(station_id, train_id, seq)</code> and <code>(train_id, seq)</code>.</p><p><strong>Pitfalls:</strong> forgetting <code>seq</code> order (wrong direction); ORM hiding bad Cartesian joins; computing multi-hop solely in app without limits.</p>"
         },
         {
           "id": "mmt-be-04-012",
           "question": "Explain query optimisation — EXPLAIN plan, covering indexes, avoiding full table scans",
-          "answer": null
+          "answer": "<p>Query optimisation starts with measuring via <code>EXPLAIN</code>/<code>EXPLAIN ANALYZE</code>.</p><p>Look for: type=<code>ALL</code> (full scan), high rows examined vs returned, temporary tables/filesorts, missing ref/range access. Fix with selective indexes matching <code>WHERE</code>/<code>JOIN</code>/<code>ORDER BY</code>. A <strong>covering index</strong> includes all needed columns so InnoDB can answer from the index alone.</p><p><strong>InnoDB detail:</strong> secondary indexes store the indexed columns + primary key; PK lookups may need a second hop to the clustered index unless covering.</p><p><strong>Travel:</strong> index <code>(from, to, travel_date)</code> for search; avoid functions on columns; paginate with keyset not huge OFFSET.</p><p><strong>Pitfalls:</strong> indexing low-cardinality flags; too many indexes slowing writes; SELECT * preventing covering plans.</p>"
         },
         {
           "id": "mmt-be-04-013",
           "question": "What is database normalisation? When would you denormalise?",
-          "answer": null
+          "answer": "<p><strong>Normalisation</strong> structures data to reduce redundancy (1NF→3NF/BCNF): separate trains, stations, bookings, payments with FKs. Improves integrity and update consistency.</p><p><strong>Denormalise</strong> when read latency/scale dominate: store city names on booking rows for history, maintain a search document with embedded fare bands, or a Redis projection of seat maps. Accept controlled duplication + sync strategy (events/CDC).</p><p><strong>MMT:</strong> payments/bookings stay normalized+ACID; hotel catalog and search results often denormalized/NoSQL for nested variability and fast reads.</p><p><strong>Pitfalls:</strong> denormalising without invalidation; over-normalising hot read paths into excessive joins; updating only one copy of duplicated data.</p>"
         },
         {
           "id": "mmt-be-04-017",
           "question": "How do you handle cache stampede / thundering herd?",
-          "answer": null
+          "answer": "<p><strong>Cache stampede</strong> (thundering herd): many requests miss an expired hot key simultaneously and all hit the DB.</p><p>Mitigations: (1) <strong>single-flight / mutex</strong> — only one thread rebuilds the key, others wait; (2) <strong>probabilistic early expiration</strong> — refresh before TTL randomly; (3) <strong>stale-while-revalidate</strong> — serve stale briefly while refreshing; (4) <strong>cache warming</strong> for top routes; (5) slightly jittered TTLs.</p><p><strong>Travel:</strong> popular DEL-BOM fares or hotel rate caches expiring together during evening peaks.</p><p><strong>Pitfalls:</strong> locking without timeout (deadlock); infinite TTL without invalidation; stampede on empty results (cache negative lookups with short TTL).</p>"
         }
       ]
     },
@@ -301,32 +301,32 @@
         {
           "id": "mmt-be-05-007",
           "question": "Mutex vs Semaphore — when to use which?",
-          "answer": null
+          "answer": "<p>Both coordinate access to shared resources; ownership differs.</p><p>A <strong>mutex</strong> is a binary lock owned by one thread: lock/unlock for exclusive critical sections (update in-memory seat map). Unlock only by owner.</p><p>A <strong>semaphore</strong> is a counter of permits: <code>acquire</code>/<code>release</code> by any thread. Binary semaphore ≈ mutex but without ownership semantics. Counting semaphore limits concurrency (e.g. max 50 parallel GDS connections, DB pool style).</p><p><strong>Use mutex</strong> for mutual exclusion; <strong>semaphore</strong> for rate/capacity limiting and producer-consumer slots.</p><p><strong>Pitfalls:</strong> using semaphore as mutex and releasing from wrong thread; forgetting release in <code>finally</code>; confusing fairness policies.</p>"
         },
         {
           "id": "mmt-be-05-008",
           "question": "What is the Critical Section Problem? Peterson's solution idea?",
-          "answer": null
+          "answer": "<p>The <strong>critical section problem</strong>: design entry/exit protocols so at most one process executes shared code at a time, with progress and bounded waiting (no deadlock/starvation).</p><p><strong>Peterson’s algorithm</strong> (two processes): each sets a flag that it wants to enter and sets <code>turn</code> to the other; a process waits while the other wants in <em>and</em> turn is the other. Guarantees mutual exclusion using only shared memory (software solution for 2 processes). Modern systems use hardware atomics / OS locks instead, but Peterson shows the theory.</p><p><strong>Interview angle:</strong> relate to Java <code>synchronized</code>/locks solving the same problem with stronger progress guarantees on multiprocessors (memory model).</p><p><strong>Pitfalls:</strong> claiming Peterson scales easily to N processes (needs generalizations); ignoring memory ordering on real CPUs.</p>"
         },
         {
           "id": "mmt-be-05-009",
           "question": "Synchronisation primitives in Java: synchronized, ReentrantLock, CountDownLatch, Semaphore",
-          "answer": null
+          "answer": "<p>Java offers multiple synchronisation tools — pick by use case.</p><ul><li><strong><code>synchronized</code>:</strong> intrinsic monitor; simple critical sections, reentrant.</li><li><strong><code>ReentrantLock</code>:</strong> explicit lock with <code>tryLock</code>, fairness option, multiple conditions — better for timed booking locks.</li><li><strong><code>CountDownLatch</code>:</strong> one-shot wait until N events complete (wait for N fare providers).</li><li><strong><code>Semaphore</code>:</strong> permit counting for concurrency limits.</li></ul><p>Also know <code>CyclicBarrier</code>, <code>ReadWriteLock</code>, and <code>java.util.concurrent.atomic</code> for lock-free counters.</p><p><strong>Pitfalls:</strong> synchronized on public API objects; latch reuse (use CyclicBarrier/Phaser); forgetting unlock in finally.</p>"
         },
         {
           "id": "mmt-be-05-010",
           "question": "What is cache memory? L1/L2/L3 hierarchy and why it matters for performance",
-          "answer": null
+          "answer": "<p>CPU <strong>cache memory</strong> stores recently used data/instructions closer than RAM to hide DRAM latency.</p><ul><li><strong>L1:</strong> smallest/fastest, per-core (instr+data).</li><li><strong>L2:</strong> larger, usually per-core.</li><li><strong>L3:</strong> shared across cores on a socket, larger/slower than L1/L2.</li></ul><p>Misses cascade to the next level then RAM. Matters because contiguous ArrayList scans beat pointer-chasing LinkedLists; false sharing of adjacent fields on different cores hurts throughput. Hot booking loops and serialization benefit from locality.</p><p><strong>Pitfalls:</strong> confusing CPU cache with Redis; ignoring false sharing on padded counters.</p>"
         },
         {
           "id": "mmt-be-05-013",
           "question": "Different OSI/TCP layers — where does each protocol sit?",
-          "answer": null
+          "answer": "<p>Map common protocols to layers (OSI vs TCP/IP mental model).</p><ul><li><strong>L7 Application:</strong> HTTP/HTTPS, gRPC, DNS, SMTP, Kafka app protocol.</li><li><strong>L6 Presentation:</strong> TLS encryption/encoding (often discussed with L7).</li><li><strong>L5 Session:</strong> less explicit in TCP/IP; sessions at app (JWT/cookies).</li><li><strong>L4 Transport:</strong> TCP, UDP.</li><li><strong>L3 Network:</strong> IP, ICMP, routing.</li><li><strong>L2 Data Link:</strong> Ethernet, MAC, switches.</li><li><strong>L1 Physical:</strong> cables, signalling.</li></ul><p>Load balancers may operate L4 (TCP) or L7 (HTTP path routing) — important for API gateway design.</p><p><strong>Pitfall:</strong> saying HTTPS is only L4; TLS is above TCP.</p>"
         },
         {
           "id": "mmt-be-05-014",
           "question": "How would you secure an API? (Auth, rate limiting, HTTPS, input validation)",
-          "answer": null
+          "answer": "<p>Secure APIs with defence in depth.</p><ul><li><strong>Transport:</strong> HTTPS/TLS only; HSTS.</li><li><strong>Authn/Authz:</strong> OAuth2/JWT or mTLS for service-to-service; least-privilege roles on booking/payment endpoints.</li><li><strong>Rate limiting &amp; WAF:</strong> per-IP/user/API-key to stop brute force and scraping of fares.</li><li><strong>Input validation:</strong> schema validation, reject unexpected fields, parameterized SQL, output encoding.</li><li><strong>Other:</strong> idempotency keys for payments, secrets in vault, audit logs, CORS lockdown, dependency scanning.</li></ul><p><strong>Pitfalls:</strong> putting secrets in JWTs without encryption needs; no token expiry/revocation strategy; trusting only gateway auth for internal lateral movement.</p>"
         }
       ]
     },
@@ -367,32 +367,32 @@
         {
           "id": "mmt-be-06-006",
           "question": "Factory / Abstract Factory — where have you used it in production?",
-          "answer": null
+          "answer": "<p><strong>Factory Method</strong> lets a creator return products via an interface without exposing construction. <strong>Abstract Factory</strong> groups related factories (families of products).</p><p><strong>Production uses:</strong> payment gateway factory (<code>Razorpay</code>/<code>Paytm</code>/<code>Card</code> clients by country); notification channel factory (email/SMS/push); Spring’s <code>BeanFactory</code>/converter factories. Abstract Factory when you need matching families (e.g. PDF + Email templates per brand).</p><p><strong>Why:</strong> open/closed — add providers without switching on enums everywhere.</p><p><strong>Pitfalls:</strong> factory explosion; Abstract Factory when a simple Strategy/map of beans suffices; hiding DI behind static factories.</p>"
         },
         {
           "id": "mmt-be-06-009",
           "question": "Strategy Pattern — use for switching algorithms at runtime (e.g. pricing strategies)",
-          "answer": null
+          "answer": "<p>Strategy encapsulates interchangeable algorithms behind an interface; context selects one at runtime.</p><p>Example: <code>PricingStrategy</code> with <code>BaseFare</code>, <code>SurgePricing</code>, <code>CouponPricing</code>, <code>CorporateNegotiated</code>. Booking service holds a strategy (or list of decorators) and computes payable amount without if-else chains. Spring: inject <code>Map&lt;String, PricingStrategy&gt;</code> beans keyed by code.</p><p><strong>When:</strong> fares, cancellation penalties, tax engines that change by airline/hotel/market.</p><p><strong>Vs State:</strong> Strategy swaps algorithms; State swaps behavior based on lifecycle. <strong>Pitfall:</strong> strategies with hidden shared mutable state.</p>"
         },
         {
           "id": "mmt-be-06-010",
           "question": "Chain of Responsibility — for pipeline processing (cash denomination calculation)",
-          "answer": null
+          "answer": "<p>Chain of Responsibility passes a request along handlers until one processes it (or each does partial work).</p><p>Classic cash denomination: handlers for 500→200→100→50 notes each take what they can and forward remainder. Pipelines: auth → validation → enrichment → rate-limit for booking requests; each handler calls <code>next</code>.</p><p><strong>Spring:</strong> filter/interceptor chains embody this idea.</p><p><strong>Pitfalls:</strong> broken chain (null next); order bugs; using CoR when a simple ordered list/loop is clearer; handlers with side effects and no clear contract.</p>"
         },
         {
           "id": "mmt-be-06-011",
           "question": "Interceptor Pattern — for Spring-based middleware (request/response logging, auth)",
-          "answer": null
+          "answer": "<p>Interceptor Pattern inserts cross-cutting logic around a core invocation without modifying it.</p><p>In Spring MVC, implement <code>HandlerInterceptor</code>: <code>preHandle</code> (auth, MDC requestId), <code>postHandle</code>, <code>afterCompletion</code> (timing metrics). Register via <code>WebMvcConfigurer.addInterceptors</code>. Differs from servlet <code>Filter</code> (earlier, container-wide) and from AOP (method join points).</p><p><strong>Travel:</strong> partner API-key checks, idempotency header enforcement, audit of booking mutations.</p><p><strong>Pitfalls:</strong> heavy I/O in preHandle; wrong order; doing business booking logic in interceptors.</p>"
         },
         {
           "id": "mmt-be-06-012",
           "question": "MVC — how does Spring MVC implement it?",
-          "answer": null
+          "answer": "<p>MVC separates Model (data), View (presentation), Controller (input/flow).</p><p>Spring MVC: <code>DispatcherServlet</code> front controller → maps to <code>@Controller</code> methods → controllers update Model and choose a view name, or <code>@RestController</code> writes the model as JSON via message converters (API-style “view”). Services/repositories sit behind controllers as the domain model layer.</p><p><strong>Why:</strong> testable web layer, clear separation for booking APIs vs server-rendered pages.</p><p><strong>Pitfall:</strong> fat controllers; assuming MVC implies JSP — REST APIs still use the MVC dispatcher pipeline.</p>"
         },
         {
           "id": "mmt-be-06-013",
           "question": "How many design patterns do you know? Name and briefly explain 5. (Explicitly asked at MMT)",
-          "answer": null
+          "answer": "<p>Name five with one-line intent (be ready to code 1–2):</p><ul><li><strong>Singleton:</strong> one shared instance (config/registry).</li><li><strong>Factory:</strong> create objects without exposing constructors.</li><li><strong>Strategy:</strong> swap algorithms (pricing) at runtime.</li><li><strong>Observer:</strong> publish events; subscribers react (booking confirmed → notify).</li><li><strong>State:</strong> behavior depends on lifecycle state (vending/booking).</li></ul><p>Honorable mentions if asked: Builder, Decorator, Adapter, Circuit Breaker (resilience), Template Method.</p><p><strong>Pitfall:</strong> listing names without a concrete production example — always tie one to MMT-style booking/payments.</p>"
         }
       ]
     },
@@ -404,42 +404,42 @@
         {
           "id": "mmt-be-07-001",
           "question": "Walk me through the biggest performance problem you solved in your current project",
-          "answer": null
+          "answer": "<p><strong>STAR — biggest performance win</strong> (fill metrics).</p><p><strong>S:</strong> [Service] p99 latency ___ ms / error rate ___% under ___ QPS (e.g. hotel search or checkout).</p><p><strong>T:</strong> Bring p99 under ___ ms and stabilize DB CPU.</p><p><strong>A:</strong> Profiled with ___ (APM/flame graphs); found hot path ___; added Redis cache-aside / batching / index ___; bounded pools; eliminated N+1.</p><p><strong>R:</strong> p99 ___→___ ms; QPS capacity +___%; DB load −___%. What you’d redo: ___.</p><p>Director probe: how you proved causality, rollback plan, and user impact on bookings.</p>"
         },
         {
           "id": "mmt-be-07-002",
           "question": "What innovative ideas have you contributed to your team's architecture?",
-          "answer": null
+          "answer": "<p><strong>STAR — innovative architecture idea</strong>.</p><p><strong>S:</strong> Team struggled with ___ (sync coupling, duplicate payment risk, slow releases).</p><p><strong>T:</strong> Propose a change that improves reliability/velocity without big-bang rewrite.</p><p><strong>A:</strong> Introduced ___ (outbox+Kafka, BFF, idempotency layer, contract testing, strangler facade for GDS). Built spike, RFC, got buy-in, shipped behind flag.</p><p><strong>R:</strong> Incident rate −___%; deploy frequency +___; MTTR −___. Personal ownership: design + ___ PRs + mentoring.</p><p>Be specific why alternatives were rejected.</p>"
         },
         {
           "id": "mmt-be-07-003",
           "question": "Have you suggested any architecture changes? What was the outcome?",
-          "answer": null
+          "answer": "<p><strong>STAR — architecture change you suggested</strong>.</p><p><strong>S:</strong> Monolith/module X owned booking+payments; deploy risk and scaling asymmetry.</p><p><strong>T:</strong> Split/realign boundaries or introduce async for ___ step.</p><p><strong>A:</strong> Domain map → extract ___ service; define APIs/events; data migration plan; dual-run; feature flag cutover.</p><p><strong>R:</strong> Independent scale of ___; deploy time ___→___; no Sev-1 during cutover / rollback used once. Lesson: ___.</p><p>Directors want trade-offs, not buzzwords — mention cost, ops burden, team ownership.</p>"
         },
         {
           "id": "mmt-be-07-004",
           "question": "Discuss your use of Kafka in your current project — design decision rationale",
-          "answer": null
+          "answer": "<p><strong>STAR — Kafka design rationale</strong>.</p><p><strong>S:</strong> Need to fan-out booking/payment outcomes to notify, loyalty, analytics without blocking checkout.</p><p><strong>T:</strong> Reliable async propagation with clear ordering/idempotency.</p><p><strong>A:</strong> Topics ___; key=bookingId/flightId; partitions=___; consumer groups; outbox; at-least-once + idempotent handlers; DLQ; lag alerts.</p><p><strong>R:</strong> Checkout no longer waits on ___; lag p99 &lt; ___ s; reprocess drill success. Why not SQS-only / why not sync REST: ___.</p>"
         },
         {
           "id": "mmt-be-07-005",
           "question": "Discuss your use of Redis — eviction policy, data structure chosen and why",
-          "answer": null
+          "answer": "<p><strong>STAR — Redis usage</strong>.</p><p><strong>S:</strong> Hot reads for ___ (session, fare cache, rate limit, locks).</p><p><strong>T:</strong> Sub-ms reads with safe memory and correct freshness.</p><p><strong>A:</strong> Structure chosen: String/Hash/ZSet because ___; eviction <code>allkeys-lru</code> (or volatile-ttl) because ___; TTL=___; stampede controls; cluster vs single.</p><p><strong>R:</strong> Hit ratio ___%; memory ___; incidents from eviction: ___. What not to cache: payment authority of record.</p>"
         },
         {
           "id": "mmt-be-07-006",
           "question": "How have you approached high-throughput API design? What bottlenecks have you seen?",
-          "answer": null
+          "answer": "<p><strong>STAR — high-throughput API design</strong>.</p><p><strong>S:</strong> Endpoint ___ targeted at ___ QPS (search/autocomplete/price).</p><p><strong>T:</strong> Sustain load with p99 SLO ___ ms.</p><p><strong>A:</strong> Horizontal scale; connection pools sized to DB; cache; pagination; payload trim; async where possible; backpressure/rate limits; load test with ___.</p><p><strong>Bottlenecks seen:</strong> GC, lock contention, chatty downstream, slow DNS/TLS, connection exhaustion — how you fixed each.</p><p><strong>R:</strong> Achieved ___ QPS at p99 ___; capacity headroom ___.</p>"
         },
         {
           "id": "mmt-be-07-007",
           "question": "Describe a latency problem you solved — root cause analysis approach",
-          "answer": null
+          "answer": "<p><strong>STAR — latency RCA</strong>.</p><p><strong>S:</strong> Spike in p99/checkout timeouts starting ___ (symptom, not guess).</p><p><strong>T:</strong> Find root cause and mitigate within ___, prevent repeat.</p><p><strong>A:</strong> Correlate metrics→logs→traces (traceId); bisect dependency latency; check deploys/config; reproduce; fix (timeout budgets, pool, query, cache); verify with canary.</p><p><strong>R:</strong> Root cause was ___; latency normalized; added alert on ___. Emphasize methodical RCA over heroics.</p>"
         },
         {
           "id": "mmt-be-07-008",
           "question": "How do you ensure observability? (Kibana, Grafana, Prometheus, distributed tracing)",
-          "answer": null
+          "answer": "<p><strong>STAR — observability</strong>.</p><p><strong>S:</strong> Blind spots during booking incidents (which hop failed?).</p><p><strong>T:</strong> Make latency/errors diagnosable in &lt; ___ minutes.</p><p><strong>A:</strong> Metrics (Prometheus/Micrometer) RED/USE; Grafana dashboards; structured logs→Kibana with correlation ids; OpenTelemetry/Jaeger/Zipkin traces across booking→payment; SLOs + alerts; runbooks.</p><p><strong>R:</strong> MTTR ___→___; caught ___ regressions pre-prod. What you measure for MMT: booking success rate, payment auth rate, Kafka lag, cache hit ratio.</p>"
         }
       ]
     }

@@ -64,7 +64,7 @@
             {
               "lang": "cpp",
               "label": "C++",
-              "code": "struct ListNode { int val; ListNode* next; };\n\nListNode* mergeKLists(vector<ListNode*>& lists) {\n    auto cmp = [](ListNode* a, ListNode* b){ return a->val > b->val; };\n    priority_queue<ListNode*, vector<ListNode*>, decltype(cmp)> pq(cmp);\n    for (auto node : lists)\n        if (node) pq.push(node);\n    ListNode dummy(0); ListNode* cur = &dummy;\n    while (!pq.empty()) {\n        cur->next = pq.top(); pq.pop();\n        cur = cur->next;\n        if (cur->next) pq.push(cur->next);\n    }\n    return dummy.next;\n}\n// Time: O(N log K)  Space: O(K)"
+              "code": "struct ListNode {\n    int val;\n    ListNode* next;\n    ListNode() : val(0), next(nullptr) {}\n    ListNode(int x) : val(x), next(nullptr) {}\n};\n\nListNode* mergeKLists(vector<ListNode*>& lists) {\n    auto cmp = [](ListNode* a, ListNode* b){ return a->val > b->val; };\n    priority_queue<ListNode*, vector<ListNode*>, decltype(cmp)> pq(cmp);\n    for (auto node : lists)\n        if (node) pq.push(node);\n    ListNode dummy;              // default ctor — compiles\n    ListNode* cur = &dummy;\n    while (!pq.empty()) {\n        cur->next = pq.top(); pq.pop();\n        cur = cur->next;\n        if (cur->next) pq.push(cur->next);\n    }\n    return dummy.next;\n}\n// Time: O(N log K)  Space: O(K)"
             }
           ],
           "links": [
@@ -90,7 +90,7 @@
             {
               "lang": "cpp",
               "label": "C++",
-              "code": "int jump(vector<int>& nums) {\n    int jumps=0, curEnd=0, farthest=0;\n    for (int i=0; i < (int)nums.size()-1; i++) {\n        farthest = max(farthest, i + nums[i]);\n        if (i == curEnd) { jumps++; curEnd = farthest; }\n    }\n    return jumps;\n}\n// Time: O(N)  Space: O(1)\n\n// Variant: also return the jump indexes\nvector<int> jumpWithPath(vector<int>& nums) {\n    int n = nums.size();\n    vector<int> prev(n, -1);\n    int curEnd=0, farthest=0, jumpFrom=0;\n    for (int i=0; i<n-1; i++) {\n        if (i + nums[i] > farthest) { farthest = i+nums[i]; jumpFrom = i; }\n        if (i == curEnd) { prev[farthest] = jumpFrom; curEnd = farthest; }\n    }\n    vector<int> path;\n    for (int i=n-1; i>0; i=prev[i]) path.push_back(i);\n    path.push_back(0); reverse(path.begin(), path.end());\n    return path;\n}"
+              "code": "int jump(vector<int>& nums) {\n    int jumps = 0, curEnd = 0, farthest = 0;\n    for (int i = 0; i < (int)nums.size() - 1; i++) {\n        farthest = max(farthest, i + nums[i]);\n        if (i == curEnd) { jumps++; curEnd = farthest; }\n    }\n    return jumps;\n}\n// Time: O(N)  Space: O(1)\n\n// Variant: also return indexes of jump landings (0 … n-1)\nvector<int> jumpWithPath(vector<int>& nums) {\n    int n = (int)nums.size();\n    if (n <= 1) return {0};\n    vector<int> prev(n, -1);\n    int start = 0, end = 0;\n    while (end < n - 1) {\n        int farthest = end;\n        for (int i = start; i <= end; i++) {\n            int reach = min(n - 1, i + nums[i]);\n            for (int j = end + 1; j <= reach; j++) {\n                if (prev[j] == -1) prev[j] = i;  // first (leftmost) parent\n            }\n            farthest = max(farthest, reach);\n        }\n        if (farthest <= end) return {}; // unreachable\n        start = end + 1;\n        end = farthest;\n    }\n    vector<int> path;\n    for (int i = n - 1; i != -1; i = prev[i]) path.push_back(i);\n    reverse(path.begin(), path.end());\n    return path;\n}\n// Time: O(N) amortized filling  Space: O(N)"
             }
           ],
           "links": [
@@ -408,7 +408,7 @@
             {
               "lang": "cpp",
               "label": "C++",
-              "code": "ListNode* reverseSecondHalf(ListNode* head) {\n    // Find mid with slow/fast\n    ListNode* slow=head, *fast=head;\n    while(fast->next && fast->next->next){ slow=slow->next; fast=fast->next->next; }\n    // Reverse from slow->next\n    ListNode* prev=nullptr, *cur=slow->next;\n    while(cur){ ListNode* nxt=cur->next; cur->next=prev; prev=cur; cur=nxt; }\n    slow->next=prev;\n    return head;\n}\n// Time: O(N)  Space: O(1)"
+              "code": "ListNode* reverseSecondHalf(ListNode* head) {\n    if (!head || !head->next) return head;  // 0 or 1 node — nothing to reverse\n    // Find mid with slow/fast (slow ends at last node of first half)\n    ListNode* slow = head, *fast = head;\n    while (fast->next && fast->next->next) {\n        slow = slow->next;\n        fast = fast->next->next;\n    }\n    // Reverse from slow->next\n    ListNode* prev = nullptr, *cur = slow->next;\n    while (cur) {\n        ListNode* nxt = cur->next;\n        cur->next = prev;\n        prev = cur;\n        cur = nxt;\n    }\n    slow->next = prev;\n    return head;\n}\n// Time: O(N)  Space: O(1)"
             }
           ],
           "links": [],
@@ -549,7 +549,7 @@
             {
               "lang": "cpp",
               "label": "C++",
-              "code": "int total, ans=INT_MAX;\nint dfs(vector<vector<int>>& adj, vector<int>& val, int u, int p){\n    int sub=val[u];\n    for(int v:adj[u]) if(v!=p) sub+=dfs(adj,val,v,u);\n    ans=min(ans, abs(total-2*sub));\n    return sub;\n}\n// Call: total=sum(val); dfs(adj,val,0,-1); return ans;\n// Time: O(N)  Space: O(N)"
+              "code": "int total, ans = INT_MAX;\nint dfs(vector<vector<int>>& adj, vector<int>& val, int u, int p) {\n    int sub = val[u];\n    for (int v : adj[u]) if (v != p) sub += dfs(adj, val, v, u);\n    // Skip the root: cutting above root is not an edge cut (sub == total → diff 0)\n    if (p != -1) ans = min(ans, abs(total - 2 * sub));\n    return sub;\n}\n// Call: total = accumulate(val.begin(), val.end(), 0);\n//       ans = INT_MAX; dfs(adj, val, 0, -1); return ans;\n// Time: O(N)  Space: O(N)"
             }
           ],
           "links": [],
@@ -1016,12 +1016,12 @@
             {
               "lang": "cpp",
               "label": "C++",
-              "code": "int totalJumps(vector<int>& walls, int H, int L){\n    int jumps=0, curHeight=0;\n    for(int w:walls){\n        while(curHeight<w){\n            curHeight+=H;  // jump\n            jumps++;\n            if(curHeight<w) curHeight-=L; // slip (only if not cleared)\n        }\n        curHeight=0; // reset for next wall\n    }\n    return jumps;\n}\n// Time: O(N * max_jumps_per_wall)  Space: O(1)"
+              "code": "int totalJumps(vector<int>& walls, int H, int L) {\n    // If slip >= jump, you never gain net height past the first jump\n    if (H <= 0) return -1;\n    int jumps = 0;\n    for (int w : walls) {\n        if (w <= 0) continue;\n        if (H <= L) {\n            if (w > H) return -1;  // impossible — would infinite-loop otherwise\n            jumps += 1;           // one jump clears it\n            continue;\n        }\n        int cur = 0;\n        while (cur < w) {\n            cur += H;\n            jumps++;\n            if (cur >= w) break;\n            cur -= L;             // slip only when wall not yet cleared\n        }\n    }\n    return jumps;\n}\n// Time: O(N * jumps_per_wall)  Space: O(1)"
             }
           ],
           "links": [],
           "source": "Reported: MMT Campus GFG",
-          "hint": "State pattern: VendingMachineState interface → IdleState, HasMoneyState, DispensingState. VendingMachine holds currentState. Transitions on insertCoin(), selectItem(), dispense(), cancel()."
+          "hint": "For each wall, keep jumping +H and slipping −L until height clears the wall. If H ≤ L, only walls with height ≤ H are possible (one jump); taller walls are impossible."
         },
         {
           "id": "mmt-dsa-044",
