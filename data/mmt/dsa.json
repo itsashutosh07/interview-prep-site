@@ -11,7 +11,7 @@
             "Sliding Window"
           ],
           "category": "Arrays & Strings",
-          "body": "Given strings A and B, find the smallest substring in A which contains all characters in B. This is the classic Minimum Window Substring problem. MMT specifically asked candidates to code it in Java and explicitly noted Java hard requirement after this question.",
+          "body": "<p>Given two strings <code>s</code> and <code>t</code>, return the <strong>minimum window substring</strong> of <code>s</code> such that every character in <code>t</code> (including duplicates) is included in the window. If no such substring exists, return <code>\"\"</code>.</p><div class=\"example\"><div class=\"example-label\">Example 1</div><pre>Input: s = \"ADOBECODEBANC\", t = \"ABC\"\nOutput: \"BANC\"\nExplanation: \"BANC\" is the shortest substring of s that contains A, B, and C.</pre></div><div class=\"example\"><div class=\"example-label\">Example 2</div><pre>Input: s = \"a\", t = \"aa\"\nOutput: \"\"\nExplanation: t needs two a's, but s has only one.</pre></div><p><strong>Constraints</strong></p><ul><li>1 &lt;= s.length, t.length &lt;= 10^5</li><li>s and t consist of English letters.</li></ul>",
           "answer": "<p><strong>Problem:</strong> Find the smallest substring of <code>A</code> that contains every character of <code>B</code> (with multiplicity).</p>\n<p><strong>Idea — sliding window + two frequency maps:</strong></p>\n<ol>\n<li>Build <code>need</code>: counts of chars required from <code>B</code>. Track <code>missing</code> = how many chars still needed.</li>\n<li>Expand <code>right</code>. When you cover a needed char, decrement <code>missing</code>.</li>\n<li>While the window is valid (<code>missing == 0</code>), shrink <code>left</code> to minimise length and record the best <code>[L,R]</code>.</li>\n<li>When shrinking removes a needed char, increment <code>missing</code> again.</li>\n</ol>\n<p><strong>Why it works:</strong> every time the window becomes valid you have a candidate; shrinking finds the leftmost start for that right endpoint. Over all right endpoints you cover the global minimum.</p>\n<p><strong>Complexity:</strong> O(|A| + |B|) time, O(charset) space. <strong>Edge cases:</strong> empty B; B longer than A; duplicate chars in B; no valid window → return empty.</p>\n<p><strong>Interview tip:</strong> dry-run on <code>A=\"ADOBECODEBANC\", B=\"ABC\"</code>. Mention Java is often required at MMT even if you sketch C++.</p>",
           "solutions": [
             {
@@ -37,7 +37,7 @@
             "HashMap"
           ],
           "category": "Arrays & Strings",
-          "body": "Given an array, find any subarray which has a sum of 0. Asked in the SDE/SSE-2 DSA round (LeetCode Discuss, Oct 2024).",
+          "body": "<p>Given an integer array <code>nums</code>, return <strong>any</strong> contiguous subarray whose elements sum to <code>0</code>. If none exists, return an empty array. (Returning the start and end indices is also acceptable — state which you return.)</p><div class=\"example\"><div class=\"example-label\">Example 1</div><pre>Input: nums = [1, 2, -3, 4, -1]\nOutput: [1, 2, -3]\nExplanation: 1 + 2 + (-3) = 0. Indices [0, 2] are also a valid answer.</pre></div><div class=\"example\"><div class=\"example-label\">Example 2</div><pre>Input: nums = [1, 2, 3]\nOutput: []\nExplanation: No contiguous subarray sums to 0.</pre></div><p><strong>Constraints</strong></p><ul><li>1 &lt;= nums.length &lt;= 10^5</li><li>-10^9 &lt;= nums[i] &lt;= 10^9</li></ul>",
           "answer": "<p><strong>Problem:</strong> Detect any contiguous subarray whose sum is 0 (or return its indices).</p>\n<p><strong>Idea — prefix sums + HashMap:</strong> let <code>pref[i] = a[0]+…+a[i]</code>. If <code>pref[j] == pref[i-1]</code>, then <code>a[i..j]</code> sums to 0. Also if <code>pref[j] == 0</code>, <code>a[0..j]</code> works.</p>\n<ol>\n<li>Scan left→right maintaining running sum <code>s</code>.</li>\n<li>Store first index where each prefix appeared (or a set if you only need yes/no).</li>\n<li>On seeing a repeated prefix (or 0), you found a zero-sum subarray.</li>\n</ol>\n<p><strong>Complexity:</strong> O(N) time, O(N) space. <strong>Edge cases:</strong> single 0; negatives; multiple answers — any is fine unless asked for longest/shortest.</p>",
           "solutions": [
             {
@@ -58,7 +58,7 @@
             "Heap"
           ],
           "category": "Arrays & Strings",
-          "body": "Merge 2 sorted arrays and Merge K sorted linked lists appeared together in a single SDE-2 Round 1. Union of two sorted arrays (SDE-1 Aug 2024) is a variant. All test in-place merge, heap-based K-way merge.",
+          "body": "<p>You are given an array of <code>k</code> linked lists, each sorted in ascending order. Merge all the lists into one sorted linked list and return it.</p><div class=\"example\"><div class=\"example-label\">Example 1</div><pre>Input: lists = [[1,4,5],[1,3,4],[2,6]]\nOutput: [1,1,2,3,4,4,5,6]</pre></div><div class=\"example\"><div class=\"example-label\">Example 2</div><pre>Input: lists = []\nOutput: []\n\nInput: lists = [[]]\nOutput: []</pre></div><p><strong>Constraints</strong></p><ul><li>0 &lt;= k &lt;= 10^4</li><li>0 &lt;= total nodes &lt;= 10^4</li><li>-10^4 &lt;= Node.val &lt;= 10^4</li><li>Each list is sorted ascending.</li></ul>",
           "answer": "<p><strong>Problem:</strong> Merge K sorted linked lists into one sorted list.</p>\n<p><strong>Idea — min-heap of size K:</strong></p>\n<ol>\n<li>Push the head of each non-empty list into a min-heap keyed by node value.</li>\n<li>Repeatedly pop the smallest node, append to the result, and push that node’s <code>next</code> if any.</li>\n</ol>\n<p><strong>Why heap:</strong> you always need the global minimum among K frontiers — heap gives O(log K) per extract.</p>\n<p><strong>Complexity:</strong> O(N log K) time for N total nodes, O(K) heap space. <strong>Pitfalls:</strong> null lists in the input array; define a proper <code>ListNode</code> constructor (dummy head pattern).</p>\n<p><strong>Alternatives:</strong> pairwise merge (like merge-sort) also O(N log K); divide-and-conquer merging of lists.</p>",
           "solutions": [
             {
@@ -84,7 +84,7 @@
             "Greedy"
           ],
           "category": "Arrays & Strings",
-          "body": "",
+          "body": "<p>You are given a <strong>0-indexed</strong> array of integers <code>nums</code> of length <code>n</code>. You start at index <code>0</code>. Each element <code>nums[i]</code> is the maximum forward jump length from index <code>i</code>. Return the <strong>minimum number of jumps</strong> to reach index <code>n - 1</code>. The test cases are generated so you can always reach the last index. Follow-up: also return one sequence of jump indexes.</p><div class=\"example\"><div class=\"example-label\">Example 1</div><pre>Input: nums = [2,3,1,1,4]\nOutput: 2\nExplanation: Jump 1 step from index 0 to 1, then 3 steps to the last index.</pre></div><div class=\"example\"><div class=\"example-label\">Example 2</div><pre>Input: nums = [2,3,0,1,4]\nOutput: 2\nExplanation: Jump from index 0 to 1, then from 1 to 4.</pre></div><p><strong>Constraints</strong></p><ul><li>1 &lt;= nums.length &lt;= 10^4</li><li>0 &lt;= nums[i] &lt;= 1000</li></ul>",
           "answer": "<p><strong>Problem:</strong> Minimum jumps to reach the last index (Jump Game II). Optionally reconstruct jump positions.</p>\n<p><strong>Idea — greedy BFS layers:</strong> treat indices reachable with the same jump count as a “layer”.</p>\n<ol>\n<li>Maintain <code>curEnd</code> (end of current jump’s reach) and <code>farthest</code> (furthest you can reach while scanning the layer).</li>\n<li>When <code>i == curEnd</code>, you must take another jump: <code>jumps++</code>, set <code>curEnd = farthest</code>.</li>\n</ol>\n<p><strong>Path variant:</strong> while scanning each layer, record the first parent that reaches each new index; reconstruct from <code>n-1</code> back to 0. Cap reach at <code>n-1</code> to avoid out-of-bounds.</p>\n<p><strong>Complexity:</strong> O(N) time / O(1) space for count; O(N) space for path. <strong>Edge:</strong> already at end (<code>n≤1</code>); unreachable array (path returns empty).</p>",
           "solutions": [
             {
@@ -110,7 +110,7 @@
             "Sorting"
           ],
           "category": "Arrays & Strings",
-          "body": "Explicitly listed as the first question in SDE-2 Round 1 (GFG 2021). Sort + merge sweep pattern.",
+          "body": "<p>Given an array of <code>intervals</code> where <code>intervals[i] = [starti, endi]</code>, merge all overlapping intervals and return an array of the non-overlapping intervals that cover all the intervals in the input. Touching endpoints (end == next start) should be merged.</p><div class=\"example\"><div class=\"example-label\">Example 1</div><pre>Input: intervals = [[1,3],[2,6],[8,10],[15,18]]\nOutput: [[1,6],[8,10],[15,18]]\nExplanation: [1,3] and [2,6] overlap, so they merge into [1,6].</pre></div><div class=\"example\"><div class=\"example-label\">Example 2</div><pre>Input: intervals = [[1,4],[4,5]]\nOutput: [[1,5]]</pre></div><p><strong>Constraints</strong></p><ul><li>1 &lt;= intervals.length &lt;= 10^4</li><li>intervals[i].length == 2</li><li>0 &lt;= starti &lt;= endi &lt;= 10^4</li></ul>",
           "answer": "<p><strong>Problem:</strong> Merge all overlapping intervals.</p>\n<p><strong>Idea:</strong></p>\n<ol>\n<li>Sort by start time.</li>\n<li>Scan: if current start ≤ last merged end, extend <code>end = max(end, current.end)</code>; else push a new interval.</li>\n</ol>\n<p><strong>Why sort:</strong> after sorting, overlaps can only involve the previous interval in the result — one linear pass.</p>\n<p><strong>Complexity:</strong> O(N log N) sort + O(N). <strong>Edge:</strong> touching intervals <code>[1,2][2,3]</code> — decide if inclusive merge (usually yes); empty input; single interval.</p>",
           "solutions": [
             {
@@ -136,7 +136,7 @@
             "String/Math"
           ],
           "category": "Arrays & Strings",
-          "body": "SDE-2 Round 1 (LeetCode Discuss 2025). Candidate was allowed Python. Long multiplication simulation.",
+          "body": "<p>Given two non-negative integers <code>num1</code> and <code>num2</code> represented as strings, return the product of <code>num1</code> and <code>num2</code>, also represented as a string. You must not use any built-in BigInteger library or convert the inputs to integer directly.</p><div class=\"example\"><div class=\"example-label\">Example 1</div><pre>Input: num1 = \"2\", num2 = \"3\"\nOutput: \"6\"</pre></div><div class=\"example\"><div class=\"example-label\">Example 2</div><pre>Input: num1 = \"123\", num2 = \"456\"\nOutput: \"56088\"</pre></div><p><strong>Constraints</strong></p><ul><li>1 &lt;= num1.length, num2.length &lt;= 200</li><li>num1 and num2 consist of digits only.</li><li>Both do not contain leading zeros, except the number 0 itself.</li></ul>",
           "answer": "<p><strong>Problem:</strong> Multiply two non-negative integers given as strings (may not fit in 64-bit).</p>\n<p><strong>Idea — grade-school multiplication:</strong></p>\n<ol>\n<li>Result array of size <code>n+m</code>. For digits <code>num1[i]</code>, <code>num2[j]</code>, add product into <code>pos[i+j+1]</code>, carry into <code>pos[i+j]</code>.</li>\n<li>Walk the array converting digits to a string; skip leading zeros.</li>\n</ol>\n<p><strong>Complexity:</strong> O(n·m) time, O(n+m) space. <strong>Edge:</strong> either operand <code>\"0\"</code>; leading zeros in input (normalise).</p>",
           "solutions": [
             {
@@ -161,7 +161,7 @@
             "HashMap"
           ],
           "category": "Arrays & Strings",
-          "body": "Given two arrays, print all pairs that sum to K. Technical Round 1 (Software Engineer, 2020). Hashmap approach to O(N).",
+          "body": "<p>Given two integer arrays <code>A</code> and <code>B</code> and an integer <code>K</code>, print all pairs <code>(a, b)</code> such that <code>a</code> is from <code>A</code>, <code>b</code> is from <code>B</code>, and <code>a + b = K</code>. If a value appears multiple times, each occurrence can form a pair (do not drop duplicates).</p><div class=\"example\"><div class=\"example-label\">Example 1</div><pre>Input: A = [1, 2, 4, 5, 7], B = [5, 6, 3, 4, 8], K = 9\nOutput: (1, 8), (2, 7), (4, 5), (5, 4)\nExplanation: Order of pairs does not matter.</pre></div><div class=\"example\"><div class=\"example-label\">Example 2</div><pre>Input: A = [1, 1, 2], B = [3, 4], K = 5\nOutput: (1, 4), (1, 4), (2, 3)\nExplanation: Both 1's in A pair with 4.</pre></div><p><strong>Constraints</strong></p><ul><li>1 &lt;= A.length, B.length &lt;= 10^5</li><li>-10^9 &lt;= values, K &lt;= 10^9</li></ul>",
           "answer": "<p><strong>Problem:</strong> All pairs <code>(a from A, b from B)</code> with <code>a+b = K</code>.</p>\n<p><strong>Idea:</strong> Put all of A into a multiset/map (or set if uniqueness allowed). For each <code>b</code> in B, check if <code>K-b</code> exists in A.</p>\n<p><strong>If duplicates matter:</strong> use frequency maps, not a plain set — a set drops duplicate keys and under-counts pairs.</p>\n<p><strong>Complexity:</strong> O(N+M) expected with hashing. <strong>Follow-up:</strong> sorted arrays → two pointers without extra space.</p>",
           "solutions": [
             {
@@ -181,7 +181,7 @@
             "Greedy"
           ],
           "category": "Arrays & Strings",
-          "body": "Appeared in SSE-2 Round 2 alongside Jump Game II (Nov 2023, IIT candidate).",
+          "body": "<p>Given an integer array <code>nums</code>, return <code>true</code> if there exists a triple of indices <code>(i, j, k)</code> such that <code>i &lt; j &lt; k</code> and <code>nums[i] &lt; nums[j] &lt; nums[k]</code>. Otherwise return <code>false</code>.</p><div class=\"example\"><div class=\"example-label\">Example 1</div><pre>Input: nums = [1, 2, 3, 4, 5]\nOutput: true\nExplanation: Any increasing triple works, e.g. (0, 1, 2).</pre></div><div class=\"example\"><div class=\"example-label\">Example 2</div><pre>Input: nums = [5, 4, 3, 2, 1]\nOutput: false\nExplanation: No increasing triple of indices exists.</pre></div><p><strong>Constraints</strong></p><ul><li>1 &lt;= nums.length &lt;= 5 * 10^5</li><li>-2^31 &lt;= nums[i] &lt;= 2^31 - 1</li></ul>",
           "answer": "<p><strong>Problem:</strong> Exists indices <code>i &lt; j &lt; k</code> with <code>a[i] &lt; a[j] &lt; a[k]</code>?</p>\n<p><strong>Idea — one pass, track two minima:</strong></p>\n<ol>\n<li><code>first</code> = smallest so far; <code>second</code> = smallest number that already has a smaller to its left.</li>\n<li>On seeing <code>x</code>: if <code>x &lt;= first</code> update first; else if <code>x &lt;= second</code> update second; else you found a third → true.</li>\n</ol>\n<p><strong>Complexity:</strong> O(N) time, O(1) space. Beat the O(N²) DP. <strong>Trap:</strong> equalities — use strict <code>&lt;</code> as stated.</p>",
           "solutions": [
             {
@@ -206,7 +206,7 @@
             "Array"
           ],
           "category": "Arrays & Strings",
-          "body": "Technical Round 2 (Software Engineer 2020). O(n) time, O(n) space approach using prefix min array and suffix max array.",
+          "body": "<p>Given an array <code>arr[]</code>, find the maximum value of <code>j - i</code> such that <code>arr[j] &gt; arr[i]</code> and <code>j &gt; i</code>. If no such pair exists, return <code>-1</code>.</p><div class=\"example\"><div class=\"example-label\">Example 1</div><pre>Input: arr = [34, 8, 10, 3, 2, 80, 30, 33, 1]\nOutput: 6\nExplanation: arr[1] = 8 and arr[7] = 33, and 7 - 1 = 6 is maximum.</pre></div><div class=\"example\"><div class=\"example-label\">Example 2</div><pre>Input: arr = [9, 2, 3, 4, 5, 6, 7, 8, 18, 0]\nOutput: 8\nExplanation: arr[0] = 9 and arr[8] = 18.</pre></div><p><strong>Constraints</strong></p><ul><li>1 &lt;= n &lt;= 10^5</li><li>1 &lt;= arr[i] &lt;= 10^9</li></ul>",
           "answer": "<p><strong>Problem:</strong> Maximise <code>j−i</code> subject to <code>arr[j] &gt; arr[i]</code> (or ≥ depending on statement — confirm with interviewer).</p>\n<p><strong>Idea — left-min / right-max + two pointers:</strong></p>\n<ol>\n<li><code>Lmin[i]</code> = min on <code>[0..i]</code>; <code>Rmax[j]</code> = max on <code>[j..n-1]</code>.</li>\n<li>Two pointers from left/right: if <code>Lmin[i] &lt; Rmax[j]</code> (or ≤), update answer and try larger span by moving j; else move i.</li>\n</ol>\n<p><strong>Complexity:</strong> O(N). Clarify strict vs non-strict comparison — GFG “Maximum Index” often uses ≤.</p>",
           "solutions": [
             {
@@ -227,7 +227,7 @@
             "Sliding Window"
           ],
           "category": "Arrays & Strings",
-          "body": "SSE BLR 2022 (Offer received). Pick exactly K elements from left or right ends, maximize sum. Sliding window of size (n-k) on the complement.",
+          "body": "<p>There are several cards arranged in a row, and each card has an associated number of points. The points are given in the integer array <code>cardPoints</code>. In one step, you can take one card from the beginning or from the end of the row. You have to take exactly <code>k</code> cards. Return the <strong>maximum</strong> number of points you can obtain.</p><div class=\"example\"><div class=\"example-label\">Example 1</div><pre>Input: cardPoints = [1,2,3,4,5,6,1], k = 3\nOutput: 12\nExplanation: Take the three cards on the right: 1 + 6 + 5 = 12.</pre></div><div class=\"example\"><div class=\"example-label\">Example 2</div><pre>Input: cardPoints = [9,7,7,9,7,7,9], k = 7\nOutput: 55\nExplanation: You have to take all the cards.</pre></div><p><strong>Constraints</strong></p><ul><li>1 &lt;= cardPoints.length &lt;= 10^5</li><li>1 &lt;= cardPoints[i] &lt;= 10^4</li><li>1 &lt;= k &lt;= cardPoints.length</li></ul>",
           "answer": "<p><strong>Problem:</strong> Pick exactly K elements from either end of the array; maximise their sum.</p>\n<p><strong>Equivalence:</strong> leaving a contiguous middle of length <code>n−K</code>. Minimising that middle sum maximises the ends’ sum.</p>\n<ol>\n<li>Compute total sum; find minimum sum subarray of length <code>n−K</code> (sliding window); answer = total − that min.</li>\n<li>Or explicitly try taking <code>i</code> from left and <code>K−i</code> from right using prefix/suffix sums.</li>\n</ol>\n<p><strong>Complexity:</strong> O(N). <strong>Edge:</strong> K=n (take all); K=0.</p>",
           "solutions": [
             {
@@ -253,7 +253,7 @@
             "HashMap+Sort"
           ],
           "category": "Arrays & Strings",
-          "body": "Glassdoor Java Developer interview: given array with duplicates, sort by occurrence count.",
+          "body": "<p>Given an integer array <code>nums</code>, sort it by <strong>decreasing frequency</strong> of values. If two values have the same frequency, the smaller value comes first.</p><div class=\"example\"><div class=\"example-label\">Example 1</div><pre>Input: nums = [2, 3, 1, 3, 2]\nOutput: [2, 2, 3, 3, 1]\nExplanation: 2 and 3 both appear twice; 2 is smaller, so it comes first. 1 appears once.</pre></div><div class=\"example\"><div class=\"example-label\">Example 2</div><pre>Input: nums = [1, 1, 2, 2, 2, 3]\nOutput: [2, 2, 2, 1, 1, 3]</pre></div><p><strong>Constraints</strong></p><ul><li>1 &lt;= nums.length &lt;= 10^5</li><li>-10^4 &lt;= nums[i] &lt;= 10^4</li></ul>",
           "answer": "<p><strong>Problem:</strong> Sort by frequency (higher first); ties by value (define order with interviewer).</p>\n<p><strong>Idea:</strong> count frequencies → sort unique keys with comparator <code>(freq desc, value asc/desc)</code> → expand back to array.</p>\n<p><strong>Complexity:</strong> O(N log U) for U unique keys. <strong>Alt:</strong> bucket sort by frequency for O(N + maxFreq) if values bounded.</p>",
           "solutions": [
             {
@@ -273,7 +273,7 @@
             "Binary Search"
           ],
           "category": "Arrays & Strings",
-          "body": "SSE-2 Round 1, Nov 2023 (IIT candidate). Standard binary search for left boundary and right boundary.",
+          "body": "<p>Given an array of integers <code>nums</code> sorted in non-decreasing order, find the starting and ending position of a given <code>target</code>. If <code>target</code> is not found, return <code>[-1, -1]</code>. You must write an algorithm with <code>O(log n)</code> runtime.</p><div class=\"example\"><div class=\"example-label\">Example 1</div><pre>Input: nums = [5,7,7,8,8,10], target = 8\nOutput: [3, 4]</pre></div><div class=\"example\"><div class=\"example-label\">Example 2</div><pre>Input: nums = [5,7,7,8,8,10], target = 6\nOutput: [-1, -1]</pre></div><p><strong>Constraints</strong></p><ul><li>0 &lt;= nums.length &lt;= 10^5</li><li>-10^9 &lt;= nums[i], target &lt;= 10^9</li><li>nums is sorted non-decreasing.</li></ul>",
           "answer": "<p><strong>Problem:</strong> First and last index of target in a sorted array (with duplicates).</p>\n<p><strong>Idea — two binary searches:</strong></p>\n<ol>\n<li>Lower bound: first index ≥ target (or == target).</li>\n<li>Upper bound: first index &gt; target, then last = that − 1.</li>\n</ol>\n<p>If lower bound misses target, return <code>[-1,-1]</code>.</p>\n<p><strong>Complexity:</strong> O(log N). Do <strong>not</strong> scan linearly after finding one hit — that’s O(N) worst case on all duplicates.</p>",
           "solutions": [
             {
@@ -303,7 +303,7 @@
             "Linked List"
           ],
           "category": "Linked Lists",
-          "body": "Reverse Nodes in K-Group appeared in MMT Set-4 older rounds and in SSE-2 Round 1 (Nov 2023).",
+          "body": "<p>Given the head of a linked list, reverse the nodes of the list <code>k</code> at a time, and return the modified list. <code>k</code> is a positive integer and is less than or equal to the length of the linked list. If the number of nodes is not a multiple of <code>k</code>, the leftover nodes at the end stay in their original order.</p><div class=\"example\"><div class=\"example-label\">Example 1</div><pre>Input: head = [1,2,3,4,5], k = 2\nOutput: [2,1,4,3,5]</pre></div><div class=\"example\"><div class=\"example-label\">Example 2</div><pre>Input: head = [1,2,3,4,5], k = 3\nOutput: [3,2,1,4,5]</pre></div><p><strong>Constraints</strong></p><ul><li>The number of nodes is in [1, 5000].</li><li>0 &lt;= Node.val &lt;= 1000</li><li>1 &lt;= k &lt;= number of nodes</li></ul>",
           "answer": "<p><strong>Problem:</strong> Reverse nodes in groups of K; leftover &lt; K stay as-is (usual LC #25 rule — confirm).</p>\n<p><strong>Idea:</strong></p>\n<ol>\n<li>Count K nodes ahead; if fewer than K, stop.</li>\n<li>Reverse that segment in-place; connect previous group’s tail to new head; recurse/iterate on rest.</li>\n</ol>\n<p><strong>Complexity:</strong> O(N) time, O(1) extra (iterative) or O(N/K) recursion depth. Draw pointers on paper before coding.</p>",
           "solutions": [
             {
@@ -328,7 +328,7 @@
             "Linked List"
           ],
           "category": "Linked Lists",
-          "body": "F2F Round in MMT Set-4. Deep copy with both next and arbitrary pointers in O(n) time and O(1) extra space.",
+          "body": "<p>A linked list of length <code>n</code> is given such that each node contains an additional random pointer, which could point to any node in the list, or <code>null</code>. Construct a <strong>deep copy</strong> of the list. The deep copy should consist of exactly <code>n</code> brand new nodes, and none of the pointers in the new list should point to nodes in the original list. Return the head of the copied list.</p><div class=\"example\"><div class=\"example-label\">Example 1</div><pre>Input: head = [[7,null],[13,0],[11,4],[10,2],[1,0]]\nOutput: [[7,null],[13,0],[11,4],[10,2],[1,0]]\nExplanation: Each pair is [val, random_index]. The copy has the same structure but new nodes.</pre></div><div class=\"example\"><div class=\"example-label\">Example 2</div><pre>Input: head = [[1,1],[2,1]]\nOutput: [[1,1],[2,1]]\nExplanation: Node 1's random points to itself; node 2's random points to node 1.</pre></div><p><strong>Constraints</strong></p><ul><li>0 &lt;= n &lt;= 1000</li><li>-10^4 &lt;= Node.val &lt;= 10^4</li><li>random is null or points to a node in the list.</li></ul>",
           "answer": "<p><strong>Problem:</strong> Deep-copy list where each node has <code>next</code> and <code>random</code>.</p>\n<p><strong>O(1) space weave method:</strong></p>\n<ol>\n<li>Interleave copy nodes: <code>A → A' → B → B'</code>.</li>\n<li>Set <code>A'.random = A.random.next</code> (the copy sitting after original random).</li>\n<li>Unweave into original and clone lists.</li>\n</ol>\n<p><strong>Alt:</strong> HashMap old→new then second pass for random — O(N) space, simpler.</p>",
           "solutions": [
             {
@@ -353,7 +353,7 @@
             "Tree/LL"
           ],
           "category": "Linked Lists",
-          "body": "SDE-2 Round 1 (LeetCode Discuss 2025). Candidate was told O(log N) space solution also exists beyond O(N).",
+          "body": "<p>You are given a <strong>perfect binary tree</strong> where all leaves are on the same level, and every parent has two children. Populate each <code>next</code> pointer to point to its next right node. If there is no next right node, <code>next</code> should be <code>null</code>. Initially every <code>next</code> is <code>null</code>. Return the root.</p><div class=\"example\"><div class=\"example-label\">Example 1</div><pre>Input: root = [1,2,3,4,5,6,7]\nOutput: [1,#,2,3,#,4,5,6,7,#]\nExplanation: '#' marks the end of a level. 2.next = 3, 4.next = 5, 5.next = 6, 6.next = 7.</pre></div><div class=\"example\"><div class=\"example-label\">Example 2</div><pre>Input: root = []\nOutput: []</pre></div><p><strong>Constraints</strong></p><ul><li>The number of nodes is in [0, 2^12 - 1].</li><li>The tree is a perfect binary tree.</li></ul>",
           "answer": "<p><strong>Problem:</strong> Populate <code>next</code> pointers to the right sibling (perfect binary tree LC #116).</p>\n<p><strong>O(1) space:</strong> level by level using already-set <code>next</code>. For node with left/right: <code>left.next = right</code>; <code>right.next = parent.next.left</code> if parent.next exists.</p>\n<p><strong>Clarify:</strong> LC #117 (any tree) needs a different BFS/queue or carefully threaded approach. Comment space carefully — perfect-tree O(1) vs queue O(width).</p>",
           "solutions": [
             {
@@ -378,7 +378,7 @@
             "Two Pointer"
           ],
           "category": "Linked Lists",
-          "body": "F2F Round 3 (MMT Set-4 GFG).",
+          "body": "<p>Given the heads of two singly linked lists <code>headA</code> and <code>headB</code>, return the node at which the two lists intersect. If the two linked lists have no intersection, return <code>null</code>. The lists share structure after the intersection (not just equal values).</p><div class=\"example\"><div class=\"example-label\">Example 1</div><pre>Input: listA = [4,1,8,4,5], listB = [5,6,1,8,4,5], skipA = 2, skipB = 3\nOutput: Intersected at node with value 8\nExplanation: The shared tail starts at the node 8.</pre></div><div class=\"example\"><div class=\"example-label\">Example 2</div><pre>Input: listA = [2,6,4], listB = [1,5]\nOutput: null\nExplanation: The lists do not intersect.</pre></div><p><strong>Constraints</strong></p><ul><li>The number of nodes of listA is m.</li><li>The number of nodes of listB is n.</li><li>1 &lt;= m, n &lt;= 3 * 10^4</li></ul>",
           "answer": "<p><strong>Problem:</strong> Find merge point of two singly linked lists (Y-shape).</p>\n<p><strong>Two-pointer switch:</strong> pointers traverse A then B (and vice versa). When lengths differ, after switch they align and meet at intersection (or both null).</p>\n<p><strong>Complexity:</strong> O(N+M) time, O(1) space. <strong>Alt:</strong> length diff method; HashSet of nodes.</p>",
           "solutions": [
             {
@@ -403,7 +403,7 @@
             "Linked List"
           ],
           "category": "Linked Lists",
-          "body": "F2F Round 3 (MMT Set-4 GFG). In most efficient way (in-place).",
+          "body": "<p>Given the head of a singly linked list, reverse <strong>only the second half</strong> in-place and return the head. For an odd-length list, the first half is the longer one (the middle node stays in the first half). Do this in O(1) extra space.</p><div class=\"example\"><div class=\"example-label\">Example 1</div><pre>Input: head = [1,2,3,4,5]\nOutput: [1,2,3,5,4]\nExplanation: Second half is [4,5], reversed to [5,4].</pre></div><div class=\"example\"><div class=\"example-label\">Example 2</div><pre>Input: head = [1,2,3,4]\nOutput: [1,2,4,3]\nExplanation: Second half is [3,4], reversed to [4,3].</pre></div><p><strong>Constraints</strong></p><ul><li>0 &lt;= number of nodes &lt;= 10^4</li><li>0 &lt;= Node.val &lt;= 1000</li></ul>",
           "answer": "<p><strong>Problem:</strong> Reverse only the second half of the list in-place.</p>\n<p><strong>Steps:</strong></p>\n<ol>\n<li>Guard empty / single node.</li>\n<li>Slow/fast to find mid (slow at end of first half).</li>\n<li>Standard iterative reverse from <code>slow→next</code>; reconnect <code>slow→next = newHead</code>.</li>\n</ol>\n<p><strong>Complexity:</strong> O(N) / O(1). Decide odd-length mid convention with interviewer (first half longer vs second).</p>",
           "solutions": [
             {
@@ -428,7 +428,7 @@
             "Tree"
           ],
           "category": "Trees & Graphs",
-          "body": "Disguised as a real-world problem: \"return the closest common manager of two employees\". You can design the Emp class — the key insight is it's an LCA problem on a general tree, not necessarily a BST. MMT SDE/SSE-2 Round 1, Oct 2024. Also asked in campus rounds as standard binary tree LCA.",
+          "body": "<p>You are given an org chart: each employee has a name and a parent (manager) pointer, forming a tree rooted at the CEO. Given two employees <code>a</code> and <code>b</code>, return their <strong>closest common manager</strong> (the lowest common ancestor). You may design the <code>Employee</code> class.</p><div class=\"example\"><div class=\"example-label\">Example 1</div><pre>Input: CEO\n       /  \\\n      A    C\n     /\n    B\na = B, b = C\nOutput: CEO\nExplanation: CEO is the closest manager shared by B and C.</pre></div><div class=\"example\"><div class=\"example-label\">Example 2</div><pre>Input: same tree, a = A, b = B\nOutput: A\nExplanation: A manages B, so A is the closest common manager.</pre></div><p><strong>Constraints</strong></p><ul><li>The org chart is a tree (one parent each, except CEO).</li><li>a and b exist in the tree.</li></ul>",
           "answer": "<p><strong>Problem:</strong> LCA framed as “common manager” of two employees.</p>\n<p><strong>With parent pointers:</strong> walk both to root collecting ancestors; first shared is LCA. Or depth-align then climb together.</p>\n<p><strong>Classic BT LCA (no parent):</strong> recurse — if root is p or q return root; if both sides nonempty return root; else return nonempty side.</p>\n<p><strong>Complexity:</strong> O(N). Mention MMT often uses the org-chart / parent-pointer story.</p>",
           "solutions": [
             {
@@ -454,7 +454,7 @@
             "BST"
           ],
           "category": "Trees & Graphs",
-          "body": "",
+          "body": "<p>Given the <code>root</code> of a binary tree, determine if it is a valid binary search tree (BST). A valid BST is defined as follows: the left subtree of a node contains only nodes with keys <strong>less than</strong> the node's key; the right subtree contains only nodes with keys <strong>greater than</strong> the node's key; both subtrees are also BSTs.</p><div class=\"example\"><div class=\"example-label\">Example 1</div><pre>Input: root = [2,1,3]\nOutput: true</pre></div><div class=\"example\"><div class=\"example-label\">Example 2</div><pre>Input: root = [5,1,4,null,null,3,6]\nOutput: false\nExplanation: 3 is in the right subtree of 5 but is not greater than 5.</pre></div><p><strong>Constraints</strong></p><ul><li>The number of nodes is in [1, 10^4].</li><li>-2^31 &lt;= Node.val &lt;= 2^31 - 1</li></ul>",
           "answer": "<p><strong>Problem:</strong> Validate BST — every node in (low, high) range.</p>\n<p><strong>Idea:</strong> DFS with bounds. Left child must be &lt; node.val with updated high; right &gt; node with updated low. Use long sentinels to avoid INT overflow.</p>\n<p><strong>Wrong approach:</strong> only check local parent-child — misses deeper violations.</p>\n<p><strong>Complexity:</strong> O(N). Inorder strictly increasing is an equivalent check.</p>",
           "solutions": [
             {
@@ -479,7 +479,7 @@
             "Tree BFS"
           ],
           "category": "Trees & Graphs",
-          "body": "Senior Software Engineer interview (GFG 2019). Recursive level-based approach.",
+          "body": "<p>Given the <code>root</code> of a binary tree, return the <strong>left view</strong>: the list of node values you see if you stand on the left side of the tree (the first node of each level from the left).</p><div class=\"example\"><div class=\"example-label\">Example 1</div><pre>Input: root = [1,2,3,4,5]\nOutput: [1,2,4]\nExplanation: Level 0 shows 1, level 1 shows 2 (before 3), level 2 shows 4 (before 5).</pre></div><div class=\"example\"><div class=\"example-label\">Example 2</div><pre>Input: root = [1,2,3,null,4,null,null,5]\nOutput: [1,2,4,5]</pre></div><p><strong>Constraints</strong></p><ul><li>The number of nodes is in [0, 10^4].</li><li>-100 &lt;= Node.val &lt;= 100</li></ul>",
           "answer": "<p><strong>Problem:</strong> Left view — first node seen at each depth from the left.</p>\n<p><strong>DFS:</strong> preorder preferring left; record node when depth first visited.</p>\n<p><strong>BFS:</strong> level-order; take the first node of each level.</p>\n<p><strong>Complexity:</strong> O(N). Symmetric for right view (prefer right / take last in level).</p>",
           "solutions": [
             {
@@ -499,7 +499,7 @@
             "Tree"
           ],
           "category": "Trees & Graphs",
-          "body": "F2F Round 3 (MMT Set-4 GFG).",
+          "body": "<p>Given the <code>root</code> of a binary tree, return its <strong>vertical order traversal</strong>. Columns are indexed by horizontal distance (root = 0, left child = parent − 1, right child = parent + 1). Within a column, nodes appear top to bottom. Return columns from leftmost to rightmost.</p><div class=\"example\"><div class=\"example-label\">Example 1</div><pre>Input: root = [3,9,20,null,null,15,7]\nOutput: [[9],[3,15],[20],[7]]</pre></div><div class=\"example\"><div class=\"example-label\">Example 2</div><pre>Input: root = [1,2,3,4,5,6,7]\nOutput: [[4],[2],[1,5,6],[3],[7]]</pre></div><p><strong>Constraints</strong></p><ul><li>The number of nodes is in [0, 1000].</li><li>-1000 &lt;= Node.val &lt;= 1000</li></ul>",
           "answer": "<p><strong>Problem:</strong> Vertical order — group nodes by horizontal distance (root 0, left −1, right +1).</p>\n<p><strong>BFS + map:</strong> queue of (node, hd); insert into <code>map&lt;hd, list&gt;</code>. BFS keeps top-to-bottom order within a column. Sort keys for left→right output.</p>\n<p><strong>LC 987</strong> also sorts by row then value — clarify which variant.</p>\n<p><strong>Complexity:</strong> O(N log C) if tree-map, C = distinct columns.</p>",
           "solutions": [
             {
@@ -524,7 +524,7 @@
             "Backtracking"
           ],
           "category": "Trees & Graphs",
-          "body": "Technical Interview Round 1 (Software Engineer, 2020). Rat-in-a-maze style — find any path or longest path in binary matrix with walls.",
+          "body": "<p>You are given an <code>n x m</code> binary matrix <code>grid</code>. A cell with <code>0</code> is open; a cell with <code>1</code> is a wall. You start at <code>(0, 0)</code> and want to reach <code>(n-1, m-1)</code>. You may move up, down, left, or right through open cells. Return <code>true</code> if any path exists, otherwise <code>false</code>. Assume the start and end cells are open.</p><div class=\"example\"><div class=\"example-label\">Example 1</div><pre>Input: grid = [[0,0,1],[0,0,0],[1,0,0]]\nOutput: true\nExplanation: One path is (0,0) → (1,0) → (1,1) → (1,2) → (2,2).</pre></div><div class=\"example\"><div class=\"example-label\">Example 2</div><pre>Input: grid = [[0,1],[1,0]]\nOutput: false\nExplanation: The destination is blocked off from the start.</pre></div><p><strong>Constraints</strong></p><ul><li>1 &lt;= n, m &lt;= 100</li><li>grid[i][j] is 0 or 1.</li></ul>",
           "answer": "<p><strong>Problem:</strong> Path in binary matrix / rat-in-maze — move to destination on open cells.</p>\n<p><strong>Backtracking / DFS:</strong> mark visited, try 4 (or 8) directions, unmark on failure (if paths must reuse). BFS if only existence/shortest path needed.</p>\n<p><strong>Complexity:</strong> exponential worst-case for all paths; BFS shortest is O(N²) on grid.</p>",
           "solutions": [
             {
@@ -544,7 +544,7 @@
             "Tree DP"
           ],
           "category": "Trees & Graphs",
-          "body": "OA Round 2 (Software Engineer 2020). N nodes, N-1 edges. Each node has a value. Find edge to cut minimising |sum1 - sum2|.",
+          "body": "<p>A tree has <code>n</code> nodes (0-indexed) and <code>n-1</code> edges. Each node has an integer value. Choose one edge to remove so that the absolute difference between the sums of the two resulting components is minimised. Return that minimum difference.</p><div class=\"example\"><div class=\"example-label\">Example 1</div><pre>Input: n = 4, edges = [[0,1],[0,2],[0,3]], values = [6,2,4,1]\nOutput: 5\nExplanation: Cutting 0-2 splits sums 4 and 9; |4-9| = 5, which is the minimum.</pre></div><div class=\"example\"><div class=\"example-label\">Example 2</div><pre>Input: n = 2, edges = [[0,1]], values = [1,1]\nOutput: 0</pre></div><p><strong>Constraints</strong></p><ul><li>2 &lt;= n &lt;= 10^5</li><li>The graph is a tree.</li><li>-10^4 &lt;= values[i] &lt;= 10^4</li></ul>",
           "answer": "<p><strong>Problem:</strong> Remove one edge to minimise |sum(component1) − sum(component2)|.</p>\n<p><strong>Idea:</strong> total sum S. DFS returns subtree sum <code>sub</code>. Cutting the edge to parent splits into <code>sub</code> and <code>S−sub</code>; difference <code>|S−2·sub|</code>.</p>\n<p><strong>Critical:</strong> do <strong>not</strong> update the answer at the root (no edge above root) — that forces difference 0 incorrectly.</p>\n<p><strong>Complexity:</strong> O(N).</p>",
           "solutions": [
             {
@@ -564,7 +564,7 @@
             "Graph/Tarjan"
           ],
           "category": "Trees & Graphs",
-          "body": "Naukri Code360 — SDE-1 campus (Sep/Oct 2022). Find all critical edges whose removal disconnects the network.",
+          "body": "<p>There are <code>n</code> servers numbered from <code>0</code> to <code>n - 1</code> connected by undirected <code>connections</code>. A <em>critical connection</em> is an edge whose removal disconnects the network. Return all critical connections (bridges). You may return the answer in any order.</p><div class=\"example\"><div class=\"example-label\">Example 1</div><pre>Input: n = 4, connections = [[0,1],[1,2],[2,0],[1,3]]\nOutput: [[1,3]]\nExplanation: Removing [1,3] disconnects server 3. The triangle 0-1-2 has no bridge.</pre></div><div class=\"example\"><div class=\"example-label\">Example 2</div><pre>Input: n = 2, connections = [[0,1]]\nOutput: [[0,1]]</pre></div><p><strong>Constraints</strong></p><ul><li>2 &lt;= n &lt;= 10^5</li><li>1 &lt;= connections.length &lt;= 10^5</li><li>0 &lt;= ai, bi &lt;= n - 1</li><li>No repeated edges; the graph may be disconnected.</li></ul>",
           "answer": "<p><strong>Problem:</strong> Critical connections / bridges in an undirected graph.</p>\n<p><strong>Tarjan:</strong> discovery time <code>tin</code>, low-link <code>low</code>. Edge u–v is a bridge if <code>low[v] &gt; tin[u]</code> (subtree of v can’t reach u or above).</p>\n<p><strong>Complexity:</strong> O(V+E). Handle multi-edges carefully; ignore parent edge in undirected DFS.</p>",
           "solutions": [
             {
@@ -590,7 +590,7 @@
             "Graph BFS/Dijkstra"
           ],
           "category": "Trees & Graphs",
-          "body": "",
+          "body": "<p>You are given a weighted undirected graph with <code>n</code> nodes and a source node <code>src</code>. Edge weights are <strong>non-negative</strong>. Return an array <code>dist</code> where <code>dist[i]</code> is the shortest-path distance from <code>src</code> to <code>i</code>. If a node is unreachable, use <code>-1</code>.</p><div class=\"example\"><div class=\"example-label\">Example 1</div><pre>Input: n = 5, edges = [[0,1,2],[0,2,4],[1,2,1],[1,3,7],[2,4,3]], src = 0\nOutput: [0, 2, 3, 9, 6]\nExplanation: 0→1 is 2; 0→1→2 is 3; 0→1→3 is 9; 0→1→2→4 is 6.</pre></div><div class=\"example\"><div class=\"example-label\">Example 2</div><pre>Input: n = 3, edges = [[0,1,1]], src = 0\nOutput: [0, 1, -1]</pre></div><p><strong>Constraints</strong></p><ul><li>1 &lt;= n &lt;= 10^4</li><li>0 &lt;= edges.length &lt;= 10^5</li><li>0 &lt;= weight &lt;= 10^4</li></ul>",
           "answer": "<p><strong>Problem:</strong> Shortest paths from a source on non-negative weighted graph.</p>\n<p><strong>Dijkstra:</strong> min-heap of (dist, node); relax neighbours when improvement found. Skip outdated heap entries.</p>\n<p><strong>Complexity:</strong> O((V+E) log V) binary heap. <strong>Not for negative weights</strong> — use Bellman-Ford. Unweighted → plain BFS.</p>",
           "solutions": [
             {
@@ -610,7 +610,7 @@
             "Math"
           ],
           "category": "Trees & Graphs",
-          "body": "OA Round 1 (Software Engineer 2020). Starting from (1,1), move to (a+b,b) or (a,a+b). Check if (x,y) is reachable. Hint: gcd(x,y) must equal 1.",
+          "body": "<p>You start at coordinate <code>(1, 1)</code>. In one move from <code>(a, b)</code> you may go to <code>(a+b, b)</code> or <code>(a, a+b)</code>. Given positive integers <code>x</code> and <code>y</code>, return <code>true</code> if <code>(x, y)</code> is reachable, otherwise <code>false</code>.</p><div class=\"example\"><div class=\"example-label\">Example 1</div><pre>Input: x = 3, y = 5\nOutput: true\nExplanation: gcd(3, 5) = 1, and every move preserves gcd, starting from gcd(1, 1) = 1.</pre></div><div class=\"example\"><div class=\"example-label\">Example 2</div><pre>Input: x = 2, y = 4\nOutput: false\nExplanation: gcd(2, 4) = 2 ≠ 1, so (2, 4) is unreachable.</pre></div><p><strong>Constraints</strong></p><ul><li>1 &lt;= x, y &lt;= 10^9</li></ul>",
           "answer": "<p><strong>Problem:</strong> From (1,1) moves (a,b)→(a+b,b) or (a,a+b); can you reach (x,y)?</p>\n<p><strong>Insight:</strong> moves preserve gcd. Since gcd(1,1)=1, reachable iff <code>gcd(x,y)==1</code> (for positive targets as stated).</p>\n<p><strong>Complexity:</strong> O(log min(x,y)). Confirm constraints (only positive quadrant, etc.).</p>",
           "solutions": [
             {
@@ -636,7 +636,7 @@
             "DP"
           ],
           "category": "Dynamic Programming",
-          "body": "SDE-2 (4 years exp) GFG — Round 1. Classic DP similar to LIS but maximising sum instead of length.",
+          "body": "<p>Given an array of <code>n</code> positive integers, find the <strong>maximum sum</strong> of an increasing subsequence (elements need not be contiguous, but must stay in order and be strictly increasing).</p><div class=\"example\"><div class=\"example-label\">Example 1</div><pre>Input: arr = [1, 101, 2, 3, 100, 4, 5]\nOutput: 106\nExplanation: 1 + 2 + 3 + 100 = 106.</pre></div><div class=\"example\"><div class=\"example-label\">Example 2</div><pre>Input: arr = [10, 5, 4, 3]\nOutput: 10\nExplanation: The best increasing subsequence is just [10].</pre></div><p><strong>Constraints</strong></p><ul><li>1 &lt;= n &lt;= 1000</li><li>1 &lt;= arr[i] &lt;= 10^5</li></ul>",
           "answer": "<p><strong>Problem:</strong> Maximum sum of an increasing subsequence (not necessarily contiguous).</p>\n<p><strong>DP:</strong> <code>dp[i] = val[i] + max{ dp[j] | j&lt;i, val[j]&lt;val[i] }</code> (or just val[i]). Answer = max dp.</p>\n<p><strong>Complexity:</strong> O(N²). Mentions of O(N log N) usually refer to length (Patience LIS), not sum — different problem.</p>",
           "solutions": [
             {
@@ -657,7 +657,7 @@
             "HashSet"
           ],
           "category": "Dynamic Programming",
-          "body": "SDE-1 Backend (GFG 2022, 2024). Given an unsorted array, find the longest consecutive sequence. O(N) HashSet approach expected.",
+          "body": "<p>Given an unsorted array of integers <code>nums</code>, return the length of the longest consecutive elements sequence. You must write an algorithm that runs in <code>O(n)</code> time.</p><div class=\"example\"><div class=\"example-label\">Example 1</div><pre>Input: nums = [100,4,200,1,3,2]\nOutput: 4\nExplanation: The longest consecutive sequence is [1, 2, 3, 4].</pre></div><div class=\"example\"><div class=\"example-label\">Example 2</div><pre>Input: nums = [0,3,7,2,5,8,4,6,0,1]\nOutput: 9\nExplanation: The sequence is 0 through 8.</pre></div><p><strong>Constraints</strong></p><ul><li>0 &lt;= nums.length &lt;= 10^5</li><li>-10^9 &lt;= nums[i] &lt;= 10^9</li></ul>",
           "answer": "<p><strong>Problem:</strong> Longest consecutive sequence in unsorted array — O(N) expected.</p>\n<p><strong>HashSet:</strong> insert all. Only start a streak at <code>x</code> when <code>x−1</code> absent; count <code>x, x+1, …</code>.</p>\n<p>Each number enters the inner loop once → O(N). Sorting would be O(N log N).</p>",
           "solutions": [
             {
@@ -683,7 +683,7 @@
             "Backtracking"
           ],
           "category": "Dynamic Programming",
-          "body": "SDE-1 Managerial round (GFG 2022 — selected). Recursive approach, recursion tree dry-run. Follow-up: handle duplicates using a Set.",
+          "body": "<p>Given a string <code>s</code> of distinct characters, return <strong>all permutations</strong> of <code>s</code>. You may return them in any order. Follow-up: if <code>s</code> contains duplicate characters, return each unique permutation once.</p><div class=\"example\"><div class=\"example-label\">Example 1</div><pre>Input: s = \"ABC\"\nOutput: [\"ABC\",\"ACB\",\"BAC\",\"BCA\",\"CAB\",\"CBA\"]</pre></div><div class=\"example\"><div class=\"example-label\">Example 2</div><pre>Input: s = \"AAB\"\nOutput: [\"AAB\",\"ABA\",\"BAA\"]\nExplanation: Duplicate-aware follow-up — each distinct permutation once.</pre></div><p><strong>Constraints</strong></p><ul><li>1 &lt;= s.length &lt;= 8</li><li>s consists of English letters.</li></ul>",
           "answer": "<p><strong>Problem:</strong> All permutations of a string / array.</p>\n<p><strong>Backtracking:</strong> swap-choose-recurse-unswap, or build path with used[]. Deduplicate with sort + skip identical siblings if duplicates exist.</p>\n<p><strong>Complexity:</strong> O(N·N!) time to output. Discuss heap’s algorithm only if asked.</p>",
           "solutions": [
             {
@@ -703,7 +703,7 @@
             "DP"
           ],
           "category": "Dynamic Programming",
-          "body": "Campus interview (Naukri Code360 Sep 2022). 2D DP problem.",
+          "body": "<p>Given <code>n</code> dice, each with <code>f</code> faces numbered <code>1</code> to <code>f</code>, return the number of ways to get sum <code>target</code>. Since the answer may be large, return it modulo <code>10^9 + 7</code>. Two ways are different if at least one die shows a different face.</p><div class=\"example\"><div class=\"example-label\">Example 1</div><pre>Input: n = 1, f = 6, target = 3\nOutput: 1\nExplanation: Only (3).</pre></div><div class=\"example\"><div class=\"example-label\">Example 2</div><pre>Input: n = 2, f = 6, target = 7\nOutput: 6\nExplanation: (1,6), (2,5), (3,4), (4,3), (5,2), (6,1).</pre></div><p><strong>Constraints</strong></p><ul><li>1 &lt;= n, f &lt;= 30</li><li>1 &lt;= target &lt;= 1000</li></ul>",
           "answer": "<p><strong>Problem:</strong> Number of ways to get sum X with N dice of F faces.</p>\n<p><strong>DP:</strong> <code>dp[n][s]</code> = ways with n dice summing to s. Transition: add face 1..F from <code>dp[n−1][s−face]</code>.</p>\n<p>Space-optimise to 1D rolling arrays. Mod 10^9+7 if required.</p>\n<p><strong>Complexity:</strong> O(N·X·F).</p>",
           "solutions": [
             {
@@ -723,7 +723,7 @@
             "Backtracking"
           ],
           "category": "Dynamic Programming",
-          "body": "F2F Round 3 (MMT Set-4 GFG). Classic recursion/backtracking problem.",
+          "body": "<p>Given <code>n</code> pairs of parentheses, write a function to generate all combinations of well-formed parentheses.</p><div class=\"example\"><div class=\"example-label\">Example 1</div><pre>Input: n = 2\nOutput: [\"(())\",\"()()\"]</pre></div><div class=\"example\"><div class=\"example-label\">Example 2</div><pre>Input: n = 3\nOutput: [\"((()))\",\"(()())\",\"(())()\",\"()(())\",\"()()()\"]</pre></div><p><strong>Constraints</strong></p><ul><li>1 &lt;= n &lt;= 8</li></ul>",
           "answer": "<p><strong>Problem:</strong> All strings with N pairs of balanced parentheses.</p>\n<p><strong>Backtracking:</strong> place <code>(</code> while open &lt; N; place <code>)</code> while close &lt; open. Catalan number of results.</p>\n<p><strong>Complexity:</strong> O(C_n · n) output-sensitive. Classic recursion tree dry-run favourite.</p>",
           "solutions": [
             {
@@ -748,7 +748,7 @@
             "DP/HashMap"
           ],
           "category": "Dynamic Programming",
-          "body": "Technical Round 2 (Software Engineer, 2020). Brute force → HashSet optimisation.",
+          "body": "<p>Given a string <code>s</code>, find the longest substring that appears at least twice in <code>s</code> <strong>without overlapping</strong>. If several answers have the same length, return any. If none exists, return <code>\"\"</code>.</p><div class=\"example\"><div class=\"example-label\">Example 1</div><pre>Input: s = \"aab\"\nOutput: \"a\"\nExplanation: \"a\" occurs at indices 0 and 1 and those occurrences do not overlap.</pre></div><div class=\"example\"><div class=\"example-label\">Example 2</div><pre>Input: s = \"aabaabaaba\"\nOutput: \"aaba\"\nExplanation: \"aaba\" starts at index 0 and again at index 4; the spans [0,3] and [4,7] do not overlap.</pre></div><p><strong>Constraints</strong></p><ul><li>1 &lt;= s.length &lt;= 500</li><li>s consists of lowercase English letters.</li></ul>",
           "answer": "<p><strong>Problem:</strong> Longest repeating non-overlapping substring (classic DP variant).</p>\n<p><strong>DP:</strong> <code>dp[i][j]</code> = length of repeating substring ending at i and j with no overlap (|i−j| &gt; dp). Track global max length/substring.</p>\n<p><strong>Complexity:</strong> O(N²). Clarify exact GFG statement — definitions vary slightly.</p>",
           "solutions": [
             {
@@ -773,7 +773,7 @@
             "Stack/HashMap"
           ],
           "category": "Stacks, Queues & Heaps",
-          "body": "SDE-1 Round 2 (GFG 2022, 2024). Design a stack that returns the most frequently pushed element. Complex data structure design using HashMap of stacks.",
+          "body": "<p>Design a stack-like data structure <code>FreqStack</code> that supports <code>push(int val)</code> and <code>pop()</code>. <code>pop</code> removes and returns the most frequent element. If there is a tie, remove the one closest to the top of the stack.</p><div class=\"example\"><div class=\"example-label\">Example 1</div><pre>Input:\n[\"FreqStack\",\"push\",\"push\",\"push\",\"push\",\"push\",\"push\",\"pop\",\"pop\",\"pop\",\"pop\"]\n[[],[5],[7],[5],[7],[4],[5],[],[],[],[]]\nOutput: [null,null,null,null,null,null,null,5,7,5,4]\nExplanation: 5 is most frequent (3). After popping it, 5 and 7 both have frequency 2; 7 was pushed later, so pop 7 next.</pre></div><div class=\"example\"><div class=\"example-label\">Example 2</div><pre>Input: push(1), push(1), pop(), pop()\nOutput: 1, 1</pre></div><p><strong>Constraints</strong></p><ul><li>At most 2 * 10^4 calls.</li><li>0 &lt;= val &lt;= 10^9</li><li>pop is never called on an empty stack.</li></ul>",
           "answer": "<p><strong>Problem:</strong> FreqStack — push/pop; pop most frequent, ties → most recent.</p>\n<p><strong>Structure:</strong> val→freq map; freq→stack of vals; track maxfreq. Push updates freq and pushes into that freq’s stack. Pop from maxfreq stack; decrease freq; maybe decrement maxfreq.</p>\n<p><strong>Complexity:</strong> Amortised O(1) per op. Beautiful MMT/heap alternative discussion.</p>",
           "solutions": [
             {
@@ -798,7 +798,7 @@
             "Heap"
           ],
           "category": "Stacks, Queues & Heaps",
-          "body": "",
+          "body": "<p>Given an integer array <code>nums</code> and an integer <code>k</code>, return the <code>k</code>th largest element in the array. Note that it is the <code>k</code>th largest in sorted order, not the <code>k</code>th distinct element.</p><div class=\"example\"><div class=\"example-label\">Example 1</div><pre>Input: nums = [3,2,1,5,6,4], k = 2\nOutput: 5</pre></div><div class=\"example\"><div class=\"example-label\">Example 2</div><pre>Input: nums = [3,2,3,1,2,4,5,5,6], k = 4\nOutput: 4</pre></div><p><strong>Constraints</strong></p><ul><li>1 &lt;= k &lt;= nums.length &lt;= 10^5</li><li>-10^4 &lt;= nums[i] &lt;= 10^4</li></ul>",
           "answer": "<p><strong>Problem:</strong> Kth largest in array (or stream).</p>\n<p><strong>Heap-of-K:</strong> min-heap size K; push if larger than top; top is Kth largest.</p>\n<p><strong>Complexity:</strong> O(N log K). Quickselect expected O(N). Stream variant: same heap maintained online.</p>",
           "solutions": [
             {
@@ -823,7 +823,7 @@
             "Design"
           ],
           "category": "Stacks, Queues & Heaps",
-          "body": "Naukri Code360 SDE-1 Aug 2024 F2F (pen & paper round). Doubly linked list + HashMap. O(1) get and put.",
+          "body": "<p>Design a data structure that follows the constraints of a <strong>Least Recently Used (LRU) cache</strong>. Implement <code>LRUCache(int capacity)</code>, <code>get(int key)</code> (return the value, or <code>-1</code> if missing; counts as a use), and <code>put(int key, int value)</code> (insert or update; if over capacity, evict the least recently used key). Both operations must be <code>O(1)</code> average time.</p><div class=\"example\"><div class=\"example-label\">Example 1</div><pre>Input:\n[\"LRUCache\",\"put\",\"put\",\"get\",\"put\",\"get\",\"put\",\"get\",\"get\",\"get\"]\n[[2],[1,1],[2,2],[1],[3,3],[2],[4,4],[1],[3],[4]]\nOutput: [null,null,null,1,null,-1,null,-1,3,4]\nExplanation: capacity 2. put(3,3) evicts key 2. put(4,4) evicts key 1.</pre></div><div class=\"example\"><div class=\"example-label\">Example 2</div><pre>Input: capacity = 1; put(1,1); put(2,2); get(1); get(2)\nOutput: -1, 2</pre></div><p><strong>Constraints</strong></p><ul><li>1 &lt;= capacity &lt;= 3000</li><li>0 &lt;= key, value &lt;= 10^4</li><li>At most 2 * 10^5 calls.</li></ul>",
           "answer": "<p><strong>Problem:</strong> LRU Cache — O(1) get/put.</p>\n<p><strong>HashMap + doubly linked list:</strong> map key→node; list order = recency (head newest). get moves node to head; put updates/evicts tail when over capacity.</p>\n<p><strong>Complexity:</strong> O(1) average. Mention Java <code>LinkedHashMap</code> access-order as production shortcut, but implement DLL in interviews.</p>",
           "solutions": [
             {
@@ -848,7 +848,7 @@
             "Stack/Queue"
           ],
           "category": "Stacks, Queues & Heaps",
-          "body": "Naukri Code360 SDE-1 campus Oct 2022.",
+          "body": "<p>Implement a stack using queues, and a queue using stacks. Support the usual operations: for the stack, <code>push</code>, <code>pop</code>, <code>top</code>, <code>empty</code>; for the queue, <code>push</code>, <code>pop</code>, <code>peek</code>, <code>empty</code>. State the complexity of each operation.</p><div class=\"example\"><div class=\"example-label\">Example 1</div><pre>Stack using queues:\npush(1)\npush(2)\ntop()\nOutput: 2\npop()\nOutput: 2\nempty()\nOutput: false</pre></div><div class=\"example\"><div class=\"example-label\">Example 2</div><pre>Queue using two stacks:\npush(1)\npush(2)\npeek()\nOutput: 1\npop()\nOutput: 1\npop()\nOutput: 2\nempty()\nOutput: true</pre></div><p><strong>Constraints</strong></p><ul><li>1 &lt;= x &lt;= 9</li><li>At most 100 calls.</li><li>pop/top/peek are never called on an empty structure.</li></ul>",
           "answer": "<p><strong>Problem:</strong> Implement stack using queues and/or queue using stacks.</p>\n<p><strong>Stack via queue:</strong> on push, enqueue then rotate older elements behind (or lazy on pop).</p>\n<p><strong>Queue via two stacks:</strong> in-stack for enqueue; out-stack for dequeue — pour when out empty (amortised O(1)).</p>\n<p>State which variant you implement and complexity of each op.</p>",
           "solutions": [
             {
@@ -878,7 +878,7 @@
             "Design+Concurrency"
           ],
           "category": "Concurrency Coding (C++ reference; implement in Java at MMT)",
-          "body": "Senior Engineer Round 2 (GFG 2019) and Glassdoor Java Developer. Design put(), hashCode/equals, collision handling (chaining), then make put() thread-safe using synchronized. Follow-up: why default capacity is 16 (power of 2 for fast modulo via bitmask).",
+          "body": "<p>Implement a hash map from scratch in Java with <code>put(key, value)</code>, <code>get(key)</code>, and <code>remove(key)</code>. Handle collisions with separate chaining. Then make <code>put</code> thread-safe. Be ready to explain why the default capacity is 16 and why capacity stays a power of two.</p><div class=\"example\"><div class=\"example-label\">Example 1</div><pre>Input: put(1, 10), put(2, 20), get(1), put(2, 30), get(2), remove(1), get(1)\nOutput: 10, 30, null\nExplanation: The second put updates key 2. After remove, key 1 is absent.</pre></div><div class=\"example\"><div class=\"example-label\">Example 2</div><pre>Input: two threads call put on different keys at the same time\nOutput: both entries are visible afterwards; neither write is lost.\nExplanation: A global synchronized put is correct but coarse. Per-bucket / striped locking is the expected discussion.</pre></div><p><strong>Constraints</strong></p><ul><li>Keys and values are integers for the coding part.</li><li>Load factor 0.75; rehash when size exceeds capacity * load factor.</li></ul>",
           "answer": "<p><strong>Problem:</strong> Thread-safe HashMap from scratch (MMT loves Java follow-up).</p>\n<p><strong>Core:</strong> array of buckets; hash &amp; (cap−1) requires power-of-two capacity; separate chaining; rehash at load factor 0.75.</p>\n<p><strong>Thread-safety:</strong> synchronize per bucket / striped locks (ConcurrentHashMap inspiration), or ConcurrentHashMap segments. Naive global <code>synchronized</code> is correct but contended.</p>\n<p>Explain why capacity 16 and bitmask vs modulo — classic MMT Q.</p>",
           "solutions": [
             {
@@ -899,7 +899,7 @@
             "Threading"
           ],
           "category": "Concurrency Coding (C++ reference; implement in Java at MMT)",
-          "body": "",
+          "body": "<p>You are given a list of URLs and a keyword. Download the HTML of each URL <strong>concurrently</strong> and count how many times the keyword occurs in each page. Return a list of <code>[url, keyword, count]</code>. A failed download should not fail the whole batch — record count <code>-1</code> for that URL.</p><div class=\"example\"><div class=\"example-label\">Example 1</div><pre>Input: urls = [\"https://a.example\", \"https://b.example\"], keyword = \"offer\"\nPage a contains \"offer\" twice; page b contains it zero times.\nOutput: [[\"https://a.example\",\"offer\",2], [\"https://b.example\",\"offer\",0]]</pre></div><div class=\"example\"><div class=\"example-label\">Example 2</div><pre>Input: urls = [\"https://down.example\"], keyword = \"mmt\"\nThe download throws / times out.\nOutput: [[\"https://down.example\",\"mmt\",-1]]</pre></div><p><strong>Constraints</strong></p><ul><li>1 &lt;= urls.length &lt;= 100</li><li>Use a thread pool or CompletableFuture, not one thread per URL unbounded.</li><li>Do not block the common ForkJoinPool on network I/O.</li></ul>",
           "answer": "<p><strong>Problem:</strong> Download several HTML pages concurrently; count occurrences of a keyword; gather results.</p>\n<p><strong>Java approach:</strong> <code>ExecutorService</code> / <code>CompletableFuture</code> per URL; each task returns <code>(url, keyword, count)</code>; <code>AtomicInteger</code> only if sharing one counter. Join with <code>invokeAll</code> / <code>allOf</code>.</p>\n<p>Discuss timeouts, failure isolation, and not blocking the common ForkJoin pool on I/O — use a dedicated executor.</p>",
           "solutions": [
             {
@@ -920,7 +920,7 @@
             "Concurrency"
           ],
           "category": "Concurrency Coding (C++ reference; implement in Java at MMT)",
-          "body": "",
+          "body": "<p>Implement a thread-safe Builder that several threads may use to set fields of an object and then <code>build()</code> it. The interviewer will reject a solution that synchronizes every setter as “blocking”. Prefer an immutable builder (each setter returns a new builder) or <code>AtomicReference</code> / CAS.</p><div class=\"example\"><div class=\"example-label\">Example 1</div><pre>Input: thread A sets name = \"Ash\", thread B sets role = \"SDE\"; then build()\nOutput: a single object {name: \"Ash\", role: \"SDE\"} with no torn fields.\nExplanation: Immutable copies (or a CAS loop on the product) publish a consistent snapshot.</pre></div><div class=\"example\"><div class=\"example-label\">Example 2</div><pre>Input: two threads set the same field, last write wins\nOutput: exactly one of the two values is visible; never a partial string / half-updated reference.</pre></div><p><strong>Constraints</strong></p><ul><li>Fields are references or immutables.</li><li>build() must be safe to call once the setters that should be included have happened.</li></ul>",
           "answer": "<p><strong>Problem:</strong> Thread-safe Builder — interviewers may reject coarse <code>synchronized</code>.</p>\n<p><strong>Options:</strong></p>\n<ul>\n<li><strong>Immutable builder:</strong> each setter returns a new builder copy — no shared mutable state.</li>\n<li><strong>AtomicReference&lt;T&gt;:</strong> CAS the product being built.</li>\n</ul>\n<p>Explain why synchronized works but is “blocking”; show you know non-blocking alternatives.</p>",
           "solutions": [
             {
@@ -946,7 +946,7 @@
             "Recursion"
           ],
           "category": "Misc / OA Problems",
-          "body": "On-campus technical round (SDE GFG). Classic recursion.",
+          "body": "<p>The Tower of Hanoi puzzle has three rods and <code>n</code> disks of different sizes, stacked on the source rod in decreasing size. Move the entire stack to the target rod, using the auxiliary rod. You may move only one disk at a time, and you may never place a larger disk on a smaller one. Print the sequence of moves, or return the number of moves.</p><div class=\"example\"><div class=\"example-label\">Example 1</div><pre>Input: n = 2, from = \"A\", to = \"C\", aux = \"B\"\nOutput:\nMove disk 1 from A to B\nMove disk 2 from A to C\nMove disk 1 from B to C\nExplanation: 3 moves = 2^2 - 1.</pre></div><div class=\"example\"><div class=\"example-label\">Example 2</div><pre>Input: n = 3\nOutput: 7 moves\nExplanation: T(n) = 2T(n-1) + 1 = 2^n - 1.</pre></div><p><strong>Constraints</strong></p><ul><li>1 &lt;= n &lt;= 16 if you print every move.</li><li>Rod names are distinct.</li></ul>",
           "answer": "<p><strong>Problem:</strong> Tower of Hanoi — move N disks from src to dest via aux.</p>\n<p><strong>Recurrence:</strong> move N−1 to aux, move largest to dest, move N−1 onto dest. <code>T(N)=2T(N−1)+1 = 2^N−1</code> moves.</p>\n<p>Dry-run N=3; mention stack depth O(N).</p>",
           "solutions": [
             {
@@ -967,7 +967,7 @@
             "Array"
           ],
           "category": "Misc / OA Problems",
-          "body": "",
+          "body": "<p>Given an integer array <code>nums</code>, you need to find the shortest contiguous subarray that, if sorted, makes the whole array sorted in non-decreasing order. Return the length of that subarray. If the array is already sorted, return <code>0</code>.</p><div class=\"example\"><div class=\"example-label\">Example 1</div><pre>Input: nums = [2,6,4,8,10,9,15]\nOutput: 5\nExplanation: Sort [6,4,8,10,9] and the whole array becomes sorted.</pre></div><div class=\"example\"><div class=\"example-label\">Example 2</div><pre>Input: nums = [1,2,3,4]\nOutput: 0</pre></div><p><strong>Constraints</strong></p><ul><li>1 &lt;= nums.length &lt;= 10^4</li><li>-10^5 &lt;= nums[i] &lt;= 10^5</li></ul>",
           "answer": "<p><strong>Problem:</strong> Shortest unsorted continuous subarray that, if sorted, sorts the whole array.</p>\n<p><strong>Idea:</strong> find leftmost index not matching sorted order / or one-pass: track max from left and min from right to find the window boundaries.</p>\n<p><strong>Complexity:</strong> O(N) clever pass or O(N log N) via sorting copy. Edge: already sorted → length 0.</p>",
           "solutions": [
             {
@@ -992,7 +992,7 @@
             "Math"
           ],
           "category": "Misc / OA Problems",
-          "body": "CodingKaro SSE/SDE Round 1. Josephus Problem variant.",
+          "body": "<p>There are <code>n</code> people standing in a circle, numbered <code>1</code> to <code>n</code>. Counting begins at 1 and proceeds around the circle. Every <code>k</code>-th person is eliminated until only one remains. Return the number of the last remaining person (1-indexed).</p><div class=\"example\"><div class=\"example-label\">Example 1</div><pre>Input: n = 5, k = 2\nOutput: 3\nExplanation: Eliminate 2, 4, 1, 5 in that order. 3 remains.</pre></div><div class=\"example\"><div class=\"example-label\">Example 2</div><pre>Input: n = 7, k = 3\nOutput: 4</pre></div><p><strong>Constraints</strong></p><ul><li>1 &lt;= k &lt;= n &lt;= 10^5</li></ul>",
           "answer": "<p><strong>Problem:</strong> Josephus — every K-th person eliminated in a circle; find survivor.</p>\n<p><strong>DP:</strong> <code>f(1)=0</code> (0-based); <code>f(n)=(f(n−1)+K) % n</code>; convert to 1-based if needed.</p>\n<p><strong>Complexity:</strong> O(N). Simulation with queue is O(NK).</p>",
           "solutions": [
             {
@@ -1012,7 +1012,7 @@
             "Math/Logic"
           ],
           "category": "Misc / OA Problems",
-          "body": "Online coding round (MMT Campus). N walls each with height h[i]. Max jump height = H. Rainy day — slips down l units after each jump. Count total jumps to escape.",
+          "body": "<p>A prisoner must cross <code>n</code> walls. Wall <code>i</code> has height <code>h[i]</code>. In one jump the prisoner gains <code>H</code> units of height. If the wall is not yet cleared, they slip down <code>L</code> units before the next jump. After a wall is cleared, height resets to 0 for the next wall. Return the total number of jumps needed to clear every wall. If it is impossible (no net progress, and a wall is taller than <code>H</code>), return <code>-1</code>.</p><div class=\"example\"><div class=\"example-label\">Example 1</div><pre>Input: h = [10, 10], H = 5, L = 1\nOutput: 6\nExplanation: For one wall of 10: jump to 5 (slip to 4), jump to 9 (slip to 8), jump to 13 (cleared). 3 jumps × 2 walls = 6.</pre></div><div class=\"example\"><div class=\"example-label\">Example 2</div><pre>Input: h = [10], H = 5, L = 5\nOutput: -1\nExplanation: After a failed jump, height returns to 0, so a wall taller than H can never be cleared.</pre></div><p><strong>Constraints</strong></p><ul><li>1 &lt;= n &lt;= 10^4</li><li>1 &lt;= h[i], H &lt;= 10^5</li><li>0 &lt;= L &lt;= 10^5</li></ul>",
           "answer": "<p><strong>Problem:</strong> Prisoner jumps walls of heights <code>h[i]</code> with jump H and slip L each failed attempt.</p>\n<p><strong>Per wall:</strong> accumulate height += H each jump; if still below wall, slip −L and continue. Count jumps.</p>\n<p><strong>Critical:</strong> if <code>H ≤ L</code>, net progress after a failed jump is ≤0 → infinite loop on tall walls. Return −1 (impossible) unless <code>h[i] ≤ H</code> (cleared in one jump).</p>",
           "solutions": [
             {
@@ -1033,7 +1033,7 @@
             "Implementation"
           ],
           "category": "Misc / OA Problems",
-          "body": "Tech Lead Coding Round 1 (LeetCode Discuss, Jul 2024). Given open and close time arrays of a store, implement availability check. Easy-level implementation question.",
+          "body": "<p>A store has several open intervals. <code>open[i]</code> and <code>close[i]</code> are the opening and closing times of interval <code>i</code>, in hours on the same day (<code>0 &lt;= open[i] &lt; close[i] &lt;= 24</code>). The store is open during <code>[open[i], close[i])</code>. Implement <code>isOpen(int t)</code> that returns whether the store is open at hour <code>t</code>.</p><div class=\"example\"><div class=\"example-label\">Example 1</div><pre>Input: open = [9, 14], close = [12, 18], t = 10\nOutput: true\nExplanation: 10 is inside [9, 12).</pre></div><div class=\"example\"><div class=\"example-label\">Example 2</div><pre>Input: open = [9, 14], close = [12, 18], t = 13\nOutput: false\nExplanation: 13 is in the gap between 12 and 14. t = 12 is also false (half-open). t = 18 is false.</pre></div><p><strong>Constraints</strong></p><ul><li>1 &lt;= open.length == close.length &lt;= 100</li><li>0 &lt;= t &lt;= 24</li><li>Intervals may overlap; treat the store as open if t falls in any interval.</li></ul>",
           "answer": "<p><strong>Problem:</strong> Given open/close time arrays, check if store is open at time T.</p>\n<p><strong>Idea:</strong> for each interval <code>[open[i], close[i])</code> (clarify inclusive bounds), test membership. Or merge intervals then binary search.</p>\n<p>Discuss midnight wrap-around if close &lt; open (overnight hours).</p>",
           "solutions": [
             {

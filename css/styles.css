@@ -462,11 +462,15 @@ body.sidebar-open { overflow: hidden; }
   width: 28px; height: 28px;
   display: flex; align-items: center; justify-content: center;
   color: var(--muted);
-  font-size: 16px;
   border-radius: 6px;
   background: var(--bg);
   border: 1px solid var(--border);
   transition: transform 0.28s ease, color 0.2s, border-color 0.2s;
+}
+.cat-chevron svg {
+  display: block;
+  width: 14px;
+  height: 14px;
 }
 .cat-section:not(.collapsed) .cat-chevron {
   transform: rotate(90deg);
@@ -613,6 +617,49 @@ body.sidebar-open { overflow: hidden; }
   color: var(--muted); font-size: 13px;
   line-height: 1.65;
 }
+.q-body-html {
+  color: var(--text);
+  font-size: 14px;
+  line-height: 1.65;
+}
+.q-body-html p { margin: 0 0 10px; }
+.q-body-html code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.92em;
+  color: var(--accent2);
+}
+.q-body-html ol,
+.q-body-html ul {
+  margin: 6px 0 0;
+  padding-left: 1.35rem;
+}
+.q-body-html ol { list-style: decimal; }
+.q-body-html ul { list-style: disc; }
+.q-body-html li { margin-bottom: 4px; padding-left: 0.2rem; color: var(--muted); }
+.example {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px 12px;
+  margin: 0 0 10px;
+}
+.example-label {
+  font-size: 12px;
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+.example pre {
+  margin: 0;
+  white-space: pre-wrap;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 12.5px;
+  line-height: 1.55;
+  color: var(--text);
+  background: transparent;
+  border: none;
+  padding: 0;
+  overflow: visible;
+}
 .q-links { margin-top: 4px; }
 
 .q-hint {
@@ -693,15 +740,31 @@ body.sidebar-open { overflow: hidden; }
 
 .ans-text {
   background: var(--surface2); border: 1px solid var(--border);
-  border-radius: 6px; padding: 12px; margin-top: 8px;
+  border-radius: 6px; padding: 12px 14px; margin-top: 8px;
   font-size: 13px; color: var(--text); line-height: 1.65;
 }
 .ans-text + .q-section-label { margin-top: 14px; }
 .code-block + .q-section-label,
 .ans-text + .code-block { margin-top: 12px; }
 .ans-text strong { color: var(--text); }
-.ans-text ul { margin: 6px 0 6px 18px; }
-.ans-text li { margin-bottom: 3px; }
+.ans-text p { margin: 0 0 8px; }
+.ans-text p:last-child { margin-bottom: 0; }
+.ans-text ol,
+.ans-text ul {
+  margin: 8px 0 10px;
+  padding-left: 1.4rem;
+}
+.ans-text ol { list-style: decimal; }
+.ans-text ul { list-style: disc; }
+.ans-text li {
+  margin: 0 0 6px;
+  padding-left: 0.25rem;
+}
+.ans-text li:last-child { margin-bottom: 0; }
+.ans-text ol ol,
+.ans-text ul ul,
+.ans-text ol ul,
+.ans-text ul ol { margin: 4px 0 0; }
 
 .source-tag {
   display: inline-block; font-size: 11px; color: var(--muted);

@@ -5,8 +5,8 @@ import {
   setDone,
   setNote,
   progressForIds,
-} from "./storage.js?v=13";
-import { highlight } from "./highlight.js?v=13";
+} from "./storage.js?v=15";
+import { highlight } from "./highlight.js?v=15";
 
 const FREQ_LABEL = { high: "🔥 High", med: "⚡ Med", low: "🟢 Once" };
 const TAB_LABELS = {
@@ -34,6 +34,18 @@ export function escapeHtml(s) {
     .replace(/</g, "&lt;")
     .replace(/>/g, "&gt;")
     .replace(/"/g, "&quot;");
+}
+
+function plainText(s) {
+  return String(s ?? "").replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
+}
+
+/** DSA statements are authored HTML (examples + expected output). Other tabs stay escaped text. */
+function renderQuestionBody(body) {
+  if (!body) return "";
+  const raw = String(body).trim();
+  if (raw.startsWith("<")) return `<div class="q-body-html">${raw}</div>`;
+  return `<p class="q-body-text">${escapeHtml(body)}</p>`;
 }
 
 function pillClass(tab) {
@@ -247,14 +259,14 @@ function renderQuestionCard(q, idx, tab, state, companyId) {
   const hasAnswer = !!(q.answer || (q.solutions && q.solutions.length));
   const answerHtml = q.answer ? `<div class="ans-text">${q.answer}</div>` : "";
   const hintHtml = q.hint ? escapeHtml(q.hint) : "";
-  const body = q.body ? `<p class="q-body-text">${escapeHtml(q.body)}</p>` : "";
+  const body = renderQuestionBody(q.body);
   const source = q.source
     ? `<span class="source-tag">${escapeHtml(q.source)}</span>`
     : "";
   const prompt =
     body || links || source
       ? `<div class="q-prompt">
-            <div class="q-section-label">Prompt</div>
+            <div class="q-section-label">Question</div>
             ${body}
             <div class="q-links">${links}</div>
             ${source}
@@ -262,7 +274,7 @@ function renderQuestionCard(q, idx, tab, state, companyId) {
       : "";
 
   return `
-    <div class="q-card ${st.done ? "done" : ""}" data-qid="${escapeHtml(q.id)}" data-search="${escapeHtml((q.title + " " + (q.body || "") + " " + (q.hint || "") + " " + (q.tags || []).join(" ")).toLowerCase())}">
+    <div class="q-card ${st.done ? "done" : ""}" data-qid="${escapeHtml(q.id)}" data-search="${escapeHtml(plainText(q.title + " " + (q.body || "") + " " + (q.hint || "") + " " + (q.tags || []).join(" ")).toLowerCase())}">
       <div class="q-header" data-toggle>
         <input type="checkbox" class="q-check" data-done ${st.done ? "checked" : ""} aria-label="Mark done" />
         <div class="q-main">
@@ -294,7 +306,7 @@ function renderSectionShell({ title, icon, done, total, searchBlob, bodyHtml, co
   return `
     <div class="cat-section ${collapsed ? "collapsed" : ""}" data-cat data-search="${searchBlob}">
       <div class="cat-header" data-cat-toggle role="button" tabindex="0" aria-expanded="${collapsed ? "false" : "true"}" title="Expand / collapse topic">
-        <span class="cat-chevron" aria-hidden="true">›</span>
+        <span class="cat-chevron" aria-hidden="true"><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M5.75 4.25 10.25 8 5.75 11.75" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
         ${icon ? `<span class="cat-icon">${icon}</span>` : ""}
         <span class="cat-title">${escapeHtml(title)}</span>
         <span class="cat-meta">
