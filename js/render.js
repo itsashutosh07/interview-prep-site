@@ -180,15 +180,55 @@ function renderNotes(qid, note) {
     </div>`;
 }
 
-function renderRevealActions(hasAnswer, hasNote) {
-  return `
-    <div class="q-actions">
-      <button type="button" class="action-btn" data-show-answer ${!hasAnswer ? "disabled" : ""}>
+function renderRevealActions({ hasHint, hasAnswer, hasNote }) {
+  const buttons = [];
+  if (hasHint) {
+    buttons.push(
+      `<button type="button" class="action-btn action-btn-ghost" data-show-hint aria-expanded="false">Show hint</button>`
+    );
+  }
+  buttons.push(
+    `<button type="button" class="action-btn" data-show-answer ${!hasAnswer ? "disabled" : ""} aria-expanded="false">
         ${hasAnswer ? "Show answer" : "No answer yet"}
-      </button>
-      <button type="button" class="action-btn action-btn-ghost" data-show-notes>
+      </button>`
+  );
+  buttons.push(
+    `<button type="button" class="action-btn action-btn-ghost" data-show-notes aria-expanded="false">
         ${hasNote ? "Notes" : "Add notes"}
-      </button>
+      </button>`
+  );
+  return `<div class="q-actions">${buttons.join("")}</div>`;
+}
+
+function renderHintPanel(hintHtml) {
+  if (!hintHtml) return "";
+  return `
+    <div class="q-hint-panel" hidden>
+      <div class="reveal-inner">
+        <div class="q-section-label">Hint</div>
+        <div class="hint-text">${hintHtml}</div>
+      </div>
+    </div>`;
+}
+
+function renderAnswerPanel(answerHtml, solsHtml) {
+  const body = `${answerHtml || ""}${solsHtml || ""}`.trim();
+  if (!body) return "";
+  return `
+    <div class="q-answer-panel" hidden>
+      <div class="reveal-inner">
+        <div class="q-section-label">Answer</div>
+        ${body}
+      </div>
+    </div>`;
+}
+
+function renderNotesPanel(qid, note) {
+  return `
+    <div class="q-notes-panel" hidden>
+      <div class="reveal-inner">
+        ${renderNotes(qid, note)}
+      </div>
     </div>`;
 }
 
@@ -198,18 +238,26 @@ function renderQuestionCard(q, idx, tab, state, companyId) {
     .map((l) => `<a class="lc-link" href="${escapeHtml(l.url)}" target="_blank" rel="noopener">${escapeHtml(l.label)}</a>`)
     .join("");
   const sols = (q.solutions || []).map(renderSolution).join("");
+  const hasHint = !!q.hint;
   const hasAnswer = !!(q.answer || (q.solutions && q.solutions.length));
   const answerHtml = q.answer ? `<div class="ans-text">${q.answer}</div>` : "";
+  const hintHtml = q.hint ? escapeHtml(q.hint) : "";
   const body = q.body ? `<p class="q-body-text">${escapeHtml(q.body)}</p>` : "";
   const source = q.source
     ? `<span class="source-tag">${escapeHtml(q.source)}</span>`
     : "";
   const prompt =
-    body ||
-    `<p class="q-body-text muted">Open the answer when you are ready to review the solution.</p>`;
+    body || links || source
+      ? `<div class="q-prompt">
+            <div class="q-section-label">Prompt</div>
+            ${body}
+            <div class="q-links">${links}</div>
+            ${source}
+          </div>`
+      : "";
 
   return `
-    <div class="q-card ${st.done ? "done" : ""}" data-qid="${escapeHtml(q.id)}" data-search="${escapeHtml((q.title + " " + (q.body || "") + " " + (q.tags || []).join(" ")).toLowerCase())}">
+    <div class="q-card ${st.done ? "done" : ""}" data-qid="${escapeHtml(q.id)}" data-search="${escapeHtml((q.title + " " + (q.body || "") + " " + (q.hint || "") + " " + (q.tags || []).join(" ")).toLowerCase())}">
       <div class="q-header" data-toggle>
         <input type="checkbox" class="q-check" data-done ${st.done ? "checked" : ""} aria-label="Mark done" />
         <div class="q-main">
@@ -226,21 +274,11 @@ function renderQuestionCard(q, idx, tab, state, companyId) {
       </div>
       <div class="q-panel">
         <div class="q-panel-inner">
-          <div class="q-prompt">
-            <div class="q-section-label">Question</div>
-            ${prompt}
-            <div class="q-links">${links}</div>
-            ${source}
-          </div>
-          ${renderRevealActions(hasAnswer, !!st.note)}
-          <div class="q-answer-panel">
-            <div class="q-section-label">Answer</div>
-            ${answerHtml}
-            ${sols}
-          </div>
-          <div class="q-notes-panel">
-            ${renderNotes(q.id, st.note)}
-          </div>
+          ${prompt}
+          ${renderRevealActions({ hasHint, hasAnswer, hasNote: !!st.note })}
+          ${renderHintPanel(hintHtml)}
+          ${renderAnswerPanel(answerHtml, sols)}
+          ${renderNotesPanel(q.id, st.note)}
         </div>
       </div>
     </div>`;
@@ -299,13 +337,19 @@ export function renderQuestionList(categories, tab, state, companyId) {
 function renderQaItem(item, state, companyId, idx) {
   const st = getQuestionState(state, companyId, item.id);
   const sols = (item.solutions || []).map(renderSolution).join("");
+  const hasHint = !!item.hint;
   const hasAnswer = !!(item.answer || (item.solutions && item.solutions.length));
-  const answerHtml = item.answer
-    ? `<div class="ans-text">${item.answer}</div>`
-    : `<p class="muted" style="font-size:13px">No written answer yet — use notes to capture yours.</p>`;
+  // Prefer highlighted solutions; skip answer HTML that is just a leftover code-panel dump.
+  const answerLooksLikeCodeDump =
+    typeof item.answer === "string" && /class="code-panel"|<pre[\s>]/.test(item.answer);
+  const answerHtml =
+    item.answer && !(answerLooksLikeCodeDump && sols)
+      ? `<div class="ans-text">${item.answer}</div>`
+      : "";
+  const hintHtml = item.hint ? escapeHtml(item.hint) : "";
 
   return `
-    <div class="q-card qa-card ${st.done ? "done" : ""}" data-qid="${escapeHtml(item.id)}" data-search="${escapeHtml((item.question + " " + (item.answer || "")).toLowerCase())}">
+    <div class="q-card qa-card ${st.done ? "done" : ""}" data-qid="${escapeHtml(item.id)}" data-search="${escapeHtml((item.question + " " + (item.hint || "") + " " + (item.answer || "")).toLowerCase())}">
       <div class="q-header" data-toggle>
         <input type="checkbox" class="q-check" data-done ${st.done ? "checked" : ""} aria-label="Mark done" />
         <div class="q-main">
@@ -318,19 +362,10 @@ function renderQaItem(item, state, companyId, idx) {
       </div>
       <div class="q-panel">
         <div class="q-panel-inner">
-          <div class="q-prompt">
-            <div class="q-section-label">Question</div>
-            <p class="q-body-text">${escapeHtml(item.question)}</p>
-          </div>
-          ${renderRevealActions(hasAnswer, !!st.note)}
-          <div class="q-answer-panel">
-            <div class="q-section-label">Answer</div>
-            ${answerHtml}
-            ${sols}
-          </div>
-          <div class="q-notes-panel">
-            ${renderNotes(item.id, st.note)}
-          </div>
+          ${renderRevealActions({ hasHint, hasAnswer, hasNote: !!st.note })}
+          ${renderHintPanel(hintHtml)}
+          ${renderAnswerPanel(answerHtml, sols)}
+          ${renderNotesPanel(item.id, st.note)}
         </div>
       </div>
     </div>`;
@@ -413,33 +448,62 @@ export function renderTips(meta) {
 }
 
 export function bindInteractive(root, state, companyId, onProgressChange) {
+  const resetCardReveals = (card) => {
+    card.classList.remove("show-hint", "show-answer", "show-notes");
+    card.querySelectorAll(".q-hint-panel, .q-answer-panel, .q-notes-panel").forEach((p) => {
+      p.hidden = true;
+    });
+    const hintBtn = card.querySelector("[data-show-hint]");
+    const ansBtn = card.querySelector("[data-show-answer]");
+    const noteBtn = card.querySelector("[data-show-notes]");
+    if (hintBtn) {
+      hintBtn.textContent = "Show hint";
+      hintBtn.setAttribute("aria-expanded", "false");
+    }
+    if (ansBtn && !ansBtn.disabled) {
+      ansBtn.textContent = "Show answer";
+      ansBtn.setAttribute("aria-expanded", "false");
+    }
+    if (noteBtn) {
+      const hasNote = !!card.querySelector("[data-note-for]")?.value?.trim();
+      noteBtn.textContent = hasNote ? "Notes" : "Add notes";
+      noteBtn.setAttribute("aria-expanded", "false");
+    }
+  };
+
   // Expand question cards (title → reveal prompt + actions)
   root.querySelectorAll(".q-card > .q-header[data-toggle]").forEach((hdr) => {
     hdr.addEventListener("click", (e) => {
       if (e.target.closest("[data-done]")) return;
       const card = hdr.closest(".q-card");
       card.classList.toggle("open");
-      if (!card.classList.contains("open")) {
-        card.classList.remove("show-answer", "show-notes");
-        const ansBtn = card.querySelector("[data-show-answer]");
-        const noteBtn = card.querySelector("[data-show-notes]");
-        if (ansBtn && !ansBtn.disabled) ansBtn.textContent = "Show answer";
-        if (noteBtn) {
-          const hasNote = !!card.querySelector("[data-note-for]")?.value?.trim();
-          noteBtn.textContent = hasNote ? "Notes" : "Add notes";
-        }
-      }
+      if (!card.classList.contains("open")) resetCardReveals(card);
     });
   });
 
-  // Show answer / Add notes
+  root.querySelectorAll("[data-show-hint]").forEach((btn) => {
+    btn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      const card = btn.closest(".q-card");
+      const panel = card.querySelector(".q-hint-panel");
+      const on = card.classList.toggle("show-hint");
+      if (panel) panel.hidden = !on;
+      btn.textContent = on ? "Hide hint" : "Show hint";
+      btn.setAttribute("aria-expanded", on ? "true" : "false");
+    });
+  });
+
+  // Show answer / Add notes — toggle class + hidden attr so code stays fully collapsed
   root.querySelectorAll("[data-show-answer]").forEach((btn) => {
     btn.addEventListener("click", (e) => {
       e.stopPropagation();
       if (btn.disabled) return;
       const card = btn.closest(".q-card");
+      const panel = card.querySelector(".q-answer-panel");
       const on = card.classList.toggle("show-answer");
+      if (panel) panel.hidden = !on;
       btn.textContent = on ? "Hide answer" : "Show answer";
+      btn.setAttribute("aria-expanded", on ? "true" : "false");
     });
   });
 
@@ -447,8 +511,11 @@ export function bindInteractive(root, state, companyId, onProgressChange) {
     btn.addEventListener("click", (e) => {
       e.stopPropagation();
       const card = btn.closest(".q-card");
+      const panel = card.querySelector(".q-notes-panel");
       const on = card.classList.toggle("show-notes");
+      if (panel) panel.hidden = !on;
       btn.textContent = on ? "Hide notes" : (card.querySelector("[data-note-for]")?.value?.trim() ? "Notes" : "Add notes");
+      btn.setAttribute("aria-expanded", on ? "true" : "false");
       if (on) card.querySelector("[data-note-for]")?.focus();
     });
   });

@@ -434,7 +434,14 @@ document.addEventListener("keydown", (e) => {
       return;
     }
     document.querySelectorAll(".q-card.open").forEach((el) => {
-      el.classList.remove("open", "show-answer", "show-notes");
+      el.classList.remove("open", "show-hint", "show-answer", "show-notes");
+      el.querySelectorAll(".q-hint-panel, .q-answer-panel, .q-notes-panel").forEach((p) => {
+        p.hidden = true;
+      });
+      const hintBtn = el.querySelector("[data-show-hint]");
+      if (hintBtn) hintBtn.textContent = "Show hint";
+      const ansBtn = el.querySelector("[data-show-answer]");
+      if (ansBtn && !ansBtn.disabled) ansBtn.textContent = "Show answer";
     });
   }
   if (!document.body.classList.contains("view-company")) return;

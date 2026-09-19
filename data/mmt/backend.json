@@ -36,16 +36,6 @@
           "answer": "<ul><li><strong>ExecutorService</strong>: Thread pool manager. Submit <code>Callable</code>/<code>Runnable</code> tasks, get <code>Future</code> back. Blocking <code>future.get()</code> to retrieve result.</li><li><strong>CompletableFuture</strong>: Non-blocking composition of async tasks. Chain with <code>.thenApply()</code>, <code>.thenCompose()</code>, <code>.exceptionally()</code>. Uses <code>ForkJoinPool.commonPool()</code> by default or a custom executor.</li><li><strong>ForkJoinPool</strong>: Work-stealing pool designed for recursive divide-and-conquer tasks. Best for CPU-bound recursive algorithms. <code>parallelStream()</code> uses it internally.</li></ul>"
         },
         {
-          "id": "mmt-be-01-007",
-          "question": "What is a Record in Java? How does it differ from a POJO? (Explicitly asked after candidate used it in DSA code)",
-          "answer": null
-        },
-        {
-          "id": "mmt-be-01-008",
-          "question": "Why is the default capacity of HashMap 16? Why a power of 2? (Bitmask trick: hash & (n-1))",
-          "answer": null
-        },
-        {
           "id": "mmt-be-01-010",
           "question": "What are immutable classes? How do you implement one? Why are they important for concurrency?",
           "answer": null
@@ -83,11 +73,6 @@
         {
           "id": "mmt-be-01-019",
           "question": "What happens when you create more threads than CPU cores? (Context switching overhead)",
-          "answer": null
-        },
-        {
-          "id": "mmt-be-01-020",
-          "question": "Explain ExecutorService, ThreadPoolExecutor, and CompletableFuture",
           "answer": null
         }
       ]
@@ -128,11 +113,6 @@
           "answer": "1. User POSTs credentials → <code>AuthController</code> → <code>AuthenticationManager.authenticate()</code> → <code>UserDetailsService.loadByUsername()</code> → verify password → generate JWT (signed with secret, contains userId + roles + expiry).<br>2. Client sends <code>Authorization: Bearer &lt;token&gt;</code> on every request.<br>3. <code>JwtAuthFilter</code> (extends <code>OncePerRequestFilter</code>) extracts token, validates signature + expiry, sets <code>SecurityContextHolder.getContext().setAuthentication()</code>.<br>4. Method-level security: <code>@PreAuthorize(\"hasRole('ADMIN')\")</code> uses the Authentication from context.<br><br>Key: JWT is <strong>stateless</strong> — no server-side session storage. Invalidation requires a token blacklist (Redis TTL)."
         },
         {
-          "id": "mmt-be-02-007",
-          "question": "What is an Interceptor in Spring? Why do we need it? (Spring HandlerInterceptor vs Filter)",
-          "answer": null
-        },
-        {
           "id": "mmt-be-02-010",
           "question": "Explain Dependency Injection types (constructor vs field vs setter) — pros/cons",
           "answer": null
@@ -155,11 +135,6 @@
         {
           "id": "mmt-be-02-015",
           "question": "Spring MVC request lifecycle — DispatcherServlet → HandlerMapping → Controller → ViewResolver",
-          "answer": null
-        },
-        {
-          "id": "mmt-be-02-016",
-          "question": "How does Spring Security work? How would you implement JWT-based auth?",
           "answer": null
         },
         {
@@ -210,16 +185,6 @@
           "answer": null
         },
         {
-          "id": "mmt-be-03-009",
-          "question": "How do you ensure idempotency in a distributed system? (Explicitly asked at Tech Lead level)",
-          "answer": null
-        },
-        {
-          "id": "mmt-be-03-010",
-          "question": "How would you prevent double payment when the same request is made twice? (SDE/SSE-2 explicit question)",
-          "answer": null
-        },
-        {
           "id": "mmt-be-03-012",
           "question": "Explain eventual consistency vs strong consistency. When would you sacrifice consistency?",
           "answer": null
@@ -242,11 +207,6 @@
         {
           "id": "mmt-be-03-016",
           "question": "Biggest problem you solved with Redis and Kafka in your project (explicitly asked at Director level)",
-          "answer": null
-        },
-        {
-          "id": "mmt-be-03-019",
-          "question": "How do you handle very high QPS? (Core Tech Lead question Jul 2024)",
           "answer": null
         }
       ]
@@ -297,11 +257,6 @@
           "answer": null
         },
         {
-          "id": "mmt-be-04-010",
-          "question": "How do you handle concurrent seat booking (optimistic vs pessimistic locking)?",
-          "answer": null
-        },
-        {
           "id": "mmt-be-04-012",
           "question": "Explain query optimisation — EXPLAIN plan, covering indexes, avoiding full table scans",
           "answer": null
@@ -309,16 +264,6 @@
         {
           "id": "mmt-be-04-013",
           "question": "What is database normalisation? When would you denormalise?",
-          "answer": null
-        },
-        {
-          "id": "mmt-be-04-014",
-          "question": "How does Redis work? What data structures does it support natively?",
-          "answer": null
-        },
-        {
-          "id": "mmt-be-04-015",
-          "question": "How did caching reduce API response time in your project? (Preparation: have a story ready)",
           "answer": null
         },
         {
@@ -374,16 +319,6 @@
           "answer": null
         },
         {
-          "id": "mmt-be-05-011",
-          "question": "HTTP vs HTTPS — TLS handshake, certificate chain",
-          "answer": null
-        },
-        {
-          "id": "mmt-be-05-012",
-          "question": "What happens when you search \"www.google.com\"? (DNS, TCP, HTTP, rendering — full stack)",
-          "answer": null
-        },
-        {
           "id": "mmt-be-05-013",
           "question": "Different OSI/TCP layers — where does each protocol sit?",
           "answer": null
@@ -403,7 +338,7 @@
         {
           "id": "mmt-be-06-001",
           "question": "Thread-safe Singleton — implement it in Java",
-          "answer": "<div class=\"code-panel active\" data-lang=\"java\"><pre><span class=\"cm\">// Best approach: Initialization-on-Demand Holder (lazy, thread-safe, no sync overhead)</span>\n<span class=\"kw\">public class</span> <span class=\"ty\">Singleton</span> {\n    <span class=\"kw\">private</span> <span class=\"fn\">Singleton</span>() {}\n    <span class=\"kw\">private static class</span> <span class=\"ty\">Holder</span> {\n        <span class=\"kw\">static final</span> <span class=\"ty\">Singleton</span> INSTANCE = <span class=\"kw\">new</span> <span class=\"ty\">Singleton</span>();\n    }\n    <span class=\"kw\">public static</span> <span class=\"ty\">Singleton</span> <span class=\"fn\">getInstance</span>() { <span class=\"kw\">return</span> Holder.INSTANCE; }\n}\n\n<span class=\"cm\">// Alternative: Enum singleton (handles serialization + reflection attacks)</span>\n<span class=\"kw\">public enum</span> <span class=\"ty\">EnumSingleton</span> {\n    INSTANCE;\n    <span class=\"kw\">public void</span> <span class=\"fn\">doWork</span>() { <span class=\"cm\">/* ... */</span> }\n}</pre></div>\n          </div>",
+          "answer": null,
           "solutions": [
             {
               "lang": "java",
@@ -415,7 +350,7 @@
         {
           "id": "mmt-be-06-002",
           "question": "State Pattern (for Vending Machine — explicitly asked at MMT)",
-          "answer": "<div class=\"code-panel active\" data-lang=\"java\"><pre><span class=\"kw\">interface</span> <span class=\"ty\">VendingState</span> {\n    <span class=\"kw\">void</span> <span class=\"fn\">insertCoin</span>(<span class=\"ty\">VendingMachine</span> vm);\n    <span class=\"kw\">void</span> <span class=\"fn\">selectItem</span>(<span class=\"ty\">VendingMachine</span> vm, String item);\n    <span class=\"kw\">void</span> <span class=\"fn\">dispense</span>(<span class=\"ty\">VendingMachine</span> vm);\n}\n\n<span class=\"kw\">class</span> <span class=\"ty\">IdleState</span> <span class=\"kw\">implements</span> <span class=\"ty\">VendingState</span> {\n    <span class=\"kw\">public void</span> <span class=\"fn\">insertCoin</span>(<span class=\"ty\">VendingMachine</span> vm) {\n        System.out.<span class=\"fn\">println</span>(<span class=\"st\">\"Coin accepted\"</span>);\n        vm.<span class=\"fn\">setState</span>(<span class=\"kw\">new</span> <span class=\"ty\">HasMoneyState</span>());\n    }\n    <span class=\"kw\">public void</span> <span class=\"fn\">selectItem</span>(<span class=\"ty\">VendingMachine</span> vm, String item) { System.out.<span class=\"fn\">println</span>(<span class=\"st\">\"Insert coin first\"</span>); }\n    <span class=\"kw\">public void</span> <span class=\"fn\">dispense</span>(<span class=\"ty\">VendingMachine</span> vm) { System.out.<span class=\"fn\">println</span>(<span class=\"st\">\"No money inserted\"</span>); }\n}\n\n<span class=\"kw\">class</span> <span class=\"ty\">VendingMachine</span> {\n    <span class=\"kw\">private</span> <span class=\"ty\">VendingState</span> state = <span class=\"kw\">new</span> <span class=\"ty\">IdleState</span>();\n    <span class=\"kw\">private final</span> ReentrantLock lock = <span class=\"kw\">new</span> ReentrantLock(); <span class=\"cm\">// thread safety</span>\n    <span class=\"kw\">public void</span> <span class=\"fn\">setState</span>(<span class=\"ty\">VendingState</span> s) { this.state = s; }\n    <span class=\"kw\">public void</span> <span class=\"fn\">insertCoin</span>() {\n        lock.<span class=\"fn\">lock</span>(); <span class=\"kw\">try</span> { state.<span class=\"fn\">insertCoin</span>(this); } <span class=\"kw\">finally</span> { lock.<span class=\"fn\">unlock</span>(); }\n    }\n    <span class=\"cm\">// selectItem, dispense similarly locked</span>\n}</pre></div>\n          </div>",
+          "answer": null,
           "solutions": [
             {
               "lang": "java",
@@ -430,18 +365,8 @@
           "answer": "In microservices, this maps to event-driven architecture via Kafka/SQS. In Spring:<br><br><code>@EventListener</code> for in-process events: <code>applicationEventPublisher.publishEvent(new OrderCreatedEvent(order))</code> → any <code>@EventListener</code> method consuming <code>OrderCreatedEvent</code> reacts. For cross-service: publish to Kafka topic, consumers subscribe via <code>@KafkaListener</code>.<br><br>Example at MMT: BookingConfirmedEvent → (1) NotificationService sends email, (2) AnalyticsService records booking, (3) RewardsService credits points — all independently, without BookingService knowing about them."
         },
         {
-          "id": "mmt-be-06-005",
-          "question": "Builder Pattern — implement with static inner class; then make it thread-safe (Atomic)",
-          "answer": null
-        },
-        {
           "id": "mmt-be-06-006",
           "question": "Factory / Abstract Factory — where have you used it in production?",
-          "answer": null
-        },
-        {
-          "id": "mmt-be-06-008",
-          "question": "State Pattern — used in LLD of Vending Machine (explicit at MMT SDE-2)",
           "answer": null
         },
         {

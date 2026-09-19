@@ -81,16 +81,20 @@ def extract_solutions(body: str) -> list[dict]:
     return sols
 
 
+def extract_hint(body: str) -> str | None:
+    m = re.search(r'<div class="hint"[^>]*>(.*?)</div>', body, re.S)
+    if m:
+        return strip_tags(m.group(1)) or None
+    return None
+
+
 def extract_answer_html(body: str) -> str | None:
-    """Prefer ans-text; else hint; keep simple HTML for lists/code."""
+    """Prefer ans-text only — hints stay in the separate hint field."""
     m = re.search(r'<div class="ans-text"[^>]*>(.*?)</div>\s*(?=<span class="source-tag"|</div>\s*</div>\s*$|<a class="lc-link")', body, re.S)
     if not m:
         m = re.search(r'<div class="ans-text"[^>]*>(.*?)</div>', body, re.S)
     if m:
         return clean_answer_html(m.group(1))
-    m = re.search(r'<div class="hint"[^>]*>(.*?)</div>', body, re.S)
-    if m:
-        return f"<p>{strip_tags(m.group(1))}</p>"
     return None
 
 
@@ -187,6 +191,7 @@ def parse_q_cards(section_html: str, id_prefix: str) -> tuple[list[dict], list[d
             "tags": tags_from_meta(meta),
             "category": category,
             "body": extract_body_para(body),
+            "hint": extract_hint(body),
             "answer": extract_answer_html(body),
             "solutions": extract_solutions(body),
             "links": extract_links(body),

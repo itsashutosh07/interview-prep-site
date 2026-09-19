@@ -11,7 +11,7 @@
             "Sliding Window"
           ],
           "category": "Arrays & Strings",
-          "body": "Sliding window with two frequency maps. Expand right, shrink left when valid. Track best window.",
+          "body": "Given strings A and B, find the smallest substring in A which contains all characters in B. This is the classic Minimum Window Substring problem. MMT specifically asked candidates to code it in Java and explicitly noted Java hard requirement after this question.",
           "answer": null,
           "solutions": [
             {
@@ -26,7 +26,8 @@
               "url": "https://leetcode.com/problems/minimum-window-substring/"
             }
           ],
-          "source": "Reported: SDE-2 GFG 2021, MMT Campus, Code360 2022"
+          "source": "Reported: SDE-2 GFG 2021, MMT Campus, Code360 2022",
+          "hint": "Sliding window with two frequency maps. Expand right, shrink left when valid. Track best window."
         },
         {
           "id": "mmt-dsa-002",
@@ -36,7 +37,7 @@
             "HashMap"
           ],
           "category": "Arrays & Strings",
-          "body": "Prefix sum: if the same prefix sum appears twice, the subarray between those indices sums to 0.",
+          "body": "Given an array, find any subarray which has a sum of 0. Asked in the SDE/SSE-2 DSA round (LeetCode Discuss, Oct 2024).",
           "answer": null,
           "solutions": [
             {
@@ -46,7 +47,8 @@
             }
           ],
           "links": [],
-          "source": "Reported: SDE/SSE-2 Round 1, Oct 2024"
+          "source": "Reported: SDE/SSE-2 Round 1, Oct 2024",
+          "hint": "Approach: Prefix sum + HashMap. If same prefix sum appears twice, the subarray between them sums to 0."
         },
         {
           "id": "mmt-dsa-003",
@@ -56,7 +58,7 @@
             "Heap"
           ],
           "category": "Arrays & Strings",
-          "body": "Min-heap of size K — always extract minimum, push next from same list.",
+          "body": "Merge 2 sorted arrays and Merge K sorted linked lists appeared together in a single SDE-2 Round 1. Union of two sorted arrays (SDE-1 Aug 2024) is a variant. All test in-place merge, heap-based K-way merge.",
           "answer": null,
           "solutions": [
             {
@@ -71,7 +73,8 @@
               "url": "https://leetcode.com/problems/merge-k-sorted-lists/"
             }
           ],
-          "source": "Reported: SDE-2 GFG 2021, SDE-1 Naukri Aug 2024"
+          "source": "Reported: SDE-2 GFG 2021, SDE-1 Naukri Aug 2024",
+          "hint": "Min-heap of size K — always extract minimum, push next from same list."
         },
         {
           "id": "mmt-dsa-004",
@@ -81,7 +84,7 @@
             "Greedy"
           ],
           "category": "Arrays & Strings",
-          "body": "Greedy: track current range end and furthest reachable. When pointer hits current end, increment jump count.",
+          "body": "",
           "answer": null,
           "solutions": [
             {
@@ -96,7 +99,8 @@
               "url": "https://leetcode.com/problems/jump-game-ii/"
             }
           ],
-          "source": "Reported: SSE-2 LeetCode Discuss Nov 2023, CodingKaro"
+          "source": "Reported: SSE-2 LeetCode Discuss Nov 2023, CodingKaro",
+          "hint": "Greedy: track current range end and furthest reachable. When pointer hits current end, increment jump count."
         },
         {
           "id": "mmt-dsa-005",
@@ -106,7 +110,7 @@
             "Sorting"
           ],
           "category": "Arrays & Strings",
-          "body": "",
+          "body": "Explicitly listed as the first question in SDE-2 Round 1 (GFG 2021). Sort + merge sweep pattern.",
           "answer": null,
           "solutions": [
             {
@@ -121,7 +125,8 @@
               "url": "https://leetcode.com/problems/merge-intervals/"
             }
           ],
-          "source": "Reported: SDE-2 GFG 2021 Round 1"
+          "source": "Reported: SDE-2 GFG 2021 Round 1",
+          "hint": "Pre-compute leftMin[] and rightMax[], then use two-pointer to find max (j-i)."
         },
         {
           "id": "mmt-dsa-006",
@@ -131,7 +136,7 @@
             "String/Math"
           ],
           "category": "Arrays & Strings",
-          "body": "",
+          "body": "SDE-2 Round 1 (LeetCode Discuss 2025). Candidate was allowed Python. Long multiplication simulation.",
           "answer": null,
           "solutions": [
             {
@@ -156,7 +161,7 @@
             "HashMap"
           ],
           "category": "Arrays & Strings",
-          "body": "",
+          "body": "Given two arrays, print all pairs that sum to K. Technical Round 1 (Software Engineer, 2020). Hashmap approach to O(N).",
           "answer": null,
           "solutions": [
             {
@@ -176,7 +181,7 @@
             "Greedy"
           ],
           "category": "Arrays & Strings",
-          "body": "",
+          "body": "Appeared in SSE-2 Round 2 alongside Jump Game II (Nov 2023, IIT candidate).",
           "answer": null,
           "solutions": [
             {
@@ -201,7 +206,7 @@
             "Array"
           ],
           "category": "Arrays & Strings",
-          "body": "",
+          "body": "Technical Round 2 (Software Engineer 2020). O(n) time, O(n) space approach using prefix min array and suffix max array.",
           "answer": null,
           "solutions": [
             {
@@ -221,7 +226,7 @@
             "Sliding Window"
           ],
           "category": "Arrays & Strings",
-          "body": "",
+          "body": "SSE BLR 2022 (Offer received). Pick exactly K elements from left or right ends, maximize sum. Sliding window of size (n-k) on the complement.",
           "answer": null,
           "solutions": [
             {
@@ -236,7 +241,8 @@
               "url": "https://leetcode.com/problems/maximum-points-you-can-obtain-from-cards/"
             }
           ],
-          "source": "Reported: SSE BLR LeetCode 2022"
+          "source": "Reported: SSE BLR LeetCode 2022",
+          "hint": "For general tree with parent pointers: walk both nodes to root, collect ancestors, find first common one."
         },
         {
           "id": "mmt-dsa-011",
@@ -246,7 +252,7 @@
             "HashMap+Sort"
           ],
           "category": "Arrays & Strings",
-          "body": "",
+          "body": "Glassdoor Java Developer interview: given array with duplicates, sort by occurrence count.",
           "answer": null,
           "solutions": [
             {
@@ -266,7 +272,7 @@
             "Binary Search"
           ],
           "category": "Arrays & Strings",
-          "body": "",
+          "body": "SSE-2 Round 1, Nov 2023 (IIT candidate). Standard binary search for left boundary and right boundary.",
           "answer": null,
           "solutions": [
             {
@@ -296,7 +302,7 @@
             "Linked List"
           ],
           "category": "Linked Lists",
-          "body": "",
+          "body": "Reverse Nodes in K-Group appeared in MMT Set-4 older rounds and in SSE-2 Round 1 (Nov 2023).",
           "answer": null,
           "solutions": [
             {
@@ -321,7 +327,7 @@
             "Linked List"
           ],
           "category": "Linked Lists",
-          "body": "",
+          "body": "F2F Round in MMT Set-4. Deep copy with both next and arbitrary pointers in O(n) time and O(1) extra space.",
           "answer": null,
           "solutions": [
             {
@@ -346,7 +352,7 @@
             "Tree/LL"
           ],
           "category": "Linked Lists",
-          "body": "",
+          "body": "SDE-2 Round 1 (LeetCode Discuss 2025). Candidate was told O(log N) space solution also exists beyond O(N).",
           "answer": null,
           "solutions": [
             {
@@ -371,7 +377,7 @@
             "Two Pointer"
           ],
           "category": "Linked Lists",
-          "body": "",
+          "body": "F2F Round 3 (MMT Set-4 GFG).",
           "answer": null,
           "solutions": [
             {
@@ -396,7 +402,7 @@
             "Linked List"
           ],
           "category": "Linked Lists",
-          "body": "",
+          "body": "F2F Round 3 (MMT Set-4 GFG). In most efficient way (in-place).",
           "answer": null,
           "solutions": [
             {
@@ -421,7 +427,7 @@
             "Tree"
           ],
           "category": "Trees & Graphs",
-          "body": "Disguised as \"common manager\" — it's LCA on a general tree. Key insight: if the Emp class has a parent pointer, walk both nodes to root, collect ancestors, find first match.",
+          "body": "Disguised as a real-world problem: \"return the closest common manager of two employees\". You can design the Emp class — the key insight is it's an LCA problem on a general tree, not necessarily a BST. MMT SDE/SSE-2 Round 1, Oct 2024. Also asked in campus rounds as standard binary tree LCA.",
           "answer": null,
           "solutions": [
             {
@@ -436,7 +442,8 @@
               "url": "https://leetcode.com/problems/lowest-common-ancestor-of-a-binary-tree/"
             }
           ],
-          "source": "Reported: SDE/SSE-2 LeetCode Oct 2024, Code360 Oct 2022"
+          "source": "Reported: SDE/SSE-2 LeetCode Oct 2024, Code360 Oct 2022",
+          "hint": "Disguised as \"common manager\" — it's LCA on a general tree. Key insight: if the Emp class has a parent pointer, walk both nodes to root, collect ancestors, find first match."
         },
         {
           "id": "mmt-dsa-019",
@@ -471,7 +478,7 @@
             "Tree BFS"
           ],
           "category": "Trees & Graphs",
-          "body": "",
+          "body": "Senior Software Engineer interview (GFG 2019). Recursive level-based approach.",
           "answer": null,
           "solutions": [
             {
@@ -491,7 +498,7 @@
             "Tree"
           ],
           "category": "Trees & Graphs",
-          "body": "",
+          "body": "F2F Round 3 (MMT Set-4 GFG).",
           "answer": null,
           "solutions": [
             {
@@ -516,7 +523,7 @@
             "Backtracking"
           ],
           "category": "Trees & Graphs",
-          "body": "",
+          "body": "Technical Interview Round 1 (Software Engineer, 2020). Rat-in-a-maze style — find any path or longest path in binary matrix with walls.",
           "answer": null,
           "solutions": [
             {
@@ -536,7 +543,7 @@
             "Tree DP"
           ],
           "category": "Trees & Graphs",
-          "body": "",
+          "body": "OA Round 2 (Software Engineer 2020). N nodes, N-1 edges. Each node has a value. Find edge to cut minimising |sum1 - sum2|.",
           "answer": null,
           "solutions": [
             {
@@ -556,7 +563,7 @@
             "Graph/Tarjan"
           ],
           "category": "Trees & Graphs",
-          "body": "",
+          "body": "Naukri Code360 — SDE-1 campus (Sep/Oct 2022). Find all critical edges whose removal disconnects the network.",
           "answer": null,
           "solutions": [
             {
@@ -571,7 +578,8 @@
               "url": "https://leetcode.com/problems/critical-connections-in-a-network/"
             }
           ],
-          "source": "Reported: Code360 Campus Sep/Oct 2022"
+          "source": "Reported: Code360 Campus Sep/Oct 2022",
+          "hint": "Tarjan's bridge-finding algorithm. O(V+E) time."
         },
         {
           "id": "mmt-dsa-025",
@@ -601,7 +609,7 @@
             "Math"
           ],
           "category": "Trees & Graphs",
-          "body": "From (1,1) move to (a+b,b) or (a,a+b). Reach (x,y)? Key: gcd(x,y) must equal 1 since gcd is preserved by moves and gcd(1,1)=1.",
+          "body": "OA Round 1 (Software Engineer 2020). Starting from (1,1), move to (a+b,b) or (a,a+b). Check if (x,y) is reachable. Hint: gcd(x,y) must equal 1.",
           "answer": null,
           "solutions": [
             {
@@ -611,7 +619,8 @@
             }
           ],
           "links": [],
-          "source": "Reported: SDE GFG 2020 HackerEarth OA"
+          "source": "Reported: SDE GFG 2020 HackerEarth OA",
+          "hint": "From (1,1) move to (a+b,b) or (a,a+b). Reach (x,y)? Key: gcd(x,y) must equal 1 since gcd is preserved by moves and gcd(1,1)=1."
         }
       ]
     },
@@ -626,7 +635,7 @@
             "DP"
           ],
           "category": "Dynamic Programming",
-          "body": "",
+          "body": "SDE-2 (4 years exp) GFG — Round 1. Classic DP similar to LIS but maximising sum instead of length.",
           "answer": null,
           "solutions": [
             {
@@ -646,7 +655,7 @@
             "HashSet"
           ],
           "category": "Dynamic Programming",
-          "body": "",
+          "body": "SDE-1 Backend (GFG 2022, 2024). Given an unsorted array, find the longest consecutive sequence. O(N) HashSet approach expected.",
           "answer": null,
           "solutions": [
             {
@@ -661,7 +670,8 @@
               "url": "https://leetcode.com/problems/longest-consecutive-sequence/"
             }
           ],
-          "source": "Reported: SDE-1 GFG 2022, 2024"
+          "source": "Reported: SDE-1 GFG 2022, 2024",
+          "hint": "Thread-safe: synchronized block on bucket, or use ConcurrentHashMap segment-level locking as inspiration."
         },
         {
           "id": "mmt-dsa-029",
@@ -671,7 +681,7 @@
             "Backtracking"
           ],
           "category": "Dynamic Programming",
-          "body": "",
+          "body": "SDE-1 Managerial round (GFG 2022 — selected). Recursive approach, recursion tree dry-run. Follow-up: handle duplicates using a Set.",
           "answer": null,
           "solutions": [
             {
@@ -691,7 +701,7 @@
             "DP"
           ],
           "category": "Dynamic Programming",
-          "body": "",
+          "body": "Campus interview (Naukri Code360 Sep 2022). 2D DP problem.",
           "answer": null,
           "solutions": [
             {
@@ -711,7 +721,7 @@
             "Backtracking"
           ],
           "category": "Dynamic Programming",
-          "body": "",
+          "body": "F2F Round 3 (MMT Set-4 GFG). Classic recursion/backtracking problem.",
           "answer": null,
           "solutions": [
             {
@@ -736,7 +746,7 @@
             "DP/HashMap"
           ],
           "category": "Dynamic Programming",
-          "body": "",
+          "body": "Technical Round 2 (Software Engineer, 2020). Brute force → HashSet optimisation.",
           "answer": null,
           "solutions": [
             {
@@ -761,7 +771,7 @@
             "Stack/HashMap"
           ],
           "category": "Stacks, Queues & Heaps",
-          "body": "",
+          "body": "SDE-1 Round 2 (GFG 2022, 2024). Design a stack that returns the most frequently pushed element. Complex data structure design using HashMap of stacks.",
           "answer": null,
           "solutions": [
             {
@@ -811,7 +821,7 @@
             "Design"
           ],
           "category": "Stacks, Queues & Heaps",
-          "body": "",
+          "body": "Naukri Code360 SDE-1 Aug 2024 F2F (pen & paper round). Doubly linked list + HashMap. O(1) get and put.",
           "answer": null,
           "solutions": [
             {
@@ -836,7 +846,7 @@
             "Stack/Queue"
           ],
           "category": "Stacks, Queues & Heaps",
-          "body": "",
+          "body": "Naukri Code360 SDE-1 campus Oct 2022.",
           "answer": null,
           "solutions": [
             {
@@ -866,7 +876,7 @@
             "Design+Concurrency"
           ],
           "category": "Concurrency Coding (C++ reference; implement in Java at MMT)",
-          "body": "MMT interviewers want you to implement this in Java with thread-safe put(). Follow-up: why default capacity is 16 (power-of-2 allows bitmask: hash & (n-1) instead of modulo).",
+          "body": "Senior Engineer Round 2 (GFG 2019) and Glassdoor Java Developer. Design put(), hashCode/equals, collision handling (chaining), then make put() thread-safe using synchronized. Follow-up: why default capacity is 16 (power of 2 for fast modulo via bitmask).",
           "answer": null,
           "solutions": [
             {
@@ -876,7 +886,8 @@
             }
           ],
           "links": [],
-          "source": "Reported: Senior SDE GFG 2019, Glassdoor Java Developer"
+          "source": "Reported: Senior SDE GFG 2019, Glassdoor Java Developer",
+          "hint": "MMT interviewers want you to implement this in Java with thread-safe put(). Follow-up: why default capacity is 16 (power-of-2 allows bitmask: hash & (n-1) instead of modulo)."
         },
         {
           "id": "mmt-dsa-038",
@@ -886,7 +897,7 @@
             "Threading"
           ],
           "category": "Concurrency Coding (C++ reference; implement in Java at MMT)",
-          "body": "Download pages concurrently, count string occurrences. Must use Java threading (CompletableFuture / ExecutorService). Output: [url, keyword, count].",
+          "body": "",
           "answer": null,
           "solutions": [
             {
@@ -896,7 +907,8 @@
             }
           ],
           "links": [],
-          "source": "Reported: Tech Lead LeetCode Discuss Jul 2024"
+          "source": "Reported: Tech Lead LeetCode Discuss Jul 2024",
+          "hint": "Download pages concurrently, count string occurrences. Must use Java threading (CompletableFuture / ExecutorService). Output: [url, keyword, count]."
         },
         {
           "id": "mmt-dsa-039",
@@ -906,7 +918,7 @@
             "Concurrency"
           ],
           "category": "Concurrency Coding (C++ reference; implement in Java at MMT)",
-          "body": "MMT interviewer rejected synchronized as \"blocking\". Expected Atomic-based or immutable builder solution.",
+          "body": "",
           "answer": null,
           "solutions": [
             {
@@ -916,7 +928,8 @@
             }
           ],
           "links": [],
-          "source": "Reported: SDE/SSE-2 LeetCode Oct 2024"
+          "source": "Reported: SDE/SSE-2 LeetCode Oct 2024",
+          "hint": "MMT interviewer rejected synchronized as \"blocking\". Expected Atomic-based or immutable builder solution."
         }
       ]
     },
@@ -931,7 +944,7 @@
             "Recursion"
           ],
           "category": "Misc / OA Problems",
-          "body": "",
+          "body": "On-campus technical round (SDE GFG). Classic recursion.",
           "answer": null,
           "solutions": [
             {
@@ -941,7 +954,8 @@
             }
           ],
           "links": [],
-          "source": "Reported: SDE On-Campus GFG"
+          "source": "Reported: SDE On-Campus GFG",
+          "hint": "Josephus formula: f(n,k) = (f(n-1,k) + k) % n where f(1,k)=0, then +1 for 1-indexed."
         },
         {
           "id": "mmt-dsa-041",
@@ -976,7 +990,7 @@
             "Math"
           ],
           "category": "Misc / OA Problems",
-          "body": "",
+          "body": "CodingKaro SSE/SDE Round 1. Josephus Problem variant.",
           "answer": null,
           "solutions": [
             {
@@ -996,7 +1010,7 @@
             "Math/Logic"
           ],
           "category": "Misc / OA Problems",
-          "body": "N walls each height h[i]. Max jump = H. After each jump slips l units. Count total jumps to clear all walls.",
+          "body": "Online coding round (MMT Campus). N walls each with height h[i]. Max jump height = H. Rainy day — slips down l units after each jump. Count total jumps to escape.",
           "answer": null,
           "solutions": [
             {
@@ -1006,7 +1020,8 @@
             }
           ],
           "links": [],
-          "source": "Reported: MMT Campus GFG"
+          "source": "Reported: MMT Campus GFG",
+          "hint": "State pattern: VendingMachineState interface → IdleState, HasMoneyState, DispensingState. VendingMachine holds currentState. Transitions on insertCoin(), selectItem(), dispense(), cancel()."
         },
         {
           "id": "mmt-dsa-044",
@@ -1016,7 +1031,7 @@
             "Implementation"
           ],
           "category": "Misc / OA Problems",
-          "body": "Given arrays of open and close times, check if store is open at a given time T.",
+          "body": "Tech Lead Coding Round 1 (LeetCode Discuss, Jul 2024). Given open and close time arrays of a store, implement availability check. Easy-level implementation question.",
           "answer": null,
           "solutions": [
             {
@@ -1026,7 +1041,8 @@
             }
           ],
           "links": [],
-          "source": "Reported: Tech Lead LeetCode Jul 2024"
+          "source": "Reported: Tech Lead LeetCode Jul 2024",
+          "hint": "Given arrays of open and close times, check if store is open at a given time T."
         }
       ]
     }

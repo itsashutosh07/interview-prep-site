@@ -11,7 +11,7 @@
             "HLD"
           ],
           "category": "General",
-          "body": "",
+          "body": "SSE-2 Round 4 (LeetCode Nov 2023), Tech Lead Round 2 (Jul 2024). Covers: DB schema (trains, stations, routes, seats, bookings), SQL queries to find routes between cities, handling concurrent booking (optimistic locking / SELECT FOR UPDATE), scaling for high traffic.",
           "answer": "<strong>Concurrency strategy</strong>: JPA <code>@Version</code> (optimistic locking) for low-contention routes. For peak-time (tatkal), use Redis distributed lock (Redisson) with 30s TTL: <code>SETNX seat:lock:{seatId} userId EX 30</code>. Lock acquired → book → release. Lock not acquired → seat taken. <br><strong>Scaling</strong>: Read replicas for availability queries. Write to primary only. Partition Seat table by train_id. Cache popular route seat counts in Redis (invalidate on booking).",
           "solutions": [
             {
@@ -21,7 +21,8 @@
             }
           ],
           "links": [],
-          "source": "Reported: SSE-2 LeetCode Nov 2023, Tech Lead Jul 2024"
+          "source": "Reported: SSE-2 LeetCode Nov 2023, Tech Lead Jul 2024",
+          "hint": "Key tables: Station, Train, Schedule, Seat, Booking, User. Concurrency: SELECT ... FOR UPDATE on Seat row, or use Redis distributed lock for seat reservation flow."
         },
         {
           "id": "mmt-hld-002",
@@ -45,11 +46,12 @@
             "HLD"
           ],
           "category": "General",
-          "body": "",
+          "body": "Senior SDE GFG 2019 + SDE/SSE-2 variant (Oct 2024 — shortened MMT booking URL only accessible by that user). Key additions: API design, DB schema, caching, load balancing, user-specific access control.",
           "answer": "<strong>Core design</strong>: Auto-increment ID → Base62 encode → 6-char short code (62^6 = 56 billion URLs).<br><br>\n        <strong>DB Schema</strong>: <code>url_mapping(id BIGINT PK AUTO_INCREMENT, short_code VARCHAR(8) UNIQUE, long_url TEXT, user_id BIGINT, expires_at DATETIME, created_at TIMESTAMP)</code><br><br>\n        <strong>Redirect flow</strong>: GET /{code} → Redis GET url:{code} (cache hit ~2ms) → miss → DB query → cache set (TTL 7 days) → HTTP 301 redirect.<br><br>\n        <strong>Auth for MMT variant</strong>: JWT in request → extract userId → verify url_mapping.user_id == requestUserId → else 403.<br><br>\n        <strong>Scale</strong>: 100B URLs/day redirect reads → Redis cluster. Writes: ~10M/day → single MySQL primary is fine. Use CDN in front for global redirect acceleration. Analytics: async Kafka event on each redirect → ClickHouse for stats.",
           "solutions": [],
           "links": [],
-          "source": "Reported: Senior SDE GFG 2019, SDE/SSE-2 Oct 2024"
+          "source": "Reported: Senior SDE GFG 2019, SDE/SSE-2 Oct 2024",
+          "hint": "Base62 encoding. Short URL → Redis lookup → DB fallback. Auth: JWT session, short URL tied to userId, validate on redirect."
         },
         {
           "id": "mmt-hld-004",
@@ -59,7 +61,7 @@
             "HLD"
           ],
           "category": "General",
-          "body": "",
+          "body": "SDE-2 Round 3 (GFG 2021). Design a distributed cache — sharding, consistent hashing, replication, eviction policies, cache coherence in distributed setting.",
           "answer": "<strong>Key components</strong>:<br>\n        1. <strong>Consistent Hashing</strong>: Map keys to nodes on a ring. Adding/removing a node only remaps ~K/N keys (vs. K/2 with simple modulo). Use virtual nodes for uniform distribution.<br>\n        2. <strong>Replication</strong>: Each key stored on N nodes (e.g., 3). Reads from any replica. Writes to primary → async replication.<br>\n        3. <strong>Eviction</strong>: LRU per shard with max memory limit. TTL expiry (lazy + active background sweep).<br>\n        4. <strong>Cache Coherence</strong>: On write, invalidate all replicas (delete-on-write) or use versioned values (read-your-writes consistency).<br>\n        5. <strong>Client-side routing</strong>: Clients use the same consistent hash ring to determine which node to contact — no central router bottleneck.<br><br>\n        Redis Cluster in production implements this with 16384 hash slots distributed across master nodes, each with replicas.",
           "solutions": [],
           "links": [],
@@ -73,11 +75,12 @@
             "HLD"
           ],
           "category": "General",
-          "body": "",
+          "body": "Tech Lead on-site (Jul 2024). General question about architecting for extreme load. Covers: horizontal scaling, stateless services, load balancers (L4/L7), CDN, read replicas, partitioned caches, async processing via message queues.",
           "answer": "Layer by layer approach:<br>\n        1. <strong>Client/CDN</strong>: Static assets cached at edge. CDN absorbs 60–70% of traffic before it hits origin.<br>\n        2. <strong>API Gateway</strong>: Rate limiting, auth, request routing, SSL termination.<br>\n        3. <strong>Load Balancer</strong>: L7 (Application LB) → round-robin / least-connections across stateless service instances. Auto-scaling group expands horizontally.<br>\n        4. <strong>Services</strong>: Stateless microservices — no server-side session (JWT). Horizontally scalable.<br>\n        5. <strong>Cache</strong>: Redis cluster in front of DB. Cache-aside for hot data. Target 95%+ cache hit rate.<br>\n        6. <strong>DB</strong>: Read replicas for 80% read workload. Write to primary. Shard by user_id or booking_id for extreme scale.<br>\n        7. <strong>Async</strong>: Non-critical work (emails, analytics, rewards) offloaded to Kafka → workers. Reduces synchronous API latency.<br>\n        8. <strong>Circuit Breakers</strong>: Resilience4j on downstream calls. Fallback to stale cache or graceful degradation.",
           "solutions": [],
           "links": [],
-          "source": "Reported: Tech Lead LeetCode Jul 2024"
+          "source": "Reported: Tech Lead LeetCode Jul 2024",
+          "hint": "Think in layers: Client → CDN → API Gateway → Service mesh → DB read replicas → async queues. Rate limiting at gateway. Circuit breakers for downstream services."
         },
         {
           "id": "mmt-hld-006",
@@ -91,7 +94,8 @@
           "answer": null,
           "solutions": [],
           "links": [],
-          "source": "Reported: Tech Lead LeetCode Jul 2024"
+          "source": "Reported: Tech Lead LeetCode Jul 2024",
+          "hint": "Consistent hashing for key distribution. Each node has replicas. Eviction: LRU or LFU with TTL. Write strategy: write-through for consistency, write-behind for performance."
         },
         {
           "id": "mmt-hld-007",
@@ -119,7 +123,8 @@
           "answer": "<p>WebSocket for real-time. Fan-out on write for group chat. Message queue (Kafka) for delivery. Cassandra for message storage (wide column, time-series friendly).</p>",
           "solutions": [],
           "links": [],
-          "source": "Reported: Naukri Code360 Jul 2022"
+          "source": "Reported: Naukri Code360 Jul 2022",
+          "hint": "WebSocket for real-time. Fan-out on write for group chat. Message queue (Kafka) for delivery. Cassandra for message storage (wide column, time-series friendly)."
         },
         {
           "id": "mmt-hld-009",
@@ -133,7 +138,8 @@
           "answer": "<p>Geospatial index (Redis Geo or PostGIS). Driver location updated via Kafka stream. Nearest driver: GEORADIUSBYMEMBER. Assignment: optimistic lock on driver availability flag.</p>",
           "solutions": [],
           "links": [],
-          "source": "Reported: CodingKaro SSE/SDE Round 2"
+          "source": "Reported: CodingKaro SSE/SDE Round 2",
+          "hint": "Geospatial index (Redis Geo or PostGIS). Driver location updated via Kafka stream. Nearest driver: GEORADIUSBYMEMBER. Assignment: optimistic lock on driver availability flag."
         },
         {
           "id": "mmt-hld-010",

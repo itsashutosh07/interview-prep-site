@@ -11,7 +11,7 @@
             "LLD"
           ],
           "category": "General",
-          "body": "Use State pattern. Concurrency: ReentrantLock per machine. Shown above in Design Patterns section — here's the complete flow with dispensing state.",
+          "body": "",
           "answer": null,
           "solutions": [
             {
@@ -21,7 +21,8 @@
             }
           ],
           "links": [],
-          "source": "Reported: SDE-2 LeetCode 2025, CodingKaro Java Developer"
+          "source": "Reported: SDE-2 LeetCode 2025, CodingKaro Java Developer",
+          "hint": "Use State pattern. Concurrency: ReentrantLock per machine. Shown above in Design Patterns section — here's the complete flow with dispensing state."
         },
         {
           "id": "mmt-lld-002",
@@ -111,7 +112,7 @@
             "LLD"
           ],
           "category": "General",
-          "body": "",
+          "body": "SDE-2 (4 years exp) Round 2 (GFG). 3 restaurants with different getMenu() request/response formats. Expose single API to client returning unified item list. Key: Adapter pattern per restaurant.",
           "answer": null,
           "solutions": [
             {
@@ -121,7 +122,8 @@
             }
           ],
           "links": [],
-          "source": "Reported: SDE-2 GFG 4 years exp"
+          "source": "Reported: SDE-2 GFG 4 years exp",
+          "hint": "Interface: RestaurantAdapter.search(query) → List<Item>. Concrete: Restaurant1Adapter, Restaurant2Adapter wrapping their respective clients. Facade: FoodSearchService aggregates all adapters."
         },
         {
           "id": "mmt-lld-007",
@@ -135,7 +137,8 @@
           "answer": "<p>Immutable builder approach: each setter returns a new builder with the updated field. Thread-safe because no shared mutable state. For mutable: use AtomicReference<T> on the final object.</p>",
           "solutions": [],
           "links": [],
-          "source": "Reported: SDE/SSE-2 LeetCode Discuss Oct 2024"
+          "source": "Reported: SDE/SSE-2 LeetCode Discuss Oct 2024",
+          "hint": "Immutable builder approach: each setter returns a new builder with the updated field. Thread-safe because no shared mutable state. For mutable: use AtomicReference<T> on the final object."
         },
         {
           "id": "mmt-lld-008",
@@ -149,7 +152,8 @@
           "answer": null,
           "solutions": [],
           "links": [],
-          "source": "Reported: Glassdoor Bangalore Java Developer"
+          "source": "Reported: Glassdoor Bangalore Java Developer",
+          "hint": "Approach: maintain cumulative thresholds [0,50), [50,80), [80,100). Generate random 0-99, find bucket. Alternatively: modulo counters."
         },
         {
           "id": "mmt-lld-009",
@@ -191,7 +195,8 @@
           "answer": "<p>Engineer implements Communicable, Coder, Roboticist (interfaces). Use Java interfaces for mixin-style composition.</p>",
           "solutions": [],
           "links": [],
-          "source": "Reported: SDE-2 GFG 4 years exp"
+          "source": "Reported: SDE-2 GFG 4 years exp",
+          "hint": "Engineer implements Communicable, Coder, Roboticist (interfaces). Use Java interfaces for mixin-style composition."
         },
         {
           "id": "mmt-lld-012",
@@ -205,7 +210,8 @@
           "answer": null,
           "solutions": [],
           "links": [],
-          "source": "Reported: Naukri Code360 Oct 2022"
+          "source": "Reported: Naukri Code360 Oct 2022",
+          "hint": "Rule interface: boolean matches(int n); String output(). Rules are injected as a list. New rules added without modifying existing code."
         }
       ]
     }
