@@ -27,7 +27,7 @@ import {
   escapeHtml,
   companyLogoHtml,
   siteTitleHtml,
-} from "./render.js?v=30";
+} from "./render.js?v=32";
 
 const app = document.getElementById("app");
 let state = loadState();
@@ -37,7 +37,7 @@ const inflight = {}; // slug -> Promise
 let routeGen = 0;
 
 /** Bust browser cache for ES modules + JSON after deploys */
-const ASSET_V = "31";
+const ASSET_V = "32";
 
 function withV(path) {
   const join = path.includes("?") ? "&" : "?";
