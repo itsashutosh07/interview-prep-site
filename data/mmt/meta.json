@@ -1,5 +1,5 @@
 {
-  "title": "MakeMyTrip Technical Interview — Complete Prep Guide",
+  "title": "MakeMyTrip — Engineering Track",
   "intro": "Compiled from GFG, LeetCode Discuss, Glassdoor, Naukri Code360 — 2019–2025. DSA answers in C++. Backend/LLD/HLD answers in Java / Spring Boot / MySQL.",
   "stats": [
     {
@@ -20,7 +20,7 @@
     },
     {
       "num": "3–5",
-      "label": "Interview Rounds"
+      "label": "Rounds"
     }
   ],
   "process": [

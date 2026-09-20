@@ -1,6 +1,6 @@
-/** localStorage persistence for interview prep progress */
+/** localStorage persistence for Switchboard progress */
 
-const STORAGE_KEY = "interview-prep:v1";
+const STORAGE_KEY = "switchboard:v1";
 
 function emptyState() {
   return { companies: {} };

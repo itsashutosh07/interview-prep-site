@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Extract interview prep content from HTML sources into JSON data files."""
+"""Extract Switchboard content from HTML sources into JSON data files."""
 from __future__ import annotations
 
 import json
@@ -340,7 +340,7 @@ def parse_meta(overview: str, tips: str) -> dict:
         warn = {"title": wtitle or "Note", "body": wbody}
 
     intro_m = re.search(r"<h1>(.*?)</h1>\s*<p[^>]*>(.*?)</p>", overview, re.S)
-    title = strip_tags(intro_m.group(1)) if intro_m else "MakeMyTrip Interview Prep"
+    title = strip_tags(intro_m.group(1)) if intro_m else "MakeMyTrip — Engineering Track"
     intro = strip_tags(intro_m.group(2)) if intro_m else ""
 
     # Tips sections

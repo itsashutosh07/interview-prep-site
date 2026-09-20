@@ -1,11 +1,11 @@
-/** Render helpers for interview prep UI */
+/** Render helpers for Switchboard */
 
 import {
   getQuestionState,
   setDone,
   setNote,
   progressForIds,
-} from "./storage.js?v=15";
+} from "./storage.js?v=34";
 import { highlight } from "./highlight.js?v=22";
 
 const FREQ_LABEL = { high: "🔥 High", med: "⚡ Med", low: "🟢 Once" };
@@ -443,7 +443,7 @@ export function renderOverview(meta) {
     <h1>${escapeHtml(meta.title)}</h1>
     <p class="muted" style="margin-bottom:16px;font-size:13px">${escapeHtml(meta.intro)}</p>
     <div class="stats-grid">${stats}</div>
-    <h2>Interview Process</h2>
+    <h2>Round Map</h2>
     <div class="process-timeline">${process}</div>
     ${warn}`;
 }
