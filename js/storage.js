@@ -2,21 +2,41 @@
 
 const STORAGE_KEY = "switchboard:v1";
 
+function emptyPrefs() {
+  return { quietChrome: false };
+}
+
 function emptyState() {
-  return { companies: {} };
+  return { companies: {}, prefs: emptyPrefs() };
+}
+
+function normalizeState(parsed) {
+  if (!parsed || typeof parsed !== "object") return emptyState();
+  if (!parsed.companies || typeof parsed.companies !== "object") parsed.companies = {};
+  if (!parsed.prefs || typeof parsed.prefs !== "object") parsed.prefs = emptyPrefs();
+  if (typeof parsed.prefs.quietChrome !== "boolean") parsed.prefs.quietChrome = false;
+  return parsed;
 }
 
 export function loadState() {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return emptyState();
-    const parsed = JSON.parse(raw);
-    if (!parsed || typeof parsed !== "object") return emptyState();
-    if (!parsed.companies) parsed.companies = {};
-    return parsed;
+    return normalizeState(JSON.parse(raw));
   } catch {
     return emptyState();
   }
+}
+
+export function getQuietChrome(state) {
+  return !!state?.prefs?.quietChrome;
+}
+
+export function setQuietChrome(state, on) {
+  if (!state.prefs) state.prefs = emptyPrefs();
+  state.prefs.quietChrome = !!on;
+  saveState(state);
+  return state.prefs.quietChrome;
 }
 
 export function saveState(state) {
@@ -86,8 +106,8 @@ export function exportState(state) {
 }
 
 export function importState(jsonText) {
-  const parsed = JSON.parse(jsonText);
-  if (!parsed || typeof parsed !== "object" || !parsed.companies) {
+  const parsed = normalizeState(JSON.parse(jsonText));
+  if (!parsed.companies) {
     throw new Error("Invalid backup file");
   }
   saveState(parsed);
@@ -102,7 +122,8 @@ export function clearCompanyProgress(state, companyId) {
 }
 
 export function clearAll(state) {
-  const next = emptyState();
+  const prefs = state?.prefs ? { ...emptyPrefs(), ...state.prefs } : emptyPrefs();
+  const next = { companies: {}, prefs };
   saveState(next);
   return next;
 }

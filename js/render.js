@@ -5,7 +5,7 @@ import {
   setDone,
   setNote,
   progressForIds,
-} from "./storage.js?v=34";
+} from "./storage.js?v=35";
 import { highlight } from "./highlight.js?v=22";
 
 const FREQ_LABEL = { high: "🔥 High", med: "⚡ Med", low: "🟢 Once" };
@@ -17,6 +17,17 @@ const TAB_LABELS = {
   hld: "HLD",
   tips: "Tips",
 };
+
+/** Soft labels for quiet chrome — readable, not interview-coded */
+const QUIET_TAB_LABELS = {
+  overview: "Overview",
+  dsa: "Practice",
+  backend: "Topics",
+  lld: "Design",
+  hld: "Systems",
+  tips: "Notes",
+};
+
 const TAB_ICONS = {
   overview: "🏠",
   dsa: "💻",
@@ -26,7 +37,25 @@ const TAB_ICONS = {
   tips: "🎯",
 };
 
-export { TAB_LABELS, TAB_ICONS };
+const PAGE_HEADINGS = {
+  dsa: { loud: "DSA + C++ Solutions", quiet: "Practice" },
+  backend: { loud: "Backend Q&amp;A", quiet: "Topics" },
+  lld: { loud: "LLD + Java Code", quiet: "Design" },
+  hld: { loud: "HLD / System Design", quiet: "Systems" },
+};
+
+export { TAB_LABELS, QUIET_TAB_LABELS, TAB_ICONS, PAGE_HEADINGS };
+
+export function tabLabel(tab, quiet = false) {
+  if (quiet) return QUIET_TAB_LABELS[tab] || TAB_LABELS[tab] || tab;
+  return TAB_LABELS[tab] || tab;
+}
+
+export function pageHeading(tab, quiet = false) {
+  const h = PAGE_HEADINGS[tab];
+  if (!h) return tabLabel(tab, quiet);
+  return quiet ? h.quiet : h.loud;
+}
 
 export function escapeHtml(s) {
   return String(s ?? "")
@@ -448,7 +477,7 @@ export function renderOverview(meta) {
     ${warn}`;
 }
 
-export function renderTips(meta) {
+export function renderTips(meta, quiet = false) {
   const boxes = (meta.tipBoxes || [])
     .map(
       (b) =>
@@ -467,7 +496,8 @@ export function renderTips(meta) {
     ? `<div class="warn-box"><div class="tip-title">${escapeHtml(meta.tipWarn.title)}</div><ul class="tip-list">${(meta.tipWarn.items || []).map((i) => `<li>${escapeHtml(i)}</li>`).join("")}</ul></div>`
     : "";
 
-  return `<h1>Strategy &amp; Preparation</h1>${boxes}${sections}${warn}`;
+  const title = quiet ? "Notes" : "Strategy &amp; Preparation";
+  return `<h1>${title}</h1>${boxes}${sections}${warn}`;
 }
 
 export function bindInteractive(root, state, companyId, onProgressChange) {
