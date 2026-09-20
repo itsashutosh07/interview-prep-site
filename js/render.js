@@ -5,10 +5,10 @@ import {
   setDone,
   setNote,
   progressForIds,
-} from "./storage.js?v=37";
+} from "./storage.js?v=38";
 import { highlight } from "./highlight.js?v=22";
 
-const FREQ_LABEL = { high: "🔥 High", med: "⚡ Med", low: "🟢 Once" };
+const FREQ_LABEL = { high: "High", med: "Med", low: "Once" };
 const TAB_LABELS = {
   overview: "Overview",
   dsa: "DSA",
@@ -149,7 +149,10 @@ export function collectQuestionIds(data) {
 }
 
 export function siteTitleHtml() {
-  return `<div class="topbar-title"><img class="site-mark" src="assets/logos/site-mark.svg" alt="" />Switchboard</div>`;
+  return `<div class="topbar-brand" aria-label="Switchboard">
+    <img class="site-mark" src="assets/logos/site-mark.svg" alt="" width="22" height="22" />
+    <span class="topbar-wordmark">Switchboard</span>
+  </div>`;
 }
 
 export function companyLogoHtml(c, { className = "company-logo" } = {}) {
@@ -180,13 +183,15 @@ export function renderHome(companies, state, onOpen) {
 
   return `
       <header class="topbar">
-      <button type="button" class="topbar-menu-btn" data-sidebar-open aria-label="Open menu">☰</button>
+      <button type="button" class="topbar-menu-btn" data-sidebar-open aria-label="Open menu">
+        <svg viewBox="0 0 16 16" width="18" height="18" aria-hidden="true"><path d="M2.5 4h11M2.5 8h11M2.5 12h11" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </button>
       ${siteTitleHtml()}
     </header>
     <div class="home">
       <div class="home-hero">
         <h1>Switchboard</h1>
-        <p>Company tracks for DSA, backend, LLD &amp; HLD. Progress stays in this browser.</p>
+        <p>Company tracks. Progress stays in this browser.</p>
       </div>
       <div class="company-grid">${cards}</div>
     </div>`;
@@ -496,8 +501,8 @@ export function renderTips(meta, quiet = false) {
     ? `<div class="warn-box"><div class="tip-title">${escapeHtml(meta.tipWarn.title)}</div><ul class="tip-list">${(meta.tipWarn.items || []).map((i) => `<li>${escapeHtml(i)}</li>`).join("")}</ul></div>`
     : "";
 
-  const title = quiet ? "Notes" : "Strategy &amp; Preparation";
-  return `<h1>${title}</h1>${boxes}${sections}${warn}`;
+  if (quiet) return `${boxes}${sections}${warn}`;
+  return `<h1>Strategy &amp; Preparation</h1>${boxes}${sections}${warn}`;
 }
 
 export function bindInteractive(root, state, companyId, onProgressChange) {

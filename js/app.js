@@ -11,7 +11,7 @@ import {
   clearAll,
   getQuietChrome,
   setQuietChrome,
-} from "./storage.js?v=37";
+} from "./storage.js?v=38";
 import {
   TAB_LABELS,
   TAB_ICONS,
@@ -31,7 +31,7 @@ import {
   escapeHtml,
   companyLogoHtml,
   siteTitleHtml,
-} from "./render.js?v=37";
+} from "./render.js?v=38";
 
 const app = document.getElementById("app");
 let state = loadState();
@@ -41,7 +41,7 @@ const inflight = {}; // slug -> Promise
 let routeGen = 0;
 
 /** Bust browser cache for ES modules + JSON after deploys */
-const ASSET_V = "37";
+const ASSET_V = "38";
 
 function withV(path) {
   const join = path.includes("?") ? "&" : "?";
@@ -301,10 +301,7 @@ function showSettings(companyId) {
   });
 }
 
-function pageIntro(tab, tp, quiet) {
-  if (quiet) {
-    return `<div class="page-intro"><strong>${tp.done}/${tp.total}</strong> done.</div>`;
-  }
+function pageIntro(tab, tp) {
   if (tab === "dsa") {
     return `<div class="page-intro">
       Ordered by frequency. <strong>${tp.done}/${tp.total}</strong> done.
@@ -325,6 +322,22 @@ function pageIntro(tab, tp, quiet) {
   return `<div class="page-intro">
     <strong>${tp.done}/${tp.total}</strong> done. Tap a title → <strong>Show answer</strong> for design notes / <strong>Add notes</strong>.
   </div>`;
+}
+
+/** Quiet list header: thin rail instead of a boxed intro + redundant H1 */
+function listRailHtml(tp) {
+  const pct = tp.total ? Math.round((tp.done / tp.total) * 100) : 0;
+  return `<div class="list-rail" aria-label="${tp.done} of ${tp.total} complete">
+    <div class="list-rail-track"><span data-list-progress-bar style="width:${pct}%"></span></div>
+    <span class="list-rail-label" data-list-progress-label>${tp.done} of ${tp.total}</span>
+  </div>`;
+}
+
+function listPageHtml(tab, tp, quiet, listHtml) {
+  if (quiet) {
+    return `${listRailHtml(tp)}<div data-list>${listHtml}</div>`;
+  }
+  return `<h1>${pageHeading(tab, false)}</h1>${pageIntro(tab, tp)}<div data-list>${listHtml}</div>`;
 }
 
 async function renderHomeView() {
@@ -401,7 +414,7 @@ function renderCompanyShell(company, tab, progressLabel, quiet) {
 
   const sectionsControl = `
     <div class="sections-menu" data-sections-root>
-      <button type="button" class="topbar-section-switch" data-sections-toggle aria-haspopup="menu" aria-expanded="false" aria-controls="sections-popover">
+      <button type="button" class="topbar-section-switch" data-sections-toggle aria-haspopup="menu" aria-expanded="false" aria-controls="sections-popover" aria-label="Section: ${currentSoft}">
         <span class="topbar-section-label" data-section-label>${currentSoft}</span>
         <svg class="topbar-section-chevron" viewBox="0 0 12 12" width="12" height="12" aria-hidden="true">
           <path d="M2.5 4.5 6 8l3.5-3.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
@@ -414,12 +427,13 @@ function renderCompanyShell(company, tab, progressLabel, quiet) {
 
   const topbarSearch = quiet && needsSearch ? searchControlsHtml("top") : "";
   const chipRowSearch = !quiet && needsSearch ? searchControlsHtml("chip") : "";
+  const menuIcon = `<svg viewBox="0 0 16 16" width="18" height="18" aria-hidden="true"><path d="M2.5 4h11M2.5 8h11M2.5 12h11" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>`;
 
   return `
     <div class="company-shell" data-company="${escapeHtml(company.id)}">
       <div class="company-chrome">
-        <header class="topbar">
-          <button type="button" class="topbar-menu-btn" data-sidebar-open aria-label="Open menu">☰</button>
+        <header class="topbar${quiet ? " topbar--quiet" : ""}">
+          <button type="button" class="topbar-menu-btn" data-sidebar-open aria-label="Open menu">${menuIcon}</button>
           ${siteTitleHtml()}
           <span class="topbar-progress" data-top-progress>${escapeHtml(progressLabel)}</span>
           <div class="topbar-end">
@@ -437,7 +451,7 @@ function renderCompanyShell(company, tab, progressLabel, quiet) {
         </nav>`
         }
       </div>
-      <main class="page" data-page></main>
+      <main class="page${quiet ? " page--quiet" : ""}" data-page></main>
       <nav class="bottom-nav" aria-label="Sections">${bottom}</nav>
     </div>`;
 }
@@ -447,6 +461,10 @@ function updateProgressUI(shell, state, company, data) {
   const prog = progressForIds(state, company.id, ids);
   const el = shell.querySelector("[data-top-progress]");
   if (el) el.textContent = prog.total ? `${prog.done}/${prog.total}` : "—";
+  const bar = shell.querySelector("[data-list-progress-bar]");
+  if (bar) bar.style.width = prog.total ? `${prog.pct}%` : "0%";
+  const label = shell.querySelector("[data-list-progress-label]");
+  if (label) label.textContent = prog.total ? `${prog.done} of ${prog.total}` : "—";
 }
 
 async function renderCompanyView(slug, tabIn, gen = routeGen) {
@@ -518,28 +536,36 @@ async function renderCompanyView(slug, tabIn, gen = routeGen) {
     page.innerHTML = renderTips(data.meta, quiet);
   } else if (tab === "backend") {
     const tp = tabProgress(state, company.id, data, "backend");
-    page.innerHTML = `
-      <h1>${pageHeading("backend", quiet)}</h1>
-      ${pageIntro("backend", tp, quiet)}
-      <div data-list>${renderBackend(data.backend.topics, state, company.id)}</div>`;
+    page.innerHTML = listPageHtml(
+      "backend",
+      tp,
+      quiet,
+      renderBackend(data.backend.topics, state, company.id)
+    );
   } else if (tab === "dsa") {
     const tp = tabProgress(state, company.id, data, "dsa");
-    page.innerHTML = `
-      <h1>${pageHeading("dsa", quiet)}</h1>
-      ${pageIntro("dsa", tp, quiet)}
-      <div data-list>${renderQuestionList(data.dsa.categories, "dsa", state, company.id)}</div>`;
+    page.innerHTML = listPageHtml(
+      "dsa",
+      tp,
+      quiet,
+      renderQuestionList(data.dsa.categories, "dsa", state, company.id)
+    );
   } else if (tab === "lld") {
     const tp = tabProgress(state, company.id, data, "lld");
-    page.innerHTML = `
-      <h1>${pageHeading("lld", quiet)}</h1>
-      ${pageIntro("lld", tp, quiet)}
-      <div data-list>${renderQuestionList(data.lld.categories, "lld", state, company.id)}</div>`;
+    page.innerHTML = listPageHtml(
+      "lld",
+      tp,
+      quiet,
+      renderQuestionList(data.lld.categories, "lld", state, company.id)
+    );
   } else if (tab === "hld") {
     const tp = tabProgress(state, company.id, data, "hld");
-    page.innerHTML = `
-      <h1>${pageHeading("hld", quiet)}</h1>
-      ${pageIntro("hld", tp, quiet)}
-      <div data-list>${renderQuestionList(data.hld.categories, "hld", state, company.id)}</div>`;
+    page.innerHTML = listPageHtml(
+      "hld",
+      tp,
+      quiet,
+      renderQuestionList(data.hld.categories, "hld", state, company.id)
+    );
   }
 
   const listRoot = page.querySelector("[data-list]") || page;

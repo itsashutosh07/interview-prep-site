@@ -97,22 +97,39 @@ code {
   width: var(--tap); height: var(--tap);
   display: inline-flex; align-items: center; justify-content: center;
   border: none; background: transparent; color: var(--text);
-  font-size: 22px; cursor: pointer; border-radius: 8px;
+  cursor: pointer; border-radius: 8px;
   line-height: 1;
 }
 .topbar-menu-btn:hover { background: var(--surface); color: var(--accent2); }
+.topbar-menu-btn svg { display: block; }
 
-.topbar-title {
-  flex: 1; min-width: 0;
-  display: flex; align-items: center; gap: 8px;
-  font-size: 16px; font-weight: 700; color: var(--accent);
-  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+.topbar-brand {
+  flex: 0 1 auto;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 15px;
+  font-weight: 650;
+  letter-spacing: -0.02em;
+  color: var(--accent);
+  white-space: nowrap;
+}
+.topbar-wordmark {
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .site-mark {
-  width: 22px; height: 22px;
+  width: 22px;
+  height: 22px;
   flex-shrink: 0;
   display: block;
 }
+/* Never clip the product name — mark alone on narrow viewports */
+@media (max-width: 560px) {
+  .topbar-wordmark { display: none; }
+}
+
 .topbar-spacer { flex: 1; min-width: 0; }
 
 .topbar-logo {
@@ -126,6 +143,7 @@ code {
 
 .topbar-progress {
   flex-shrink: 0;
+  margin-left: auto;
   font-size: 12px; font-weight: 600;
   color: var(--accent3);
   background: rgba(86, 211, 100, 0.1);
@@ -141,38 +159,47 @@ code {
 }
 .topbar-settings:hover { background: var(--surface); color: var(--text); }
 
-/* Sections menu (quiet chrome) — label + chevron, not a second hamburger */
+/* Quiet topbar: mark + section title control + tools — one composed row */
 .topbar-end {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 2px;
   flex-shrink: 0;
+}
+.topbar--quiet .topbar-end {
   margin-left: auto;
+}
+.topbar--quiet .topbar-brand {
+  flex: 0 0 auto;
+}
+.topbar--quiet .topbar-wordmark {
+  display: none;
 }
 .sections-menu {
   position: relative;
-  flex-shrink: 0;
+  flex-shrink: 1;
+  min-width: 0;
 }
 .topbar-section-switch {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  max-width: min(38vw, 140px);
-  min-height: 34px;
-  padding: 6px 10px;
-  border: 1px solid var(--border);
+  gap: 5px;
+  max-width: min(42vw, 160px);
+  min-height: 36px;
+  padding: 6px 8px;
+  border: none;
   border-radius: 8px;
-  background: rgba(230, 237, 243, 0.03);
+  background: transparent;
   color: var(--text);
-  font-size: 13px;
-  font-weight: 600;
+  font-size: 15px;
+  font-weight: 650;
+  letter-spacing: -0.02em;
   cursor: pointer;
-  transition: background 0.15s ease, border-color 0.15s ease;
+  transition: background 0.15s ease;
 }
 .topbar-section-switch:hover,
 .sections-menu.open .topbar-section-switch {
-  background: var(--surface);
-  border-color: rgba(230, 237, 243, 0.18);
+  background: rgba(230, 237, 243, 0.06);
 }
 .topbar-section-label {
   overflow: hidden;
@@ -181,7 +208,7 @@ code {
 }
 .topbar-section-chevron {
   flex-shrink: 0;
-  opacity: 0.7;
+  opacity: 0.55;
   transition: transform 0.15s ease;
 }
 .sections-menu.open .topbar-section-chevron {
@@ -237,7 +264,6 @@ body.quiet-chrome.view-company {
 body.quiet-chrome .topbar {
   border-bottom: 1px solid var(--border);
 }
-/* Search lives in the topbar — expand without a wasted second row */
 body.quiet-chrome .topbar .chip-search-wrap {
   min-height: var(--tap);
 }
@@ -245,7 +271,7 @@ body.quiet-chrome .topbar .chip-search-toggle {
   width: var(--tap);
   height: var(--tap);
 }
-body.quiet-chrome .topbar.search-open .topbar-title,
+body.quiet-chrome .topbar.search-open .topbar-brand,
 body.quiet-chrome .topbar.search-open .sections-menu {
   opacity: 0;
   width: 0;
@@ -679,6 +705,9 @@ body.sidebar-open { overflow: hidden; }
 .page {
   padding: 16px 14px 24px;
 }
+.page--quiet {
+  padding-top: 12px;
+}
 
 .page h1 { font-size: var(--fs-page); font-weight: 650; margin-bottom: 6px; letter-spacing: -0.02em; }
 .page h2 {
@@ -702,6 +731,37 @@ body.sidebar-open { overflow: hidden; }
   line-height: 1.65;
 }
 .page-intro strong { color: var(--text); }
+
+/* Quiet progress — typographic rail, not a callout box */
+.list-rail {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 0 0 14px;
+  min-height: 20px;
+}
+.list-rail-track {
+  flex: 1;
+  height: 2px;
+  background: rgba(230, 237, 243, 0.08);
+  border-radius: 1px;
+  overflow: hidden;
+}
+.list-rail-track > span {
+  display: block;
+  height: 100%;
+  background: var(--accent3);
+  border-radius: 1px;
+  transition: width 0.2s ease;
+}
+.list-rail-label {
+  flex-shrink: 0;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
 
 .muted { color: var(--muted); }
 
@@ -1142,18 +1202,22 @@ body.sidebar-open { overflow: hidden; }
   border: 1px solid rgba(121, 192, 255, 0.2);
 }
 
-/* Freq / pills */
+/* Freq / pills — typographic, no emoji */
 .freq {
-  display: inline-block; font-size: 11px; font-weight: 600;
-  padding: 2px 8px; border-radius: 20px;
+  display: inline-flex; align-items: center;
+  font-size: 10px; font-weight: 650; letter-spacing: 0.04em;
+  text-transform: uppercase;
+  padding: 2px 7px; border-radius: 4px;
 }
-.freq-high { background: rgba(248, 81, 73, 0.15); color: var(--high); border: 1px solid rgba(248, 81, 73, 0.3); }
-.freq-med { background: rgba(210, 153, 34, 0.15); color: var(--med); border: 1px solid rgba(210, 153, 34, 0.3); }
-.freq-low { background: rgba(63, 185, 80, 0.15); color: var(--low); border: 1px solid rgba(63, 185, 80, 0.3); }
+.freq-high { background: rgba(248, 81, 73, 0.12); color: #ff7b72; }
+.freq-med { background: rgba(210, 153, 34, 0.12); color: #e3b341; }
+.freq-low { background: rgba(63, 185, 80, 0.12); color: #3fb950; }
 
 .pill {
-  display: inline-block; font-size: 11px; font-weight: 600;
-  padding: 2px 8px; border-radius: 20px;
+  display: inline-flex; align-items: center;
+  font-size: 11px; font-weight: 500;
+  padding: 2px 8px; border-radius: 4px;
+  background: var(--tag-bg); color: var(--muted);
 }
 .pill-dsa { background: var(--pill-dsa); color: var(--pill-dsa-text); }
 .pill-backend { background: var(--pill-backend); color: var(--pill-backend-text); }
@@ -1432,7 +1496,8 @@ body.sidebar-open { overflow: hidden; }
   .bottom-nav { display: none !important; }
 
   .topbar { padding: 0 24px; min-height: 56px; }
-  .topbar-title { font-size: 15px; }
+  .topbar-brand { font-size: 15px; }
+  .topbar-wordmark { display: inline; }
 
   .home { padding: 36px 24px; max-width: 900px; }
   .home-hero h1 { font-size: 32px; }
