@@ -141,23 +141,51 @@ code {
 }
 .topbar-settings:hover { background: var(--surface); color: var(--text); }
 
-/* Sections menu (quiet chrome) */
+/* Sections menu (quiet chrome) — label + chevron, not a second hamburger */
+.topbar-end {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+  margin-left: auto;
+}
 .sections-menu {
   position: relative;
   flex-shrink: 0;
-  display: none;
 }
-body.quiet-chrome .sections-menu { display: block; }
-
-.topbar-sections {
-  width: var(--tap); height: var(--tap);
-  display: inline-flex; align-items: center; justify-content: center;
-  border: none; background: transparent; color: var(--muted);
-  cursor: pointer; border-radius: 8px;
+.topbar-section-switch {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  max-width: min(38vw, 140px);
+  min-height: 34px;
+  padding: 6px 10px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: rgba(230, 237, 243, 0.03);
+  color: var(--text);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease;
 }
-.topbar-sections:hover,
-.sections-menu.open .topbar-sections {
-  background: var(--surface); color: var(--text);
+.topbar-section-switch:hover,
+.sections-menu.open .topbar-section-switch {
+  background: var(--surface);
+  border-color: rgba(230, 237, 243, 0.18);
+}
+.topbar-section-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.topbar-section-chevron {
+  flex-shrink: 0;
+  opacity: 0.7;
+  transition: transform 0.15s ease;
+}
+.sections-menu.open .topbar-section-chevron {
+  transform: rotate(180deg);
 }
 
 .sections-popover {
@@ -166,7 +194,7 @@ body.quiet-chrome .sections-menu { display: block; }
   right: 0;
   z-index: 120;
   min-width: 200px;
-  padding: 8px;
+  padding: 6px;
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 12px;
@@ -176,14 +204,6 @@ body.quiet-chrome .sections-menu { display: block; }
 @keyframes sections-in {
   from { opacity: 0; transform: translateY(-4px); }
   to { opacity: 1; transform: translateY(0); }
-}
-.sections-popover-label {
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  color: var(--muted);
-  padding: 6px 10px 8px;
 }
 .sections-item {
   width: 100%;
@@ -204,10 +224,7 @@ body.quiet-chrome .sections-menu { display: block; }
 }
 .sections-item-icon { font-size: 15px; width: 1.25em; text-align: center; opacity: 0.9; }
 
-/* Quiet chrome: collapse loud section chrome */
-body.quiet-chrome .chip-tabs-scroll {
-  display: none !important;
-}
+/* Quiet chrome: single sticky topbar, no loud docks */
 body.quiet-chrome .topbar-progress {
   display: none !important;
 }
@@ -217,16 +234,40 @@ body.quiet-chrome .bottom-nav {
 body.quiet-chrome.view-company {
   padding-bottom: var(--safe-bottom);
 }
-body.quiet-chrome .chip-tabs:not(:has([data-search-wrap])) {
-  display: none;
+body.quiet-chrome .topbar {
+  border-bottom: 1px solid var(--border);
 }
-body.quiet-chrome .chip-tabs:has([data-search-wrap]) {
-  justify-content: flex-end;
-  padding-top: 4px;
-  padding-bottom: 4px;
+/* Search lives in the topbar — expand without a wasted second row */
+body.quiet-chrome .topbar .chip-search-wrap {
+  min-height: var(--tap);
 }
-body.quiet-chrome .chip-tabs:has([data-search-wrap]) .chip-search-wrap {
-  margin-left: auto;
+body.quiet-chrome .topbar .chip-search-toggle {
+  width: var(--tap);
+  height: var(--tap);
+}
+body.quiet-chrome .topbar.search-open .topbar-title,
+body.quiet-chrome .topbar.search-open .sections-menu {
+  opacity: 0;
+  width: 0;
+  min-width: 0;
+  max-width: 0;
+  overflow: hidden;
+  padding: 0;
+  margin: 0;
+  border: none;
+  pointer-events: none;
+}
+body.quiet-chrome .topbar.search-open .topbar-end {
+  flex: 1;
+  min-width: 0;
+}
+body.quiet-chrome .topbar.search-open .chip-search-wrap {
+  flex: 1;
+  min-width: 0;
+}
+body.quiet-chrome .topbar.search-open .chip-search-wrap.open .chip-search-panel {
+  width: 100%;
+  max-width: none;
 }
 
 .sidebar-logo {

@@ -5,7 +5,7 @@ import {
   setDone,
   setNote,
   progressForIds,
-} from "./storage.js?v=35";
+} from "./storage.js?v=36";
 import { highlight } from "./highlight.js?v=22";
 
 const FREQ_LABEL = { high: "🔥 High", med: "⚡ Med", low: "🟢 Once" };
@@ -640,14 +640,15 @@ export function bindSearch(wrap, listRoot) {
   const toggle = wrap.querySelector("[data-search-toggle]");
   const closeBtn = wrap.querySelector("[data-search-close]");
   const tabs = wrap.closest(".chip-tabs");
+  const topbar = wrap.closest(".topbar");
   if (!input) return;
 
   const setOpen = (open) => {
     wrap.classList.toggle("open", open);
     tabs?.classList.toggle("search-open", open);
+    topbar?.classList.toggle("search-open", open);
     if (toggle) toggle.setAttribute("aria-expanded", open ? "true" : "false");
     if (open) {
-      // Wait one frame so the width transition has started before focusing
       requestAnimationFrame(() => input.focus());
     } else {
       input.blur();

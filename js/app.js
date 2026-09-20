@@ -11,7 +11,7 @@ import {
   clearAll,
   getQuietChrome,
   setQuietChrome,
-} from "./storage.js?v=35";
+} from "./storage.js?v=36";
 import {
   TAB_LABELS,
   TAB_ICONS,
@@ -31,7 +31,7 @@ import {
   escapeHtml,
   companyLogoHtml,
   siteTitleHtml,
-} from "./render.js?v=35";
+} from "./render.js?v=36";
 
 const app = document.getElementById("app");
 let state = loadState();
@@ -41,7 +41,7 @@ const inflight = {}; // slug -> Promise
 let routeGen = 0;
 
 /** Bust browser cache for ES modules + JSON after deploys */
-const ASSET_V = "35";
+const ASSET_V = "36";
 
 function withV(path) {
   const join = path.includes("?") ? "&" : "?";
@@ -222,7 +222,7 @@ function showSettings(companyId) {
         <label class="settings-row">
           <span class="settings-row-copy">
             <span class="settings-row-label">Quiet chrome</span>
-            <span class="settings-row-hint">Hide section labels from the sticky bar and bottom dock. Switch sections from the top-bar menu instead.</span>
+            <span class="settings-row-hint">Hide section labels from the sticky bar and bottom dock. Use the top-bar section menu instead — one row, quieter labels.</span>
           </span>
           <span class="switch">
             <input type="checkbox" role="switch" data-quiet-chrome ${quietOn ? "checked" : ""} aria-label="Quiet chrome" />
@@ -252,36 +252,12 @@ function showSettings(companyId) {
   });
   backdrop.querySelector("[data-close]").addEventListener("click", close);
 
-  backdrop.querySelector("[data-quiet-chrome]").addEventListener("change", (e) => {
+  backdrop.querySelector("[data-quiet-chrome]").addEventListener("change", async (e) => {
     setQuietChrome(state, e.target.checked);
     applyQuietChrome();
     closeSectionsMenu();
-    // Retitle + soften page chrome without a full reload when possible
-    const shell = document.querySelector(".company-shell");
-    if (shell && document.body.classList.contains("view-company")) {
-      const slug = parseHash().slug;
-      const company = companyBySlug(slug);
-      const tab = parseHash().tab || getLastTab(state, company?.id || slug);
-      if (company) {
-        const quiet = getQuietChrome(state);
-        document.title = quiet
-          ? company.shortName || company.name || "Switchboard"
-          : `${company.shortName || company.name} — ${TAB_LABELS[tab] || tab}`;
-        const h1 = shell.querySelector("[data-page] > h1");
-        if (h1) {
-          if (PAGE_HEADINGS_SAFE.includes(tab)) {
-            h1.innerHTML = pageHeading(tab, quiet);
-          } else if (tab === "tips") {
-            h1.textContent = quiet ? "Notes" : "Strategy & Preparation";
-          }
-        }
-        // Soft labels inside the sections popover
-        shell.querySelectorAll("[data-sections-popover] [data-tab]").forEach((btn) => {
-          const t = btn.dataset.tab;
-          btn.querySelector(".sections-item-label").textContent = tabLabel(t, quiet);
-        });
-      }
-    }
+    // Rebuild chrome so search placement / headings stay in sync
+    await route();
   });
 
   backdrop.querySelector("[data-export]").addEventListener("click", () => {
@@ -325,7 +301,31 @@ function showSettings(companyId) {
   });
 }
 
-const PAGE_HEADINGS_SAFE = ["dsa", "backend", "lld", "hld"];
+function pageIntro(tab, tp, quiet) {
+  if (quiet) {
+    return `<div class="page-intro"><strong>${tp.done}/${tp.total}</strong> done.</div>`;
+  }
+  if (tab === "dsa") {
+    return `<div class="page-intro">
+      Ordered by frequency. <strong>${tp.done}/${tp.total}</strong> done.
+      Tap a title to open the question, then <strong>Show answer</strong> or <strong>Add notes</strong>.
+    </div>`;
+  }
+  if (tab === "backend") {
+    return `<div class="page-intro">
+      <strong>${tp.done}/${tp.total}</strong> done. Expand a topic → tap a question title → use <strong>Show answer</strong> / <strong>Add notes</strong>.
+      Java / Spring Boot oriented.
+    </div>`;
+  }
+  if (tab === "lld") {
+    return `<div class="page-intro">
+      <strong>${tp.done}/${tp.total}</strong> done. Tap a title → <strong>Show answer</strong> for Java solutions / <strong>Add notes</strong>.
+    </div>`;
+  }
+  return `<div class="page-intro">
+    <strong>${tp.done}/${tp.total}</strong> done. Tap a title → <strong>Show answer</strong> for design notes / <strong>Add notes</strong>.
+  </div>`;
+}
 
 async function renderHomeView() {
   document.body.classList.add("view-home");
@@ -354,6 +354,19 @@ async function renderHomeView() {
   }
 }
 
+function searchControlsHtml(idPrefix = "chip") {
+  return `<div class="chip-search-wrap" data-search-wrap>
+    <button type="button" class="chip-search-toggle" data-search-toggle aria-label="Filter" aria-expanded="false" aria-controls="${idPrefix}-search-input">
+      <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><circle cx="6.5" cy="6.5" r="4.5" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M10.2 10.2 14 14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+    </button>
+    <div class="chip-search-panel" data-search-panel>
+      <svg class="chip-search-leading" viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><circle cx="6.5" cy="6.5" r="4.5" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M10.2 10.2 14 14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+      <input id="${idPrefix}-search-input" class="search-box chip-search" type="search" placeholder="Filter…" data-search inputmode="search" aria-label="Filter" />
+      <button type="button" class="chip-search-close" data-search-close aria-label="Close filter">×</button>
+    </div>
+  </div>`;
+}
+
 function renderCompanyShell(company, tab, progressLabel, quiet) {
   const tabs = company.tabs || ["overview", "dsa", "backend", "lld", "hld", "tips"];
   const chips = tabs
@@ -368,7 +381,7 @@ function renderCompanyShell(company, tab, progressLabel, quiet) {
       (t) => `
       <button type="button" class="sections-item ${t === tab ? "active" : ""}" role="menuitem" data-tab="${t}">
         <span class="sections-item-icon" aria-hidden="true">${TAB_ICONS[t] || "•"}</span>
-        <span class="sections-item-label">${escapeHtml(tabLabel(t, quiet))}</span>
+        <span class="sections-item-label">${escapeHtml(tabLabel(t, true))}</span>
       </button>`
     )
     .join("");
@@ -384,6 +397,23 @@ function renderCompanyShell(company, tab, progressLabel, quiet) {
     .join("");
 
   const needsSearch = ["dsa", "backend", "lld", "hld"].includes(tab);
+  const currentSoft = escapeHtml(tabLabel(tab, true));
+
+  const sectionsControl = `
+    <div class="sections-menu" data-sections-root>
+      <button type="button" class="topbar-section-switch" data-sections-toggle aria-haspopup="menu" aria-expanded="false" aria-controls="sections-popover">
+        <span class="topbar-section-label" data-section-label>${currentSoft}</span>
+        <svg class="topbar-section-chevron" viewBox="0 0 12 12" width="12" height="12" aria-hidden="true">
+          <path d="M2.5 4.5 6 8l3.5-3.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+      <div id="sections-popover" class="sections-popover" role="menu" hidden data-sections-popover>
+        ${sectionItems}
+      </div>
+    </div>`;
+
+  const topbarSearch = quiet && needsSearch ? searchControlsHtml("top") : "";
+  const chipRowSearch = !quiet && needsSearch ? searchControlsHtml("chip") : "";
 
   return `
     <div class="company-shell" data-company="${escapeHtml(company.id)}">
@@ -392,36 +422,20 @@ function renderCompanyShell(company, tab, progressLabel, quiet) {
           <button type="button" class="topbar-menu-btn" data-sidebar-open aria-label="Open menu">☰</button>
           ${siteTitleHtml()}
           <span class="topbar-progress" data-top-progress>${escapeHtml(progressLabel)}</span>
-          <div class="sections-menu" data-sections-root>
-            <button type="button" class="topbar-sections" data-sections-toggle aria-haspopup="menu" aria-expanded="false" aria-controls="sections-popover" aria-label="Sections">
-              <svg viewBox="0 0 16 16" width="18" height="18" aria-hidden="true">
-                <path d="M2.5 4h11M2.5 8h11M2.5 12h11" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
-              </svg>
-            </button>
-            <div id="sections-popover" class="sections-popover" role="menu" hidden data-sections-popover>
-              <div class="sections-popover-label">Sections</div>
-              ${sectionItems}
-            </div>
+          <div class="topbar-end">
+            ${quiet ? sectionsControl : ""}
+            ${topbarSearch}
+            <button type="button" class="topbar-settings" data-settings aria-label="Settings">⋮</button>
           </div>
-          <button type="button" class="topbar-settings" data-settings aria-label="Settings">⋮</button>
         </header>
-        <nav class="chip-tabs" aria-label="Sections" data-chip-tabs>
+        ${
+          quiet
+            ? ""
+            : `<nav class="chip-tabs" aria-label="Sections" data-chip-tabs>
           <div class="chip-tabs-scroll">${chips}</div>
-          ${
-            needsSearch
-              ? `<div class="chip-search-wrap" data-search-wrap>
-            <button type="button" class="chip-search-toggle" data-search-toggle aria-label="Filter questions" aria-expanded="false" aria-controls="chip-search-input">
-              <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><circle cx="6.5" cy="6.5" r="4.5" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M10.2 10.2 14 14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
-            </button>
-            <div class="chip-search-panel" data-search-panel>
-              <svg class="chip-search-leading" viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><circle cx="6.5" cy="6.5" r="4.5" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M10.2 10.2 14 14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
-              <input id="chip-search-input" class="search-box chip-search" type="search" placeholder="Filter…" data-search inputmode="search" aria-label="Filter questions" />
-              <button type="button" class="chip-search-close" data-search-close aria-label="Close filter">×</button>
-            </div>
-          </div>`
-              : ""
-          }
-        </nav>
+          ${chipRowSearch}
+        </nav>`
+        }
       </div>
       <main class="page" data-page></main>
       <nav class="bottom-nav" aria-label="Sections">${bottom}</nav>
@@ -506,35 +520,25 @@ async function renderCompanyView(slug, tabIn, gen = routeGen) {
     const tp = tabProgress(state, company.id, data, "backend");
     page.innerHTML = `
       <h1>${pageHeading("backend", quiet)}</h1>
-      <div class="page-intro">
-        <strong>${tp.done}/${tp.total}</strong> done. Expand a topic → tap a question title → use <strong>Show answer</strong> / <strong>Add notes</strong>.
-        Java / Spring Boot oriented.
-      </div>
+      ${pageIntro("backend", tp, quiet)}
       <div data-list>${renderBackend(data.backend.topics, state, company.id)}</div>`;
   } else if (tab === "dsa") {
     const tp = tabProgress(state, company.id, data, "dsa");
     page.innerHTML = `
       <h1>${pageHeading("dsa", quiet)}</h1>
-      <div class="page-intro">
-        Ordered by frequency. <strong>${tp.done}/${tp.total}</strong> done.
-        Tap a title to open the question, then <strong>Show answer</strong> or <strong>Add notes</strong>.
-      </div>
+      ${pageIntro("dsa", tp, quiet)}
       <div data-list>${renderQuestionList(data.dsa.categories, "dsa", state, company.id)}</div>`;
   } else if (tab === "lld") {
     const tp = tabProgress(state, company.id, data, "lld");
     page.innerHTML = `
       <h1>${pageHeading("lld", quiet)}</h1>
-      <div class="page-intro">
-        <strong>${tp.done}/${tp.total}</strong> done. Tap a title → <strong>Show answer</strong> for Java solutions / <strong>Add notes</strong>.
-      </div>
+      ${pageIntro("lld", tp, quiet)}
       <div data-list>${renderQuestionList(data.lld.categories, "lld", state, company.id)}</div>`;
   } else if (tab === "hld") {
     const tp = tabProgress(state, company.id, data, "hld");
     page.innerHTML = `
       <h1>${pageHeading("hld", quiet)}</h1>
-      <div class="page-intro">
-        <strong>${tp.done}/${tp.total}</strong> done. Tap a title → <strong>Show answer</strong> for design notes / <strong>Add notes</strong>.
-      </div>
+      ${pageIntro("hld", tp, quiet)}
       <div data-list>${renderQuestionList(data.hld.categories, "hld", state, company.id)}</div>`;
   }
 
@@ -599,6 +603,7 @@ document.addEventListener("keydown", (e) => {
       } else {
         openSearch.classList.remove("open", "has-query");
         openSearch.closest(".chip-tabs")?.classList.remove("search-open");
+        openSearch.closest(".topbar")?.classList.remove("search-open");
         openSearch.querySelector("[data-search-toggle]")?.setAttribute("aria-expanded", "false");
       }
       return;
@@ -623,6 +628,7 @@ document.addEventListener("keydown", (e) => {
       e.preventDefault();
       wrap.classList.add("open");
       wrap.closest(".chip-tabs")?.classList.add("search-open");
+      wrap.closest(".topbar")?.classList.add("search-open");
       const toggle = wrap.querySelector("[data-search-toggle]");
       if (toggle) toggle.setAttribute("aria-expanded", "true");
       search.focus();
