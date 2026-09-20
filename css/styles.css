@@ -196,25 +196,16 @@ body.quiet-chrome .topbar .chip-search-toggle {
   width: var(--tap);
   height: var(--tap);
 }
-body.quiet-chrome .topbar.search-open .topbar-brand {
-  opacity: 0;
-  width: 0;
-  min-width: 0;
-  max-width: 0;
-  overflow: hidden;
-  pointer-events: none;
+/* Compact filter — never stretch edge-to-edge across wide viewports */
+body.quiet-chrome .topbar .chip-search-wrap.open .chip-search-panel {
+  width: min(52vw, 240px);
+  max-width: min(52vw, 240px);
 }
-body.quiet-chrome .topbar.search-open .topbar-end {
-  flex: 1;
-  min-width: 0;
-}
-body.quiet-chrome .topbar.search-open .chip-search-wrap {
-  flex: 1;
-  min-width: 0;
-}
-body.quiet-chrome .topbar.search-open .chip-search-wrap.open .chip-search-panel {
-  width: 100%;
-  max-width: none;
+@media (max-width: 480px) {
+  body.quiet-chrome .topbar .chip-search-wrap.open .chip-search-panel {
+    width: min(calc(100vw - 132px), 220px);
+    max-width: min(calc(100vw - 132px), 220px);
+  }
 }
 
 .sidebar-logo {
