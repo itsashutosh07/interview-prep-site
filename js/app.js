@@ -11,7 +11,7 @@ import {
   clearAll,
   getQuietChrome,
   setQuietChrome,
-} from "./storage.js?v=36";
+} from "./storage.js?v=37";
 import {
   TAB_LABELS,
   TAB_ICONS,
@@ -31,7 +31,7 @@ import {
   escapeHtml,
   companyLogoHtml,
   siteTitleHtml,
-} from "./render.js?v=36";
+} from "./render.js?v=37";
 
 const app = document.getElementById("app");
 let state = loadState();
@@ -41,7 +41,7 @@ const inflight = {}; // slug -> Promise
 let routeGen = 0;
 
 /** Bust browser cache for ES modules + JSON after deploys */
-const ASSET_V = "36";
+const ASSET_V = "37";
 
 function withV(path) {
   const join = path.includes("?") ? "&" : "?";
@@ -221,11 +221,11 @@ function showSettings(companyId) {
         <h4 id="settings-appearance" class="settings-group-title">Appearance</h4>
         <label class="settings-row">
           <span class="settings-row-copy">
-            <span class="settings-row-label">Quiet chrome</span>
-            <span class="settings-row-hint">Hide section labels from the sticky bar and bottom dock. Use the top-bar section menu instead — one row, quieter labels.</span>
+            <span class="settings-row-label">Hide section labels</span>
+            <span class="settings-row-hint">Removes Overview / DSA / … from the sticky bar and bottom dock. Switch sections from the menu in the top bar.</span>
           </span>
           <span class="switch">
-            <input type="checkbox" role="switch" data-quiet-chrome ${quietOn ? "checked" : ""} aria-label="Quiet chrome" />
+            <input type="checkbox" role="switch" data-quiet-chrome ${quietOn ? "checked" : ""} aria-label="Hide section labels" />
             <span class="switch-track" aria-hidden="true"></span>
           </span>
         </label>

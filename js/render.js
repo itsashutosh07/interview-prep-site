@@ -5,7 +5,7 @@ import {
   setDone,
   setNote,
   progressForIds,
-} from "./storage.js?v=36";
+} from "./storage.js?v=37";
 import { highlight } from "./highlight.js?v=22";
 
 const FREQ_LABEL = { high: "🔥 High", med: "⚡ Med", low: "🟢 Once" };
