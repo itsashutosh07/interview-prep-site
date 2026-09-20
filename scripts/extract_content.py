@@ -583,7 +583,7 @@ def main():
                 "slug": "mmt",
                 "name": "MakeMyTrip",
                 "shortName": "MMT",
-                "role": "Backend / SDE",
+                "role": "Backend / SDE-II",
                 "accent": "#f78166",
                 "description": "DSA (C++), Backend Java Q&A, LLD & HLD for SDE-1 to SSE.",
                 "tabs": ["overview", "dsa", "backend", "lld", "hld", "tips"],

@@ -56,7 +56,7 @@ In a company view, open **⋮** (settings):
   "slug": "uber",
   "name": "Uber",
   "shortName": "Uber",
-  "role": "Backend / SDE",
+  "role": "Backend / SDE-II",
   "accent": "#06c167",
   "description": "…",
   "tabs": ["overview", "dsa", "backend", "lld", "hld", "tips"]

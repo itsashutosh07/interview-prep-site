@@ -5,18 +5,11 @@
       "slug": "mmt",
       "name": "MakeMyTrip",
       "shortName": "MMT",
-      "role": "SDE-II",
+      "role": "Backend / SDE-II",
       "accent": "#CF142B",
       "logo": "assets/logos/mmt.png",
       "description": "DSA (C++), Backend Java Q&A, LLD & HLD for SDE-1 to SSE.",
-      "tabs": [
-        "overview",
-        "dsa",
-        "backend",
-        "lld",
-        "hld",
-        "tips"
-      ]
+      "tabs": ["overview", "dsa", "backend", "lld", "hld", "tips"]
     }
   ]
 }
