@@ -27,7 +27,7 @@ import {
   escapeHtml,
   companyLogoHtml,
   siteTitleHtml,
-} from "./render.js?v=29";
+} from "./render.js?v=30";
 
 const app = document.getElementById("app");
 let state = loadState();
@@ -37,7 +37,7 @@ const inflight = {}; // slug -> Promise
 let routeGen = 0;
 
 /** Bust browser cache for ES modules + JSON after deploys */
-const ASSET_V = "29";
+const ASSET_V = "30";
 
 function withV(path) {
   const join = path.includes("?") ? "&" : "?";
@@ -92,20 +92,16 @@ function renderSidebarHtml(activeSlug) {
     })
     .join("");
 
-  const homeActive = !activeSlug ? "active" : "";
-
   return `
     <div class="sidebar-backdrop" data-sidebar-close></div>
     <aside class="sidebar" aria-label="Main menu">
       <div class="sidebar-head">
-        <div class="sidebar-brand"><img class="site-mark" src="assets/logos/site-mark.svg" alt="" />Interview Prep</div>
+        <button type="button" class="sidebar-brand" data-nav-home aria-label="Interview Prep home">
+          <img class="site-mark" src="assets/logos/site-mark.svg" alt="" />Interview Prep
+        </button>
         <button type="button" class="sidebar-close" data-sidebar-close aria-label="Close menu">×</button>
       </div>
       <nav class="sidebar-nav">
-        <button type="button" class="sidebar-link ${homeActive}" data-nav-home>
-          <span class="sidebar-link-icon">🏠</span>
-          <span>Home</span>
-        </button>
         <div class="sidebar-section-label">Companies</div>
         ${companyLinks || `<p class="muted" style="padding:8px 12px;font-size:13px">No companies yet.</p>`}
       </nav>
