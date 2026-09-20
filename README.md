@@ -1,6 +1,6 @@
-# Interview Prep
+# Switchboard
 
-Mobile-first static site for company-specific interview prep (DSA, Backend, LLD, HLD). Progress (checkmarks + notes) is stored in your browser via `localStorage`.
+Mobile-first static site for company tracks (DSA, Backend, LLD, HLD). Progress (checkmarks + notes) is stored in your browser via `localStorage`.
 
 **Default theme:** dark mode.
 

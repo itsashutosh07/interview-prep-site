@@ -120,7 +120,7 @@ export function collectQuestionIds(data) {
 }
 
 export function siteTitleHtml() {
-  return `<div class="topbar-title"><img class="site-mark" src="assets/logos/site-mark.svg" alt="" />Interview Prep</div>`;
+  return `<div class="topbar-title"><img class="site-mark" src="assets/logos/site-mark.svg" alt="" />Switchboard</div>`;
 }
 
 export function companyLogoHtml(c, { className = "company-logo" } = {}) {
@@ -156,8 +156,8 @@ export function renderHome(companies, state, onOpen) {
     </header>
     <div class="home">
       <div class="home-hero">
-        <h1>Interview Prep</h1>
-        <p>Company-specific DSA, backend, LLD &amp; HLD. Progress saved in this browser.</p>
+        <h1>Switchboard</h1>
+        <p>Company tracks for DSA, backend, LLD &amp; HLD. Progress stays in this browser.</p>
       </div>
       <div class="company-grid">${cards}</div>
     </div>`;

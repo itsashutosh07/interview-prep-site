@@ -1,4 +1,4 @@
-/** Interview Prep — hash-routed SPA */
+/** Switchboard — hash-routed SPA */
 
 import {
   loadState,
@@ -27,7 +27,7 @@ import {
   escapeHtml,
   companyLogoHtml,
   siteTitleHtml,
-} from "./render.js?v=32";
+} from "./render.js?v=33";
 
 const app = document.getElementById("app");
 let state = loadState();
@@ -37,7 +37,7 @@ const inflight = {}; // slug -> Promise
 let routeGen = 0;
 
 /** Bust browser cache for ES modules + JSON after deploys */
-const ASSET_V = "32";
+const ASSET_V = "33";
 
 function withV(path) {
   const join = path.includes("?") ? "&" : "?";
@@ -96,8 +96,8 @@ function renderSidebarHtml(activeSlug) {
     <div class="sidebar-backdrop" data-sidebar-close></div>
     <aside class="sidebar" aria-label="Main menu">
       <div class="sidebar-head">
-        <button type="button" class="sidebar-brand" data-nav-home aria-label="Interview Prep home">
-          <img class="site-mark" src="assets/logos/site-mark.svg" alt="" />Interview Prep
+        <button type="button" class="sidebar-brand" data-nav-home aria-label="Switchboard home">
+          <img class="site-mark" src="assets/logos/site-mark.svg" alt="" />Switchboard
         </button>
         <button type="button" class="sidebar-close" data-sidebar-close aria-label="Close menu">×</button>
       </div>
@@ -200,7 +200,7 @@ function showSettings(companyId) {
     const blob = new Blob([exportState(state)], { type: "application/json" });
     const a = document.createElement("a");
     a.href = URL.createObjectURL(blob);
-    a.download = `interview-prep-backup-${new Date().toISOString().slice(0, 10)}.json`;
+    a.download = `switchboard-backup-${new Date().toISOString().slice(0, 10)}.json`;
     a.click();
     URL.revokeObjectURL(a.href);
   });
@@ -239,7 +239,7 @@ async function renderHomeView() {
   document.body.classList.add("view-home");
   document.body.classList.remove("view-company");
   closeSidebar();
-  document.title = "Interview Prep";
+  document.title = "Switchboard";
 
   app.innerHTML = withSidebar(renderHome(companies, state), null);
   bindSidebar();
