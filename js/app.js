@@ -11,7 +11,7 @@ import {
   clearAll,
   getQuietChrome,
   setQuietChrome,
-} from "./storage.js?v=38";
+} from "./storage.js?v=39";
 import {
   TAB_LABELS,
   TAB_ICONS,
@@ -31,7 +31,7 @@ import {
   escapeHtml,
   companyLogoHtml,
   siteTitleHtml,
-} from "./render.js?v=38";
+} from "./render.js?v=39";
 
 const app = document.getElementById("app");
 let state = loadState();
@@ -41,7 +41,7 @@ const inflight = {}; // slug -> Promise
 let routeGen = 0;
 
 /** Bust browser cache for ES modules + JSON after deploys */
-const ASSET_V = "38";
+const ASSET_V = "39";
 
 function withV(path) {
   const join = path.includes("?") ? "&" : "?";
@@ -50,34 +50,6 @@ function withV(path) {
 
 function applyQuietChrome() {
   document.body.classList.toggle("quiet-chrome", getQuietChrome(state));
-}
-
-function closeSectionsMenu() {
-  const root = document.querySelector("[data-sections-root]");
-  if (!root) return;
-  root.classList.remove("open");
-  const toggle = root.querySelector("[data-sections-toggle]");
-  const pop = root.querySelector("[data-sections-popover]");
-  if (toggle) toggle.setAttribute("aria-expanded", "false");
-  if (pop) pop.hidden = true;
-}
-
-function bindSectionsMenu(shell) {
-  const root = shell.querySelector("[data-sections-root]");
-  if (!root) return;
-  const toggle = root.querySelector("[data-sections-toggle]");
-  const pop = root.querySelector("[data-sections-popover]");
-
-  toggle?.addEventListener("click", (e) => {
-    e.stopPropagation();
-    const open = !root.classList.contains("open");
-    closeSectionsMenu();
-    if (open) {
-      root.classList.add("open");
-      toggle.setAttribute("aria-expanded", "true");
-      if (pop) pop.hidden = false;
-    }
-  });
 }
 
 function parseHash() {
@@ -111,20 +83,44 @@ function toggleSidebar() {
   else openSidebar();
 }
 
-function renderSidebarHtml(activeSlug) {
-  const companyLinks = companies
+/** @param {{ quiet?: boolean, activeTab?: string }} [opts] */
+function renderSidebarHtml(activeSlug, opts = {}) {
+  const quiet = !!opts.quiet;
+  const activeTab = opts.activeTab || null;
+  const softLabels = quiet;
+
+  const companyBlocks = companies
     .map((c) => {
-      const active = c.slug === activeSlug ? "active" : "";
+      const active = c.slug === activeSlug;
       const logo = companyLogoHtml(c, { className: "sidebar-logo" });
       const displayName = c.name || c.shortName || c.slug;
+      const tabs = c.tabs || ["overview", "dsa", "backend", "lld", "hld", "tips"];
+      const sections =
+        quiet && active
+          ? `<div class="sidebar-sections" role="group" aria-label="Sections" data-sections-for="${escapeHtml(c.slug)}">
+              ${tabs
+                .map(
+                  (t) => `
+                <button type="button" class="sidebar-section-link ${t === activeTab ? "active" : ""}" data-tab="${t}">
+                  <span class="sidebar-section-icon" aria-hidden="true">${TAB_ICONS[t] || "•"}</span>
+                  <span>${escapeHtml(tabLabel(t, softLabels))}</span>
+                </button>`
+                )
+                .join("")}
+            </div>`
+          : "";
+
       return `
-        <button type="button" class="sidebar-link sidebar-company ${active}" data-nav-company="${escapeHtml(c.slug)}">
-          ${logo || `<span class="sidebar-link-icon">🏢</span>`}
-          <span>
-            <span class="sidebar-company-name">${escapeHtml(displayName)}</span>
-            <span class="sidebar-company-role">${escapeHtml(c.role || "")}</span>
-          </span>
-        </button>`;
+        <div class="sidebar-company-block${active ? " is-active" : ""}">
+          <button type="button" class="sidebar-link sidebar-company ${active ? "active" : ""}" data-nav-company="${escapeHtml(c.slug)}">
+            ${logo || `<span class="sidebar-link-icon">🏢</span>`}
+            <span>
+              <span class="sidebar-company-name">${escapeHtml(displayName)}</span>
+              <span class="sidebar-company-role">${escapeHtml(c.role || "")}</span>
+            </span>
+          </button>
+          ${sections}
+        </div>`;
     })
     .join("");
 
@@ -139,7 +135,7 @@ function renderSidebarHtml(activeSlug) {
       </div>
       <nav class="sidebar-nav">
         <div class="sidebar-section-label">Companies</div>
-        ${companyLinks || `<p class="muted" style="padding:8px 12px;font-size:13px">No companies yet.</p>`}
+        ${companyBlocks || `<p class="muted" style="padding:8px 12px;font-size:13px">No companies yet.</p>`}
       </nav>
     </aside>`;
 }
@@ -167,10 +163,19 @@ function bindSidebar() {
       navigate(`/${slug}/${tab}`);
     });
   });
+  document.querySelectorAll(".sidebar-sections [data-tab]").forEach((btn) => {
+    btn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      const slug = btn.closest("[data-sections-for]")?.dataset.sectionsFor;
+      if (!slug) return;
+      closeSidebar();
+      navigate(`/${slug}/${btn.dataset.tab}`);
+    });
+  });
 }
 
-function withSidebar(contentHtml, activeSlug) {
-  return `${renderSidebarHtml(activeSlug)}${contentHtml}`;
+function withSidebar(contentHtml, activeSlug, opts = {}) {
+  return `${renderSidebarHtml(activeSlug, opts)}${contentHtml}`;
 }
 
 async function fetchJson(path) {
@@ -222,7 +227,7 @@ function showSettings(companyId) {
         <label class="settings-row">
           <span class="settings-row-copy">
             <span class="settings-row-label">Hide section labels</span>
-            <span class="settings-row-hint">Removes Overview / DSA / … from the sticky bar and bottom dock. Switch sections from the menu in the top bar.</span>
+            <span class="settings-row-hint">Removes Overview / DSA / … from the sticky bar and bottom dock. Open the menu to switch sections under the company.</span>
           </span>
           <span class="switch">
             <input type="checkbox" role="switch" data-quiet-chrome ${quietOn ? "checked" : ""} aria-label="Hide section labels" />
@@ -255,8 +260,6 @@ function showSettings(companyId) {
   backdrop.querySelector("[data-quiet-chrome]").addEventListener("change", async (e) => {
     setQuietChrome(state, e.target.checked);
     applyQuietChrome();
-    closeSectionsMenu();
-    // Rebuild chrome so search placement / headings stay in sync
     await route();
   });
 
@@ -347,7 +350,7 @@ async function renderHomeView() {
   closeSidebar();
   document.title = "Switchboard";
 
-  app.innerHTML = withSidebar(renderHome(companies, state), null);
+  app.innerHTML = withSidebar(renderHome(companies, state), null, { quiet: getQuietChrome(state) });
   bindSidebar();
   bindHome(app, (slug) => {
     const c = companyBySlug(slug);
@@ -389,16 +392,6 @@ function renderCompanyShell(company, tab, progressLabel, quiet) {
     )
     .join("");
 
-  const sectionItems = tabs
-    .map(
-      (t) => `
-      <button type="button" class="sections-item ${t === tab ? "active" : ""}" role="menuitem" data-tab="${t}">
-        <span class="sections-item-icon" aria-hidden="true">${TAB_ICONS[t] || "•"}</span>
-        <span class="sections-item-label">${escapeHtml(tabLabel(t, true))}</span>
-      </button>`
-    )
-    .join("");
-
   const bottom = tabs
     .map(
       (t) => `
@@ -410,21 +403,6 @@ function renderCompanyShell(company, tab, progressLabel, quiet) {
     .join("");
 
   const needsSearch = ["dsa", "backend", "lld", "hld"].includes(tab);
-  const currentSoft = escapeHtml(tabLabel(tab, true));
-
-  const sectionsControl = `
-    <div class="sections-menu" data-sections-root>
-      <button type="button" class="topbar-section-switch" data-sections-toggle aria-haspopup="menu" aria-expanded="false" aria-controls="sections-popover" aria-label="Section: ${currentSoft}">
-        <span class="topbar-section-label" data-section-label>${currentSoft}</span>
-        <svg class="topbar-section-chevron" viewBox="0 0 12 12" width="12" height="12" aria-hidden="true">
-          <path d="M2.5 4.5 6 8l3.5-3.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-      </button>
-      <div id="sections-popover" class="sections-popover" role="menu" hidden data-sections-popover>
-        ${sectionItems}
-      </div>
-    </div>`;
-
   const topbarSearch = quiet && needsSearch ? searchControlsHtml("top") : "";
   const chipRowSearch = !quiet && needsSearch ? searchControlsHtml("chip") : "";
   const menuIcon = `<svg viewBox="0 0 16 16" width="18" height="18" aria-hidden="true"><path d="M2.5 4h11M2.5 8h11M2.5 12h11" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>`;
@@ -437,7 +415,6 @@ function renderCompanyShell(company, tab, progressLabel, quiet) {
           ${siteTitleHtml()}
           <span class="topbar-progress" data-top-progress>${escapeHtml(progressLabel)}</span>
           <div class="topbar-end">
-            ${quiet ? sectionsControl : ""}
             ${topbarSearch}
             <button type="button" class="topbar-settings" data-settings aria-label="Settings">⋮</button>
           </div>
@@ -516,7 +493,10 @@ async function renderCompanyView(slug, tabIn, gen = routeGen) {
   const prog = progressForIds(state, company.id, ids);
   const progressLabel = prog.total ? `${prog.done}/${prog.total}` : "—";
 
-  app.innerHTML = withSidebar(renderCompanyShell(company, tab, progressLabel, quiet), slug);
+  app.innerHTML = withSidebar(renderCompanyShell(company, tab, progressLabel, quiet), slug, {
+    quiet,
+    activeTab: tab,
+  });
   bindSidebar();
   const shell = app.querySelector(".company-shell");
   const page = shell.querySelector("[data-page]");
@@ -573,11 +553,9 @@ async function renderCompanyView(slug, tabIn, gen = routeGen) {
   bindSearch(shell.querySelector("[data-search-wrap]"), listRoot);
 
   shell.querySelector("[data-settings]").addEventListener("click", () => showSettings(company.id));
-  bindSectionsMenu(shell);
 
   shell.querySelectorAll("[data-tab]").forEach((btn) => {
     btn.addEventListener("click", () => {
-      closeSectionsMenu();
       navigate(`/${slug}/${btn.dataset.tab}`);
     });
   });
@@ -612,10 +590,6 @@ window.addEventListener("hashchange", () => route());
 
 document.addEventListener("keydown", (e) => {
   if (e.key === "Escape") {
-    if (document.querySelector("[data-sections-root].open")) {
-      closeSectionsMenu();
-      return;
-    }
     if (document.querySelector(".sidebar.open")) {
       closeSidebar();
       return;
@@ -660,11 +634,6 @@ document.addEventListener("keydown", (e) => {
       search.focus();
     }
   }
-});
-
-document.addEventListener("click", (e) => {
-  const root = document.querySelector("[data-sections-root].open");
-  if (root && !root.contains(e.target)) closeSectionsMenu();
 });
 
 boot();
