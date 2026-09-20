@@ -76,13 +76,19 @@ code {
 .tok-fn { color: #d2a8ff; }
 
 /* ——— Top bar ——— */
+.company-chrome {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: rgba(13, 17, 23, 0.94);
+  backdrop-filter: blur(10px);
+}
 .topbar {
-  position: sticky; top: 0; z-index: 100;
+  position: relative;
   display: flex; align-items: center; gap: 8px;
   min-height: var(--header-h);
   padding: calc(8px + var(--safe-top)) 12px 8px;
-  background: rgba(13, 17, 23, 0.94);
-  backdrop-filter: blur(10px);
+  background: transparent;
   border-bottom: 1px solid var(--border);
 }
 
@@ -320,9 +326,9 @@ body.sidebar-open { overflow: hidden; }
   display: flex; align-items: center; gap: 8px;
   padding: 8px 12px;
   border-bottom: 1px solid var(--border);
-  background: rgba(13, 17, 23, 0.92);
-  position: sticky; top: calc(var(--header-h) + var(--safe-top));
-  z-index: 90;
+  background: transparent;
+  position: relative;
+  z-index: 1;
 }
 .chip-tabs-scroll {
   display: flex; gap: 6px;
@@ -373,14 +379,137 @@ body.sidebar-open { overflow: hidden; }
 }
 .search-box:focus { border-color: var(--accent2); }
 .search-box::placeholder { color: var(--muted); }
-.chip-search {
-  flex: 0 1 160px;
-  width: 160px;
-  min-width: 120px;
-  min-height: 32px;
+
+/* Collapsed search icon → expands R→L into a filter field */
+.chip-search-wrap {
+  position: relative;
+  flex: 0 0 auto;
   margin-left: auto;
-  padding: 6px 10px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  min-height: 36px;
+}
+.chip-search-toggle {
+  position: relative;
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--border);
   border-radius: 8px;
+  background: var(--surface);
+  color: var(--muted);
+  cursor: pointer;
+  transition: color 0.15s ease, border-color 0.15s ease, background 0.15s ease, opacity 0.15s ease, transform 0.2s ease;
+}
+.chip-search-toggle:hover {
+  color: var(--text);
+  border-color: var(--accent2);
+  background: rgba(121, 192, 255, 0.08);
+}
+.chip-search-wrap.has-query:not(.open) .chip-search-toggle {
+  color: var(--accent2);
+  border-color: rgba(121, 192, 255, 0.45);
+}
+.chip-search-wrap.has-query:not(.open) .chip-search-toggle::after {
+  content: "";
+  position: absolute;
+  top: 7px;
+  right: 7px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent2);
+}
+.chip-search-panel {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 0;
+  max-width: 0;
+  opacity: 0;
+  overflow: hidden;
+  pointer-events: none;
+  transform: translateX(8px);
+  transform-origin: right center;
+  transition:
+    max-width 0.28s cubic-bezier(0.22, 1, 0.36, 1),
+    width 0.28s cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 0.18s ease,
+    transform 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.chip-search-wrap.open .chip-search-toggle {
+  opacity: 0;
+  width: 0;
+  min-width: 0;
+  padding: 0;
+  border-width: 0;
+  margin: 0;
+  pointer-events: none;
+  transform: scale(0.85);
+}
+.chip-search-wrap.open .chip-search-panel {
+  width: min(72vw, 280px);
+  max-width: min(72vw, 280px);
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateX(0);
+}
+.chip-search-leading {
+  flex-shrink: 0;
+  color: var(--muted);
+  margin-left: 2px;
+}
+.chip-search {
+  flex: 1 1 auto;
+  width: auto;
+  min-width: 0;
+  min-height: 36px;
+  margin: 0;
+  padding: 6px 8px;
+  border-radius: 8px;
+  font-size: 16px;
+}
+.chip-search-close {
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--muted);
+  font-size: 20px;
+  line-height: 1;
+  cursor: pointer;
+}
+.chip-search-close:hover {
+  color: var(--text);
+  background: var(--surface2);
+}
+
+/* Mobile filter mode: give the field the row; park chips until closed */
+.chip-tabs.search-open .chip-tabs-scroll {
+  flex: 0 1 0;
+  width: 0;
+  min-width: 0;
+  opacity: 0;
+  overflow: hidden;
+  pointer-events: none;
+  transition: opacity 0.18s ease, flex-basis 0.28s ease;
+}
+.chip-tabs.search-open .chip-search-wrap {
+  flex: 1 1 auto;
+  width: 100%;
+}
+.chip-tabs.search-open .chip-search-wrap.open .chip-search-panel {
+  width: 100%;
+  max-width: none;
 }
 
 .page {
@@ -1053,7 +1182,6 @@ body.sidebar-open { overflow: hidden; }
   }
 
   .chip-tabs {
-    top: 56px;
     padding: 0 16px 0 8px;
     gap: 12px;
     border-bottom: 1px solid var(--border);
@@ -1072,12 +1200,30 @@ body.sidebar-open { overflow: hidden; }
     color: var(--text);
   }
 
-  .chip-search {
-    flex: 0 0 240px;
+  .chip-search-wrap.open .chip-search-panel {
     width: 240px;
     max-width: 240px;
+  }
+  .chip-search {
     min-height: 32px;
     font-size: 13px;
+  }
+  /* Desktop: keep section chips visible; search expands beside them */
+  .chip-tabs.search-open .chip-tabs-scroll {
+    flex: 1 1 auto;
+    width: auto;
+    min-width: 0;
+    opacity: 1;
+    overflow-x: auto;
+    pointer-events: auto;
+  }
+  .chip-tabs.search-open .chip-search-wrap {
+    flex: 0 0 auto;
+    width: auto;
+  }
+  .chip-tabs.search-open .chip-search-wrap.open .chip-search-panel {
+    width: 240px;
+    max-width: 240px;
   }
 
   .page { padding: 28px 24px 48px; }

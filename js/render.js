@@ -604,10 +604,29 @@ export function bindInteractive(root, state, companyId, onProgressChange) {
   });
 }
 
-export function bindSearch(input, listRoot) {
-  if (!input || !listRoot) return;
-  input.addEventListener("input", () => {
+export function bindSearch(wrap, listRoot) {
+  if (!wrap || !listRoot) return;
+  const input = wrap.querySelector("[data-search]");
+  const toggle = wrap.querySelector("[data-search-toggle]");
+  const closeBtn = wrap.querySelector("[data-search-close]");
+  const tabs = wrap.closest(".chip-tabs");
+  if (!input) return;
+
+  const setOpen = (open) => {
+    wrap.classList.toggle("open", open);
+    tabs?.classList.toggle("search-open", open);
+    if (toggle) toggle.setAttribute("aria-expanded", open ? "true" : "false");
+    if (open) {
+      // Wait one frame so the width transition has started before focusing
+      requestAnimationFrame(() => input.focus());
+    } else {
+      input.blur();
+    }
+  };
+
+  const applyFilter = () => {
     const q = input.value.trim().toLowerCase();
+    wrap.classList.toggle("has-query", !!q);
     const cards = listRoot.querySelectorAll("[data-qid]");
     let visible = 0;
     cards.forEach((el) => {
@@ -634,6 +653,33 @@ export function bindSearch(input, listRoot) {
     } else if (empty) {
       empty.remove();
     }
+  };
+
+  toggle?.addEventListener("click", () => setOpen(true));
+  closeBtn?.addEventListener("click", () => {
+    input.value = "";
+    applyFilter();
+    setOpen(false);
+  });
+  input.addEventListener("input", applyFilter);
+  input.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") {
+      e.stopPropagation();
+      if (input.value) {
+        input.value = "";
+        applyFilter();
+      } else {
+        setOpen(false);
+      }
+    }
+  });
+  // Collapse when leaving an empty field (not when a query is active)
+  input.addEventListener("blur", () => {
+    setTimeout(() => {
+      if (!wrap.contains(document.activeElement) && !input.value.trim()) {
+        setOpen(false);
+      }
+    }, 120);
   });
 }
 

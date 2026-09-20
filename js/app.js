@@ -27,7 +27,7 @@ import {
   escapeHtml,
   companyLogoHtml,
   siteTitleHtml,
-} from "./render.js?v=26";
+} from "./render.js?v=29";
 
 const app = document.getElementById("app");
 let state = loadState();
@@ -37,7 +37,7 @@ const inflight = {}; // slug -> Promise
 let routeGen = 0;
 
 /** Bust browser cache for ES modules + JSON after deploys */
-const ASSET_V = "27";
+const ASSET_V = "29";
 
 function withV(path) {
   const join = path.includes("?") ? "&" : "?";
@@ -288,16 +288,31 @@ function renderCompanyShell(company, tab, progressLabel) {
 
   return `
     <div class="company-shell" data-company="${escapeHtml(company.id)}">
-      <header class="topbar">
-        <button type="button" class="topbar-menu-btn" data-sidebar-open aria-label="Open menu">☰</button>
-        ${siteTitleHtml()}
-        <span class="topbar-progress" data-top-progress>${escapeHtml(progressLabel)}</span>
-        <button type="button" class="topbar-settings" data-settings aria-label="Settings">⋮</button>
-      </header>
-      <nav class="chip-tabs" aria-label="Sections">
-        <div class="chip-tabs-scroll">${chips}</div>
-        ${needsSearch ? `<input class="search-box chip-search" type="search" placeholder="Filter…" data-search inputmode="search" aria-label="Filter questions" />` : ""}
-      </nav>
+      <div class="company-chrome">
+        <header class="topbar">
+          <button type="button" class="topbar-menu-btn" data-sidebar-open aria-label="Open menu">☰</button>
+          ${siteTitleHtml()}
+          <span class="topbar-progress" data-top-progress>${escapeHtml(progressLabel)}</span>
+          <button type="button" class="topbar-settings" data-settings aria-label="Settings">⋮</button>
+        </header>
+        <nav class="chip-tabs" aria-label="Sections">
+          <div class="chip-tabs-scroll">${chips}</div>
+          ${
+            needsSearch
+              ? `<div class="chip-search-wrap" data-search-wrap>
+            <button type="button" class="chip-search-toggle" data-search-toggle aria-label="Filter questions" aria-expanded="false" aria-controls="chip-search-input">
+              <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><circle cx="6.5" cy="6.5" r="4.5" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M10.2 10.2 14 14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+            </button>
+            <div class="chip-search-panel" data-search-panel>
+              <svg class="chip-search-leading" viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><circle cx="6.5" cy="6.5" r="4.5" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M10.2 10.2 14 14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+              <input id="chip-search-input" class="search-box chip-search" type="search" placeholder="Filter questions…" data-search inputmode="search" aria-label="Filter questions" />
+              <button type="button" class="chip-search-close" data-search-close aria-label="Close filter">×</button>
+            </div>
+          </div>`
+              : ""
+          }
+        </nav>
+      </div>
       <main class="page" data-page></main>
       <nav class="bottom-nav" aria-label="Sections">${bottom}</nav>
     </div>`;
@@ -411,7 +426,7 @@ async function renderCompanyView(slug, tabIn, gen = routeGen) {
 
   const listRoot = page.querySelector("[data-list]") || page;
   bindInteractive(page, state, company.id, () => updateProgressUI(shell, state, company, data));
-  bindSearch(shell.querySelector("[data-search]"), listRoot);
+  bindSearch(shell.querySelector("[data-search-wrap]"), listRoot);
 
   shell.querySelector("[data-settings]").addEventListener("click", () => showSettings(company.id));
 
@@ -453,6 +468,19 @@ document.addEventListener("keydown", (e) => {
       closeSidebar();
       return;
     }
+    const openSearch = document.querySelector("[data-search-wrap].open");
+    if (openSearch) {
+      const input = openSearch.querySelector("[data-search]");
+      if (input?.value) {
+        input.value = "";
+        input.dispatchEvent(new Event("input", { bubbles: true }));
+      } else {
+        openSearch.classList.remove("open", "has-query");
+        openSearch.closest(".chip-tabs")?.classList.remove("search-open");
+        openSearch.querySelector("[data-search-toggle]")?.setAttribute("aria-expanded", "false");
+      }
+      return;
+    }
     document.querySelectorAll(".q-card.open").forEach((el) => {
       el.classList.remove("open", "show-hint", "show-answer", "show-notes");
       el.querySelectorAll(".q-hint-panel, .q-answer-panel, .q-notes-panel").forEach((p) => {
@@ -467,9 +495,14 @@ document.addEventListener("keydown", (e) => {
   if (!document.body.classList.contains("view-company")) return;
   const tag = document.activeElement?.tagName;
   if (e.key === "/" && tag !== "TEXTAREA" && tag !== "INPUT") {
-    const search = document.querySelector("[data-search]");
+    const wrap = document.querySelector("[data-search-wrap]");
+    const search = wrap?.querySelector("[data-search]");
     if (search) {
       e.preventDefault();
+      wrap.classList.add("open");
+      wrap.closest(".chip-tabs")?.classList.add("search-open");
+      const toggle = wrap.querySelector("[data-search-toggle]");
+      if (toggle) toggle.setAttribute("aria-expanded", "true");
       search.focus();
     }
   }
