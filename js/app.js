@@ -37,7 +37,7 @@ const inflight = {}; // slug -> Promise
 let routeGen = 0;
 
 /** Bust browser cache for ES modules + JSON after deploys */
-const ASSET_V = "25";
+const ASSET_V = "27";
 
 function withV(path) {
   const join = path.includes("?") ? "&" : "?";

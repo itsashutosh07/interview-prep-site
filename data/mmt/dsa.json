@@ -17,7 +17,7 @@
             {
               "lang": "cpp",
               "label": "C++",
-              "code": "string minWindow(string s, string t) {\n    unordered_map<char, int> need, window;\n    for (char c : t) need[c]++;\n\n    int formed = 0;                 // how many distinct chars are fully covered\n    int required = need.size();\n    int left = 0, best = INT_MAX, start = 0;\n\n    for (int right = 0; right < s.size(); right++) {\n        char c = s[right];\n        window[c]++;\n        if (need.count(c) && window[c] == need[c]) formed++;\n\n        while (formed == required) {\n            if (right - left + 1 < best) {\n                best = right - left + 1;\n                start = left;\n            }\n            char d = s[left++];\n            window[d]--;\n            if (need.count(d) && window[d] < need[d]) formed--;\n        }\n    }\n    if (best == INT_MAX) return \"\";\n    return s.substr(start, best);\n}\n// O(|s| + |t|)\n"
+              "code": "string minWindow(string s, string t) {\n    // need = how many of each char t still requires\n    // window = how many of each char the current [left, right] holds\n    unordered_map<char, int> need, window;\n    for (char c : t) need[c]++;\n\n    int formed = 0;           // distinct chars that already meet their need count\n    int required = need.size();\n    int left = 0, best = INT_MAX, start = 0;\n\n    for (int right = 0; right < s.size(); right++) {\n        char c = s[right];\n        window[c]++;\n        // Count a char as \"formed\" only when we hit the need exactly\n        // (extras after that do not bump formed again)\n        if (need.count(c) && window[c] == need[c]) formed++;\n\n        // Window is valid — shrink from the left to look for something shorter\n        while (formed == required) {\n            if (right - left + 1 < best) {\n                best = right - left + 1;\n                start = left;\n            }\n            char d = s[left++];\n            window[d]--;\n            // Dropping below need means this window is no longer valid\n            if (need.count(d) && window[d] < need[d]) formed--;\n        }\n    }\n    if (best == INT_MAX) return \"\";\n    return s.substr(start, best);\n}\n// O(|s| + |t|)\n"
             }
           ],
           "links": [
@@ -43,7 +43,7 @@
             {
               "lang": "cpp",
               "label": "C++",
-              "code": "vector<int> zeroSumSubarray(vector<int>& a) {\n    // If the same prefix sum shows up twice, the part in between sums to 0.\n    unordered_map<long long, int> firstIndex;\n    firstIndex[0] = -1;\n    long long sum = 0;\n\n    for (int i = 0; i < a.size(); i++) {\n        sum += a[i];\n        if (firstIndex.count(sum)) {\n            int from = firstIndex[sum] + 1;\n            return vector<int>(a.begin() + from, a.begin() + i + 1);\n        }\n        firstIndex[sum] = i;\n    }\n    return {};\n}\n// O(N)\n"
+              "code": "vector<int> zeroSumSubarray(vector<int>& a) {\n    // Idea: if prefix[j] == prefix[i-1], then a[i..j] sums to 0.\n    // Seed 0 at index -1 so a prefix that itself is 0 is also found.\n    unordered_map<long long, int> firstIndex;\n    firstIndex[0] = -1;\n    long long sum = 0;   // long long: N * 1e9 can overflow int\n\n    for (int i = 0; i < a.size(); i++) {\n        sum += a[i];\n        if (firstIndex.count(sum)) {\n            int from = firstIndex[sum] + 1;\n            return vector<int>(a.begin() + from, a.begin() + i + 1);\n        }\n        firstIndex[sum] = i;   // keep first sighting; any zero-sum slice is fine\n    }\n    return {};\n}\n// O(N)\n"
             }
           ],
           "links": [],
@@ -64,7 +64,7 @@
             {
               "lang": "cpp",
               "label": "C++",
-              "code": "struct ListNode {\n    int val;\n    ListNode* next;\n    ListNode() : val(0), next(nullptr) {}\n    ListNode(int x) : val(x), next(nullptr) {}\n};\n\nListNode* mergeKLists(vector<ListNode*>& lists) {\n    // Min-heap of the current head of each list.\n    auto cmp = [](ListNode* a, ListNode* b) { return a->val > b->val; };\n    priority_queue<ListNode*, vector<ListNode*>, decltype(cmp)> pq(cmp);\n\n    for (ListNode* node : lists) {\n        if (node) pq.push(node);\n    }\n\n    ListNode dummy;\n    ListNode* tail = &dummy;\n    while (!pq.empty()) {\n        ListNode* node = pq.top();\n        pq.pop();\n        tail->next = node;\n        tail = node;\n        if (node->next) pq.push(node->next);\n    }\n    return dummy.next;\n}\n// O(N log K)\n"
+              "code": "struct ListNode {\n    int val;\n    ListNode* next;\n    ListNode() : val(0), next(nullptr) {}\n    ListNode(int x) : val(x), next(nullptr) {}\n};\n\nListNode* mergeKLists(vector<ListNode*>& lists) {\n    // Min-heap of current heads. Default pq is max-heap, so compare with >\n    auto cmp = [](ListNode* a, ListNode* b) { return a->val > b->val; };\n    priority_queue<ListNode*, vector<ListNode*>, decltype(cmp)> pq(cmp);\n\n    for (ListNode* node : lists) {\n        if (node) pq.push(node);   // skip empty lists\n    }\n\n    ListNode dummy;                // dummy avoids a special case for the first node\n    ListNode* tail = &dummy;\n    while (!pq.empty()) {\n        ListNode* node = pq.top();\n        pq.pop();\n        tail->next = node;\n        tail = node;\n        // Only push the next node of the list we just took from\n        if (node->next) pq.push(node->next);\n    }\n    return dummy.next;\n}\n// O(N log K) — N total nodes, heap size K\n"
             }
           ],
           "links": [
@@ -90,7 +90,7 @@
             {
               "lang": "cpp",
               "label": "C++",
-              "code": "int jump(vector<int>& nums) {\n    int jumps = 0, end = 0, farthest = 0;\n    for (int i = 0; i < (int)nums.size() - 1; i++) {\n        farthest = max(farthest, i + nums[i]);\n        if (i == end) {          // finished this jump, take the next one\n            jumps++;\n            end = farthest;\n        }\n    }\n    return jumps;\n}\n\n// Also return the indexes we land on.\nvector<int> jumpWithPath(vector<int>& nums) {\n    int n = nums.size();\n    if (n <= 1) return {0};\n\n    vector<int> from(n, -1);\n    int left = 0, right = 0;\n    while (right < n - 1) {\n        int farthest = right, who = -1;\n        for (int i = left; i <= right; i++) {\n            int reach = min(n - 1, i + nums[i]);\n            if (reach > farthest) {\n                farthest = reach;\n                who = i;\n            }\n        }\n        if (who == -1) return {};\n        for (int j = right + 1; j <= farthest; j++) from[j] = who;\n        left = right + 1;\n        right = farthest;\n    }\n\n    vector<int> path;\n    for (int i = n - 1; i != -1; i = from[i]) path.push_back(i);\n    reverse(path.begin(), path.end());\n    return path;\n}\n// O(N)\n"
+              "code": "int jump(vector<int>& nums) {\n    // Treat jumps like BFS layers:\n    // end = last index reachable with the current jump count\n    // farthest = how far the next jump can reach\n    int jumps = 0, end = 0, farthest = 0;\n    for (int i = 0; i < (int)nums.size() - 1; i++) {\n        farthest = max(farthest, i + nums[i]);\n        if (i == end) {            // finished scanning this layer → take one jump\n            jumps++;\n            end = farthest;\n        }\n    }\n    return jumps;\n}\n\n// Follow-up: also rebuild one path of landing indexes\nvector<int> jumpWithPath(vector<int>& nums) {\n    int n = nums.size();\n    if (n <= 1) return {0};\n\n    vector<int> from(n, -1);       // from[j] = index we jumped from to reach j\n    int left = 0, right = 0;       // current BFS layer [left, right]\n    while (right < n - 1) {\n        int farthest = right, who = -1;\n        for (int i = left; i <= right; i++) {\n            int reach = min(n - 1, i + nums[i]);\n            if (reach > farthest) {\n                farthest = reach;\n                who = i;           // parent that extends the layer the most\n            }\n        }\n        if (who == -1) return {};  // stuck — cannot progress\n        for (int j = right + 1; j <= farthest; j++) from[j] = who;\n        left = right + 1;\n        right = farthest;\n    }\n\n    vector<int> path;\n    for (int i = n - 1; i != -1; i = from[i]) path.push_back(i);\n    reverse(path.begin(), path.end());\n    return path;\n}\n// O(N)\n"
             }
           ],
           "links": [
@@ -116,7 +116,7 @@
             {
               "lang": "cpp",
               "label": "C++",
-              "code": "vector<vector<int>> merge(vector<vector<int>>& intervals) {\n    sort(intervals.begin(), intervals.end());\n    vector<vector<int>> ans;\n    for (auto& cur : intervals) {\n        if (ans.empty() || ans.back()[1] < cur[0]) {\n            ans.push_back(cur);\n        } else {\n            ans.back()[1] = max(ans.back()[1], cur[1]);\n        }\n    }\n    return ans;\n}\n// O(N log N). Touching intervals merge because we use <, not <=.\n"
+              "code": "vector<vector<int>> merge(vector<vector<int>>& intervals) {\n    sort(intervals.begin(), intervals.end()); // by start, then end\n    vector<vector<int>> ans;\n    for (auto& cur : intervals) {\n        // No overlap with the last merged interval → start a new one\n        // Use < so touching ends like [1,4] and [4,5] still merge\n        if (ans.empty() || ans.back()[1] < cur[0]) {\n            ans.push_back(cur);\n        } else {\n            ans.back()[1] = max(ans.back()[1], cur[1]); // extend the end\n        }\n    }\n    return ans;\n}\n// O(N log N) — after sorting, only the last interval can overlap the next one\n"
             }
           ],
           "links": [
@@ -142,7 +142,7 @@
             {
               "lang": "cpp",
               "label": "C++",
-              "code": "string multiply(string num1, string num2) {\n    int m = num1.size(), n = num2.size();\n    vector<int> prod(m + n, 0);\n\n    for (int i = m - 1; i >= 0; i--) {\n        for (int j = n - 1; j >= 0; j--) {\n            int sum = (num1[i] - '0') * (num2[j] - '0') + prod[i + j + 1];\n            prod[i + j + 1] = sum % 10;\n            prod[i + j] += sum / 10;\n        }\n    }\n\n    string ans;\n    for (int d : prod) {\n        if (ans.empty() && d == 0) continue;\n        ans.push_back('0' + d);\n    }\n    return ans.empty() ? \"0\" : ans;\n}\n// O(m * n)\n"
+              "code": "string multiply(string num1, string num2) {\n    int m = num1.size(), n = num2.size();\n    // Digits of num1[i] * num2[j] land at indices i+j (carry) and i+j+1 (ones)\n    vector<int> prod(m + n, 0);\n\n    for (int i = m - 1; i >= 0; i--) {\n        for (int j = n - 1; j >= 0; j--) {\n            int sum = (num1[i] - '0') * (num2[j] - '0') + prod[i + j + 1];\n            prod[i + j + 1] = sum % 10;\n            prod[i + j] += sum / 10;   // carry into the left neighbour\n        }\n    }\n\n    string ans;\n    for (int d : prod) {\n        if (ans.empty() && d == 0) continue; // skip leading zeros\n        ans.push_back('0' + d);\n    }\n    return ans.empty() ? \"0\" : ans;    // both inputs were \"0\"\n}\n// O(m * n) — do not convert the strings to integers\n"
             }
           ],
           "links": [
@@ -167,7 +167,7 @@
             {
               "lang": "cpp",
               "label": "C++",
-              "code": "vector<pair<int,int>> pairsWithSum(vector<int>& a, vector<int>& b, int k) {\n    unordered_map<int, int> countB;\n    for (int x : b) countB[x]++;\n\n    vector<pair<int,int>> ans;\n    for (int x : a) {\n        int need = k - x;\n        int times = countB[need];   // map, not a set, so duplicate 1's both pair\n        while (times--) ans.push_back({x, need});\n    }\n    return ans;\n}\n// O(N + M + number of pairs)\n"
+              "code": "vector<pair<int,int>> pairsWithSum(vector<int>& a, vector<int>& b, int k) {\n    // Count values in B. A set would collapse duplicates and drop pairs.\n    unordered_map<int, int> countB;\n    for (int x : b) countB[x]++;\n\n    vector<pair<int,int>> ans;\n    for (int x : a) {\n        int need = k - x;\n        int times = countB[need];      // how many partners this x has in B\n        while (times--) ans.push_back({x, need});\n    }\n    return ans;\n}\n// O(N + M + number of pairs)\n"
             }
           ],
           "links": [],
@@ -187,7 +187,7 @@
             {
               "lang": "cpp",
               "label": "C++",
-              "code": "bool increasingTriplet(vector<int>& nums) {\n    int first = INT_MAX, second = INT_MAX;\n    for (int x : nums) {\n        if (x <= first) first = x;\n        else if (x <= second) second = x;\n        else return true;\n    }\n    return false;\n}\n// first = smallest so far, second = smallest that already has a smaller value on its left.\n"
+              "code": "bool increasingTriplet(vector<int>& nums) {\n    // first  = smallest value seen so far\n    // second = smallest value that already has something smaller on its left\n    // A later x > second means we found first < second < x\n    int first = INT_MAX, second = INT_MAX;\n    for (int x : nums) {\n        if (x <= first) first = x;           // new candidate for first\n        else if (x <= second) second = x;    // between first and a future third\n        else return true;                    // x is the third of the triplet\n    }\n    return false;\n}\n// O(N) time, O(1) space. <= keeps equals from counting as a strict increase.\n"
             }
           ],
           "links": [
@@ -212,7 +212,7 @@
             {
               "lang": "cpp",
               "label": "C++",
-              "code": "int maxIndexDiff(vector<int>& arr) {\n    int n = arr.size();\n    vector<int> leftMin(n), rightMax(n);\n\n    leftMin[0] = arr[0];\n    for (int i = 1; i < n; i++) leftMin[i] = min(leftMin[i - 1], arr[i]);\n\n    rightMax[n - 1] = arr[n - 1];\n    for (int j = n - 2; j >= 0; j--) rightMax[j] = max(rightMax[j + 1], arr[j]);\n\n    int i = 0, j = 0, ans = -1;\n    while (i < n && j < n) {\n        if (leftMin[i] < rightMax[j]) {   // strict, equals do not count\n            if (j > i) ans = max(ans, j - i);\n            j++;\n        } else {\n            i++;\n        }\n    }\n    return ans;\n}\n// O(N)\n"
+              "code": "int maxIndexDiff(vector<int>& arr) {\n    int n = arr.size();\n    vector<int> leftMin(n), rightMax(n);\n\n    // leftMin[i]  = smallest value in arr[0..i]\n    // rightMax[j] = largest  value in arr[j..n-1]\n    leftMin[0] = arr[0];\n    for (int i = 1; i < n; i++) leftMin[i] = min(leftMin[i - 1], arr[i]);\n\n    rightMax[n - 1] = arr[n - 1];\n    for (int j = n - 2; j >= 0; j--) rightMax[j] = max(rightMax[j + 1], arr[j]);\n\n    // If leftMin[i] < rightMax[j], some pair spanning at least j-i exists\n    int i = 0, j = 0, ans = -1;\n    while (i < n && j < n) {\n        if (leftMin[i] < rightMax[j]) {      // strict > as the problem asks\n            if (j > i) ans = max(ans, j - i);\n            j++;                             // try a wider span\n        } else {\n            i++;                             // need a smaller left value\n        }\n    }\n    return ans; // -1 when the array never increases\n}\n// O(N)\n"
             }
           ],
           "links": [],
@@ -233,7 +233,7 @@
             {
               "lang": "cpp",
               "label": "C++",
-              "code": "int maxScore(vector<int>& cards, int k) {\n    int n = cards.size();\n    int sum = 0;\n    for (int i = 0; i < k; i++) sum += cards[i];\n\n    int best = sum;\n    for (int i = 0; i < k; i++) {\n        sum += cards[n - 1 - i];\n        sum -= cards[k - 1 - i];\n        best = max(best, sum);\n    }\n    return best;\n}\n// Take k from the left, then swap one left card for one right card at a time.\n"
+              "code": "int maxScore(vector<int>& cards, int k) {\n    int n = cards.size();\n    // Only k+1 options exist: take i from the right and (k-i) from the left.\n    // Start with the leftmost k, then trade one left card for one right card.\n    int sum = 0;\n    for (int i = 0; i < k; i++) sum += cards[i];\n\n    int best = sum;\n    for (int i = 0; i < k; i++) {\n        sum += cards[n - 1 - i];   // add next card from the right\n        sum -= cards[k - 1 - i];   // drop the rightmost of the remaining left block\n        best = max(best, sum);\n    }\n    return best;\n}\n// O(K)\n"
             }
           ],
           "links": [
@@ -259,7 +259,7 @@
             {
               "lang": "cpp",
               "label": "C++",
-              "code": "vector<int> frequencySort(vector<int>& nums) {\n    unordered_map<int, int> freq;\n    for (int x : nums) freq[x]++;\n\n    sort(nums.begin(), nums.end(), [&](int a, int b) {\n        if (freq[a] != freq[b]) return freq[a] > freq[b];\n        return a < b;\n    });\n    return nums;\n}\n// Higher frequency first. Same frequency: smaller number first.\n"
+              "code": "vector<int> frequencySort(vector<int>& nums) {\n    unordered_map<int, int> freq;\n    for (int x : nums) freq[x]++;\n\n    sort(nums.begin(), nums.end(), [&](int a, int b) {\n        if (freq[a] != freq[b]) return freq[a] > freq[b]; // more frequent first\n        return a < b;                                       // tie → smaller value\n    });\n    return nums;\n}\n// O(N log N)\n"
             }
           ],
           "links": [],
@@ -279,7 +279,7 @@
             {
               "lang": "cpp",
               "label": "C++",
-              "code": "vector<int> searchRange(vector<int>& nums, int target) {\n    auto search = [&](bool findLeft) {\n        int lo = 0, hi = (int)nums.size() - 1, ans = -1;\n        while (lo <= hi) {\n            int mid = lo + (hi - lo) / 2;\n            if (nums[mid] == target) {\n                ans = mid;\n                if (findLeft) hi = mid - 1;\n                else lo = mid + 1;\n            } else if (nums[mid] < target) {\n                lo = mid + 1;\n            } else {\n                hi = mid - 1;\n            }\n        }\n        return ans;\n    };\n    return {search(true), search(false)};\n}\n// Two binary searches: leftmost and rightmost.\n"
+              "code": "vector<int> searchRange(vector<int>& nums, int target) {\n    // Two binary searches: one for the leftmost hit, one for the rightmost\n    auto search = [&](bool findLeft) {\n        int lo = 0, hi = (int)nums.size() - 1, ans = -1;\n        while (lo <= hi) {\n            int mid = lo + (hi - lo) / 2;\n            if (nums[mid] == target) {\n                ans = mid;\n                // Keep going on the side we care about — do not stop at first hit\n                if (findLeft) hi = mid - 1;\n                else lo = mid + 1;\n            } else if (nums[mid] < target) {\n                lo = mid + 1;\n            } else {\n                hi = mid - 1;\n            }\n        }\n        return ans;\n    };\n    return {search(true), search(false)};\n}\n// O(log N)\n"
             }
           ],
           "links": [
@@ -309,7 +309,7 @@
             {
               "lang": "cpp",
               "label": "C++",
-              "code": "ListNode* reverseKGroup(ListNode* head, int k) {\n    ListNode* node = head;\n    for (int i = 0; i < k; i++) {\n        if (!node) return head;   // not enough nodes left, leave them as they are\n        node = node->next;\n    }\n\n    ListNode* prev = nullptr;\n    ListNode* cur = head;\n    for (int i = 0; i < k; i++) {\n        ListNode* next = cur->next;\n        cur->next = prev;\n        prev = cur;\n        cur = next;\n    }\n    head->next = reverseKGroup(cur, k);\n    return prev;\n}\n// O(N)\n"
+              "code": "ListNode* reverseKGroup(ListNode* head, int k) {\n    // Check that at least k nodes remain; otherwise leave the tail as-is\n    ListNode* node = head;\n    for (int i = 0; i < k; i++) {\n        if (!node) return head;\n        node = node->next;\n    }\n\n    // Reverse exactly k nodes. prev becomes the new head of this group.\n    ListNode* prev = nullptr;\n    ListNode* cur = head;\n    for (int i = 0; i < k; i++) {\n        ListNode* next = cur->next;\n        cur->next = prev;\n        prev = cur;\n        cur = next;\n    }\n    // Old head is now the tail of this group — link it to the next reversed group\n    head->next = reverseKGroup(cur, k);\n    return prev;\n}\n// O(N) time. Recursion depth is N/k.\n"
             }
           ],
           "links": [
@@ -334,7 +334,7 @@
             {
               "lang": "cpp",
               "label": "C++",
-              "code": "struct Node {\n    int val;\n    Node* next;\n    Node* random;\n};\n\nNode* copyRandomList(Node* head) {\n    if (!head) return nullptr;\n\n    unordered_map<Node*, Node*> copy;\n    for (Node* cur = head; cur; cur = cur->next) {\n        copy[cur] = new Node{cur->val, nullptr, nullptr};\n    }\n    for (Node* cur = head; cur; cur = cur->next) {\n        if (cur->next) copy[cur]->next = copy[cur->next];\n        if (cur->random) copy[cur]->random = copy[cur->random];\n    }\n    return copy[head];\n}\n// Make every node first, then set next and random. O(N) time and space.\n"
+              "code": "struct Node {\n    int val;\n    Node* next;\n    Node* random;\n};\n\nNode* copyRandomList(Node* head) {\n    if (!head) return nullptr;\n\n    // Pass 1: create every copy. Map original → copy so random links are easy later.\n    unordered_map<Node*, Node*> copy;\n    for (Node* cur = head; cur; cur = cur->next) {\n        copy[cur] = new Node{cur->val, nullptr, nullptr};\n    }\n    // Pass 2: wire next and random using the map\n    for (Node* cur = head; cur; cur = cur->next) {\n        if (cur->next) copy[cur]->next = copy[cur->next];\n        if (cur->random) copy[cur]->random = copy[cur->random];\n    }\n    return copy[head];\n}\n// O(N) time and space. The weave-in-place O(1) space version is a follow-up.\n"
             }
           ],
           "links": [
@@ -359,7 +359,7 @@
             {
               "lang": "cpp",
               "label": "C++",
-              "code": "Node* connect(Node* root) {\n    if (!root) return nullptr;\n\n    Node* level = root;\n    while (level->left) {\n        Node* cur = level;\n        while (cur) {\n            cur->left->next = cur->right;\n            if (cur->next) cur->right->next = cur->next->left;\n            cur = cur->next;\n        }\n        level = level->left;\n    }\n    return root;\n}\n// The tree is perfect, so the next pointers on this level let us wire the level below.\n"
+              "code": "Node* connect(Node* root) {\n    if (!root) return nullptr;\n\n    // Perfect tree: once a level's next pointers exist, walk that level\n    // and wire the children — no queue, O(1) extra space.\n    Node* level = root;\n    while (level->left) {\n        Node* cur = level;\n        while (cur) {\n            cur->left->next = cur->right;                 // sibling\n            if (cur->next) cur->right->next = cur->next->left; // cousin\n            cur = cur->next;\n        }\n        level = level->left;   // drop to the leftmost node of the next level\n    }\n    return root;\n}\n// O(N). A non-perfect tree cannot assume every parent has two children.\n"
             }
           ],
           "links": [
@@ -384,7 +384,7 @@
             {
               "lang": "cpp",
               "label": "C++",
-              "code": "ListNode* getIntersectionNode(ListNode* headA, ListNode* headB) {\n    ListNode* a = headA;\n    ListNode* b = headB;\n    while (a != b) {\n        a = a ? a->next : headB;\n        b = b ? b->next : headA;\n    }\n    return a;\n}\n// Switch to the other list at the end. Both then walk the same remaining distance.\n"
+              "code": "ListNode* getIntersectionNode(ListNode* headA, ListNode* headB) {\n    // When a pointer hits null, send it to the other list's head.\n    // The longer list's extra prefix is walked once, then both have\n    // the same remaining length and meet at the intersection (or both null).\n    ListNode* a = headA;\n    ListNode* b = headB;\n    while (a != b) {\n        a = a ? a->next : headB;\n        b = b ? b->next : headA;\n    }\n    return a;\n}\n// O(M + N) time, O(1) space\n"
             }
           ],
           "links": [
@@ -409,7 +409,7 @@
             {
               "lang": "cpp",
               "label": "C++",
-              "code": "ListNode* reverseSecondHalf(ListNode* head) {\n    if (!head || !head->next) return head;\n\n    ListNode* slow = head;\n    ListNode* fast = head;\n    while (fast->next && fast->next->next) {\n        slow = slow->next;\n        fast = fast->next->next;\n    }\n\n    ListNode* prev = nullptr;\n    ListNode* cur = slow->next;\n    while (cur) {\n        ListNode* next = cur->next;\n        cur->next = prev;\n        prev = cur;\n        cur = next;\n    }\n    slow->next = prev;\n    return head;\n}\n// slow lands at the end of the first half. Reverse everything after it.\n"
+              "code": "ListNode* reverseSecondHalf(ListNode* head) {\n    if (!head || !head->next) return head;\n\n    // slow ends on the last node of the first half (middle on odd length)\n    ListNode* slow = head;\n    ListNode* fast = head;\n    while (fast->next && fast->next->next) {\n        slow = slow->next;\n        fast = fast->next->next;\n    }\n\n    // Standard in-place reverse starting at slow->next\n    ListNode* prev = nullptr;\n    ListNode* cur = slow->next;\n    while (cur) {\n        ListNode* next = cur->next;\n        cur->next = prev;\n        prev = cur;\n        cur = next;\n    }\n    slow->next = prev;   // attach the reversed half back\n    return head;\n}\n// O(N) time, O(1) space\n"
             }
           ],
           "links": [],
@@ -434,7 +434,7 @@
             {
               "lang": "cpp",
               "label": "C++",
-              "code": "TreeNode* lowestCommonAncestor(TreeNode* root, TreeNode* p, TreeNode* q) {\n    if (!root || root == p || root == q) return root;\n    TreeNode* left = lowestCommonAncestor(root->left, p, q);\n    TreeNode* right = lowestCommonAncestor(root->right, p, q);\n    if (left && right) return root;\n    return left ? left : right;\n}\n\nEmp* commonManager(Emp* a, Emp* b) {\n    unordered_set<Emp*> seen;\n    while (a) {\n        seen.insert(a);\n        a = a->manager;\n    }\n    while (b) {\n        if (seen.count(b)) return b;\n        b = b->manager;\n    }\n    return nullptr;\n}\n// Tree: the split point is the LCA. Employees: walk one chain into a set, then walk the other.\n"
+              "code": "TreeNode* lowestCommonAncestor(TreeNode* root, TreeNode* p, TreeNode* q) {\n    // Hitting p or q: that node is the answer for this subtree.\n    // The other target is either under it, or the caller will combine both sides.\n    if (!root || root == p || root == q) return root;\n    TreeNode* left = lowestCommonAncestor(root->left, p, q);\n    TreeNode* right = lowestCommonAncestor(root->right, p, q);\n    if (left && right) return root;   // p and q split across left and right\n    return left ? left : right;       // both on one side (or one missing)\n}\n\n// Employees point at their manager (parent), not at children\nEmp* commonManager(Emp* a, Emp* b) {\n    unordered_set<Emp*> seen;\n    while (a) {                       // walk a up to the root\n        seen.insert(a);\n        a = a->manager;\n    }\n    while (b) {                       // first hit on b's chain is the deepest shared manager\n        if (seen.count(b)) return b;\n        b = b->manager;\n    }\n    return nullptr;\n}\n// Tree LCA: O(N). Common manager: O(D) where D is depth.\n"
             }
           ],
           "links": [
@@ -460,7 +460,7 @@
             {
               "lang": "cpp",
               "label": "C++",
-              "code": "bool isValid(TreeNode* node, long long low, long long high) {\n    if (!node) return true;\n    if (node->val <= low || node->val >= high) return false;\n    return isValid(node->left, low, node->val) && isValid(node->right, node->val, high);\n}\n\nbool isValidBST(TreeNode* root) {\n    return isValid(root, LLONG_MIN, LLONG_MAX);\n}\n// Every node must sit strictly inside (low, high). long long so INT_MIN and INT_MAX are valid values.\n"
+              "code": "bool isValid(TreeNode* node, long long low, long long high) {\n    if (!node) return true;\n    // Value must sit strictly inside (low, high)\n    if (node->val <= low || node->val >= high) return false;\n    // Left child must be < node; right child must be > node\n    return isValid(node->left, low, node->val)\n        && isValid(node->right, node->val, high);\n}\n\nbool isValidBST(TreeNode* root) {\n    // long long so a node holding INT_MIN / INT_MAX is still inside range\n    return isValid(root, LLONG_MIN, LLONG_MAX);\n}\n// O(N)\n"
             }
           ],
           "links": [
@@ -485,7 +485,7 @@
             {
               "lang": "cpp",
               "label": "C++",
-              "code": "vector<int> leftView(TreeNode* root) {\n    vector<int> ans;\n    if (!root) return ans;\n\n    queue<TreeNode*> q;\n    q.push(root);\n    while (!q.empty()) {\n        int sz = q.size();\n        for (int i = 0; i < sz; i++) {\n            TreeNode* node = q.front();\n            q.pop();\n            if (i == 0) ans.push_back(node->val);\n            if (node->left) q.push(node->left);\n            if (node->right) q.push(node->right);\n        }\n    }\n    return ans;\n}\n// First node of each level, left child pushed before right.\n"
+              "code": "vector<int> leftView(TreeNode* root) {\n    vector<int> ans;\n    if (!root) return ans;\n\n    queue<TreeNode*> q;\n    q.push(root);\n    while (!q.empty()) {\n        int sz = q.size();             // nodes on this level\n        for (int i = 0; i < sz; i++) {\n            TreeNode* node = q.front();\n            q.pop();\n            if (i == 0) ans.push_back(node->val); // first = leftmost\n            // Push left before right so the first of the next level is the left child\n            if (node->left) q.push(node->left);\n            if (node->right) q.push(node->right);\n        }\n    }\n    return ans;\n}\n// O(N)\n"
             }
           ],
           "links": [],
@@ -505,7 +505,7 @@
             {
               "lang": "cpp",
               "label": "C++",
-              "code": "vector<vector<int>> verticalOrder(TreeNode* root) {\n    vector<vector<int>> ans;\n    if (!root) return ans;\n\n    map<int, vector<int>> col;\n    queue<pair<TreeNode*, int>> q;\n    q.push({root, 0});\n\n    while (!q.empty()) {\n        auto [node, c] = q.front();\n        q.pop();\n        col[c].push_back(node->val);\n        if (node->left) q.push({node->left, c - 1});\n        if (node->right) q.push({node->right, c + 1});\n    }\n    for (auto& [c, vals] : col) ans.push_back(vals);\n    return ans;\n}\n// BFS keeps top-to-bottom order. The map prints columns from left to right.\n"
+              "code": "vector<vector<int>> verticalOrder(TreeNode* root) {\n    vector<vector<int>> ans;\n    if (!root) return ans;\n\n    // col -> values in that vertical line, left to right via the map\n    map<int, vector<int>> col;\n    queue<pair<TreeNode*, int>> q;\n    q.push({root, 0});               // root sits at horizontal distance 0\n\n    while (!q.empty()) {\n        auto [node, c] = q.front();\n        q.pop();\n        // BFS visits top-to-bottom. Left enqueued before right keeps same-row order.\n        col[c].push_back(node->val);\n        if (node->left) q.push({node->left, c - 1});\n        if (node->right) q.push({node->right, c + 1});\n    }\n    for (auto& [c, vals] : col) ans.push_back(vals);\n    return ans;\n}\n// O(N log C), C = number of columns\n"
             }
           ],
           "links": [
@@ -530,7 +530,7 @@
             {
               "lang": "cpp",
               "label": "C++",
-              "code": "bool pathExists(vector<vector<int>>& grid) {\n    int n = grid.size(), m = grid[0].size();\n    if (grid[0][0] == 1 || grid[n - 1][m - 1] == 1) return false;\n\n    queue<pair<int, int>> q;\n    q.push({0, 0});\n    grid[0][0] = 1;   // 0 open, 1 wall. Marking visited as 1 is enough here.\n\n    int dr[] = {1, -1, 0, 0};\n    int dc[] = {0, 0, 1, -1};\n    while (!q.empty()) {\n        auto [r, c] = q.front();\n        q.pop();\n        if (r == n - 1 && c == m - 1) return true;\n        for (int k = 0; k < 4; k++) {\n            int nr = r + dr[k], nc = c + dc[k];\n            if (nr < 0 || nc < 0 || nr >= n || nc >= m) continue;\n            if (grid[nr][nc] == 1) continue;\n            grid[nr][nc] = 1;\n            q.push({nr, nc});\n        }\n    }\n    return false;\n}\n// BFS. We only need any path, so a visited cell is never entered again.\n"
+              "code": "bool pathExists(vector<vector<int>>& grid) {\n    int n = grid.size(), m = grid[0].size();\n    // In this problem: 0 = open, 1 = wall\n    if (grid[0][0] == 1 || grid[n - 1][m - 1] == 1) return false;\n\n    queue<pair<int, int>> q;\n    q.push({0, 0});\n    grid[0][0] = 1;   // mark visited by turning open cells into walls\n\n    int dr[] = {1, -1, 0, 0};\n    int dc[] = {0, 0, 1, -1};\n    while (!q.empty()) {\n        auto [r, c] = q.front();\n        q.pop();\n        if (r == n - 1 && c == m - 1) return true;\n        for (int k = 0; k < 4; k++) {\n            int nr = r + dr[k], nc = c + dc[k];\n            if (nr < 0 || nc < 0 || nr >= n || nc >= m) continue;\n            if (grid[nr][nc] == 1) continue;  // wall or already visited\n            grid[nr][nc] = 1;\n            q.push({nr, nc});\n        }\n    }\n    return false;\n}\n// BFS is enough for existence. Unmarking (true backtracking) is only for listing every path.\n"
             }
           ],
           "links": [],
@@ -550,7 +550,7 @@
             {
               "lang": "cpp",
               "label": "C++",
-              "code": "int minCutDiff(int n, vector<vector<int>>& edges, vector<int>& values) {\n    vector<vector<int>> adj(n);\n    for (auto& e : edges) {\n        adj[e[0]].push_back(e[1]);\n        adj[e[1]].push_back(e[0]);\n    }\n\n    long long total = 0;\n    for (int v : values) total += v;\n\n    long long best = LLONG_MAX;\n    function<long long(int, int)> dfs = [&](int u, int parent) {\n        long long sub = values[u];\n        for (int v : adj[u]) {\n            if (v != parent) sub += dfs(v, u);\n        }\n        if (parent != -1) {\n            long long other = total - sub;\n            best = min(best, llabs(sub - other));\n        }\n        return sub;\n    };\n    dfs(0, -1);\n    return (int)best;\n}\n// Cut one edge. The two sides are the subtree sum and total minus that.\n"
+              "code": "int minCutDiff(int n, vector<vector<int>>& edges, vector<int>& values) {\n    vector<vector<int>> adj(n);\n    for (auto& e : edges) {\n        adj[e[0]].push_back(e[1]);\n        adj[e[1]].push_back(e[0]);\n    }\n\n    long long total = 0;\n    for (int v : values) total += v;\n\n    long long best = LLONG_MAX;\n    // dfs returns the sum of the subtree rooted at u.\n    // Cutting the edge to parent splits the tree into sub and (total - sub).\n    function<long long(int, int)> dfs = [&](int u, int parent) {\n        long long sub = values[u];\n        for (int v : adj[u]) {\n            if (v != parent) sub += dfs(v, u);\n        }\n        if (parent != -1) {   // skip root — there is no edge above it\n            long long other = total - sub;\n            best = min(best, llabs(sub - other));\n        }\n        return sub;\n    };\n    dfs(0, -1);\n    return (int)best;\n}\n// O(N)\n"
             }
           ],
           "links": [],
@@ -570,7 +570,7 @@
             {
               "lang": "cpp",
               "label": "C++",
-              "code": "void dfs(int u, int parent, vector<vector<int>>& g,\n         vector<int>& tin, vector<int>& low, vector<vector<int>>& bridges, int& timer) {\n    tin[u] = low[u] = timer++;\n    for (int v : g[u]) {\n        if (v == parent) continue;\n        if (tin[v] == -1) {\n            dfs(v, u, g, tin, low, bridges, timer);\n            low[u] = min(low[u], low[v]);\n            if (low[v] > tin[u]) bridges.push_back({u, v});\n        } else {\n            low[u] = min(low[u], tin[v]);\n        }\n    }\n}\n\nvector<vector<int>> criticalConnections(int n, vector<vector<int>>& edges) {\n    vector<vector<int>> g(n);\n    for (auto& e : edges) {\n        g[e[0]].push_back(e[1]);\n        g[e[1]].push_back(e[0]);\n    }\n    vector<int> tin(n, -1), low(n);\n    vector<vector<int>> bridges;\n    int timer = 0;\n    for (int i = 0; i < n; i++) {\n        if (tin[i] == -1) dfs(i, -1, g, tin, low, bridges, timer);\n    }\n    return bridges;\n}\n// An edge u-v is a bridge when v cannot climb back to u or above.\n"
+              "code": "void dfs(int u, int parent, vector<vector<int>>& g,\n         vector<int>& tin, vector<int>& low, vector<vector<int>>& bridges, int& timer) {\n    tin[u] = low[u] = timer++;   // discovery time; low = earliest reachable ancestor time\n    for (int v : g[u]) {\n        if (v == parent) continue;\n        if (tin[v] == -1) {\n            dfs(v, u, g, tin, low, bridges, timer);\n            low[u] = min(low[u], low[v]);\n            // v's subtree has no back edge to u or above → u-v is a bridge\n            if (low[v] > tin[u]) bridges.push_back({u, v});\n        } else {\n            // Back edge: use discovery time of v, not low[v]\n            low[u] = min(low[u], tin[v]);\n        }\n    }\n}\n\nvector<vector<int>> criticalConnections(int n, vector<vector<int>>& edges) {\n    vector<vector<int>> g(n);\n    for (auto& e : edges) {\n        g[e[0]].push_back(e[1]);\n        g[e[1]].push_back(e[0]);\n    }\n    vector<int> tin(n, -1), low(n);\n    vector<vector<int>> bridges;\n    int timer = 0;\n    for (int i = 0; i < n; i++) {\n        if (tin[i] == -1) dfs(i, -1, g, tin, low, bridges, timer);\n    }\n    return bridges;\n}\n// O(V + E) — Tarjan's bridges\n"
             }
           ],
           "links": [
@@ -596,7 +596,7 @@
             {
               "lang": "cpp",
               "label": "C++",
-              "code": "vector<int> dijkstra(vector<vector<pair<int,int>>>& g, int src) {\n    int n = g.size();\n    vector<int> dist(n, INT_MAX);\n    priority_queue<pair<int,int>, vector<pair<int,int>>, greater<pair<int,int>>> pq;\n\n    dist[src] = 0;\n    pq.push({0, src});\n    while (!pq.empty()) {\n        auto [d, u] = pq.top();\n        pq.pop();\n        if (d != dist[u]) continue;\n        for (auto [v, w] : g[u]) {\n            if (dist[u] + w < dist[v]) {\n                dist[v] = dist[u] + w;\n                pq.push({dist[v], v});\n            }\n        }\n    }\n    return dist;\n}\n// Non-negative weights. Skip a node if we already found a shorter path to it.\n"
+              "code": "vector<int> dijkstra(vector<vector<pair<int,int>>>& g, int src) {\n    int n = g.size();\n    vector<int> dist(n, INT_MAX);\n    priority_queue<pair<int,int>, vector<pair<int,int>>, greater<pair<int,int>>> pq;\n\n    dist[src] = 0;\n    pq.push({0, src});             // {distance, node}\n    while (!pq.empty()) {\n        auto [d, u] = pq.top();\n        pq.pop();\n        if (d != dist[u]) continue; // stale entry — a better path already finalized u\n        for (auto [v, w] : g[u]) {\n            if (dist[u] + w < dist[v]) {\n                dist[v] = dist[u] + w;\n                pq.push({dist[v], v});\n            }\n        }\n    }\n    return dist;\n}\n// O((V + E) log V). Non-negative weights only.\n"
             }
           ],
           "links": [],
@@ -616,7 +616,7 @@
             {
               "lang": "cpp",
               "label": "C++",
-              "code": "bool canReach(int x, int y) {\n    return __gcd(x, y) == 1;\n}\n// Moves keep the gcd the same, and we start from (1, 1). So we can reach (x, y) only when gcd is 1.\n"
+              "code": "bool canReach(int x, int y) {\n    // Move (a,b) → (a+b,b) or (a,a+b) never changes gcd.\n    // We start at (1,1) whose gcd is 1, so (x,y) is reachable iff gcd(x,y) == 1.\n    return __gcd(x, y) == 1;\n}\n// O(log min(x, y))\n"
             }
           ],
           "links": [],
@@ -642,7 +642,7 @@
             {
               "lang": "cpp",
               "label": "C++",
-              "code": "int maxSumIncreasing(vector<int>& arr) {\n    if (arr.empty()) return 0;\n    int n = arr.size();\n    vector<int> dp = arr;   // best sum of an increasing subsequence ending here\n    for (int i = 0; i < n; i++) {\n        for (int j = 0; j < i; j++) {\n            if (arr[j] < arr[i]) dp[i] = max(dp[i], dp[j] + arr[i]);\n        }\n    }\n    return *max_element(dp.begin(), dp.end());\n}\n// O(N^2)\n"
+              "code": "int maxSumIncreasing(vector<int>& arr) {\n    if (arr.empty()) return 0;\n    // dp[i] = best increasing-subsequence sum that *ends* at i (must include arr[i])\n    vector<int> dp = arr;\n    for (int i = 0; i < arr.size(); i++) {\n        for (int j = 0; j < i; j++) {\n            if (arr[j] < arr[i])\n                dp[i] = max(dp[i], dp[j] + arr[i]);\n        }\n    }\n    return *max_element(dp.begin(), dp.end());\n}\n// O(N^2). This maximises the sum, not the length (not plain LIS).\n"
             }
           ],
           "links": [],
@@ -663,7 +663,7 @@
             {
               "lang": "cpp",
               "label": "C++",
-              "code": "int longestConsecutive(vector<int>& nums) {\n    unordered_set<int> s(nums.begin(), nums.end());\n    int best = 0;\n    for (int x : s) {\n        if (s.count(x - 1)) continue;   // start only at the beginning of a streak\n        int len = 1;\n        while (s.count(x + len)) len++;\n        best = max(best, len);\n    }\n    return best;\n}\n// O(N)\n"
+              "code": "int longestConsecutive(vector<int>& nums) {\n    unordered_set<int> s(nums.begin(), nums.end());\n    int best = 0;\n    for (int x : s) {\n        // Only start a streak at its beginning — otherwise we'd recount the same run\n        if (s.count(x - 1)) continue;\n        int len = 1;\n        while (s.count(x + len)) len++;\n        best = max(best, len);\n    }\n    return best;\n}\n// O(N) expected: each number is visited by the inner loop at most once\n"
             }
           ],
           "links": [
@@ -689,7 +689,7 @@
             {
               "lang": "cpp",
               "label": "C++",
-              "code": "vector<string> permutations(string s) {\n    sort(s.begin(), s.end());\n    vector<string> ans;\n    string cur;\n    vector<bool> used(s.size(), false);\n\n    function<void()> rec = [&]() {\n        if (cur.size() == s.size()) {\n            ans.push_back(cur);\n            return;\n        }\n        for (int i = 0; i < s.size(); i++) {\n            if (used[i]) continue;\n            if (i > 0 && s[i] == s[i - 1] && !used[i - 1]) continue;\n            used[i] = true;\n            cur.push_back(s[i]);\n            rec();\n            cur.pop_back();\n            used[i] = false;\n        }\n    };\n    rec();\n    return ans;\n}\n// Swap-style backtracking. The skip line drops duplicate permutations.\n"
+              "code": "vector<string> permutations(string s) {\n    sort(s.begin(), s.end());      // group equal chars so the duplicate skip works\n    vector<string> ans;\n    string cur;\n    vector<bool> used(s.size(), false);\n\n    function<void()> rec = [&]() {\n        if (cur.size() == s.size()) {\n            ans.push_back(cur);\n            return;\n        }\n        for (int i = 0; i < s.size(); i++) {\n            if (used[i]) continue;\n            // Same char as previous, and previous is unused → this branch is a duplicate\n            if (i > 0 && s[i] == s[i - 1] && !used[i - 1]) continue;\n            used[i] = true;\n            cur.push_back(s[i]);\n            rec();\n            cur.pop_back();        // backtrack\n            used[i] = false;\n        }\n    };\n    rec();\n    return ans;\n}\n// Distinct chars → N! leaves. The skip line removes duplicate permutations.\n"
             }
           ],
           "links": [],
@@ -709,7 +709,7 @@
             {
               "lang": "cpp",
               "label": "C++",
-              "code": "long long diceWays(int dice, int faces, int target) {\n    vector<vector<long long>> dp(dice + 1, vector<long long>(target + 1, 0));\n    dp[0][0] = 1;\n\n    for (int d = 1; d <= dice; d++) {\n        for (int sum = 1; sum <= target; sum++) {\n            for (int face = 1; face <= faces && face <= sum; face++) {\n                dp[d][sum] += dp[d - 1][sum - face];\n            }\n        }\n    }\n    return dp[dice][target];\n}\n// dp[d][sum] = ways to reach sum with d dice.\n"
+              "code": "long long diceWays(int dice, int faces, int target) {\n    // dp[d][sum] = ways to make `sum` using exactly `d` dice (each face 1..faces)\n    vector<vector<long long>> dp(dice + 1, vector<long long>(target + 1, 0));\n    dp[0][0] = 1;                  // one way to make 0 with zero dice\n\n    for (int d = 1; d <= dice; d++) {\n        for (int sum = 1; sum <= target; sum++) {\n            for (int face = 1; face <= faces && face <= sum; face++) {\n                dp[d][sum] += dp[d - 1][sum - face];\n            }\n        }\n    }\n    return dp[dice][target];\n}\n// O(dice * target * faces)\n"
             }
           ],
           "links": [],
@@ -729,7 +729,7 @@
             {
               "lang": "cpp",
               "label": "C++",
-              "code": "vector<string> generateParenthesis(int n) {\n    vector<string> ans;\n    string cur;\n\n    function<void(int, int)> rec = [&](int open, int close) {\n        if (cur.size() == 2 * n) {\n            ans.push_back(cur);\n            return;\n        }\n        if (open < n) {\n            cur.push_back('(');\n            rec(open + 1, close);\n            cur.pop_back();\n        }\n        if (close < open) {\n            cur.push_back(')');\n            rec(open, close + 1);\n            cur.pop_back();\n        }\n    };\n    rec(0, 0);\n    return ans;\n}\n// Add '(' while we still can. Add ')' only when it won't outnumber '('.\n"
+              "code": "vector<string> generateParenthesis(int n) {\n    vector<string> ans;\n    string cur;\n\n    function<void(int, int)> rec = [&](int open, int close) {\n        if (cur.size() == 2 * n) {\n            ans.push_back(cur);\n            return;\n        }\n        // Can still place an opening bracket\n        if (open < n) {\n            cur.push_back('(');\n            rec(open + 1, close);\n            cur.pop_back();\n        }\n        // A close is legal only while it does not outnumber opens so far\n        if (close < open) {\n            cur.push_back(')');\n            rec(open, close + 1);\n            cur.pop_back();\n        }\n    };\n    rec(0, 0);\n    return ans;\n}\n// Catalan number of strings. Reuse `cur` to avoid copying on every call.\n"
             }
           ],
           "links": [
@@ -754,7 +754,7 @@
             {
               "lang": "cpp",
               "label": "C++",
-              "code": "string longestRepeating(string s) {\n    int n = s.size();\n    vector<vector<int>> dp(n + 1, vector<int>(n + 1, 0));\n    int best = 0, endAt = 0;\n\n    for (int i = 1; i <= n; i++) {\n        for (int j = i + 1; j <= n; j++) {\n            if (s[i - 1] != s[j - 1]) continue;\n            if (dp[i - 1][j - 1] < (j - i)) {\n                dp[i][j] = dp[i - 1][j - 1] + 1;\n                if (dp[i][j] > best) {\n                    best = dp[i][j];\n                    endAt = i;\n                }\n            }\n        }\n    }\n    return s.substr(endAt - best, best);\n}\n// dp[i][j] = length of the same substring ending at i-1 and j-1, without the two copies overlapping.\n"
+              "code": "string longestRepeating(string s) {\n    int n = s.size();\n    // dp[i][j] = length of a repeated substring ending at s[i-1] and s[j-1]\n    vector<vector<int>> dp(n + 1, vector<int>(n + 1, 0));\n    int best = 0, endAt = 0;\n\n    for (int i = 1; i <= n; i++) {\n        for (int j = i + 1; j <= n; j++) {\n            if (s[i - 1] != s[j - 1]) continue;\n            // Match so far must be shorter than the gap, otherwise the two copies overlap\n            if (dp[i - 1][j - 1] < (j - i)) {\n                dp[i][j] = dp[i - 1][j - 1] + 1;\n                if (dp[i][j] > best) {\n                    best = dp[i][j];\n                    endAt = i;\n                }\n            }\n        }\n    }\n    return s.substr(endAt - best, best);\n}\n// O(N^2). N <= 500, so this is the expected approach.\n"
             }
           ],
           "links": [],
@@ -779,7 +779,7 @@
             {
               "lang": "cpp",
               "label": "C++",
-              "code": "class FreqStack {\n    unordered_map<int, int> freq;\n    unordered_map<int, vector<int>> stacks;  // stacks[f] = values that currently appear f times\n    int maxFreq = 0;\npublic:\n    void push(int x) {\n        freq[x]++;\n        stacks[freq[x]].push_back(x);\n        maxFreq = max(maxFreq, freq[x]);\n    }\n    int pop() {\n        int x = stacks[maxFreq].back();\n        stacks[maxFreq].pop_back();\n        freq[x]--;\n        if (stacks[maxFreq].empty()) maxFreq--;\n        return x;\n    }\n};\n// Pop the most frequent value. Ties go to the one pushed later, which is the back of that stack.\n"
+              "code": "class FreqStack {\n    unordered_map<int, int> freq;\n    // stacks[f] = values whose *current* frequency is f (most recent at the back)\n    unordered_map<int, vector<int>> stacks;\n    int maxFreq = 0;\npublic:\n    void push(int x) {\n        freq[x]++;\n        stacks[freq[x]].push_back(x);\n        maxFreq = max(maxFreq, freq[x]);\n    }\n    int pop() {\n        // Most frequent, then most recent → back of stacks[maxFreq]\n        int x = stacks[maxFreq].back();\n        stacks[maxFreq].pop_back();\n        freq[x]--;\n        if (stacks[maxFreq].empty()) maxFreq--; // drop to the next frequency band\n        return x;\n    }\n};\n// push / pop O(1) amortized\n"
             }
           ],
           "links": [
@@ -804,7 +804,7 @@
             {
               "lang": "cpp",
               "label": "C++",
-              "code": "int findKthLargest(vector<int>& nums, int k) {\n    priority_queue<int, vector<int>, greater<int>> heap;\n    for (int x : nums) {\n        heap.push(x);\n        if (heap.size() > k) heap.pop();\n    }\n    return heap.top();\n}\n// Min-heap of size k. The top is the kth largest.\n"
+              "code": "int findKthLargest(vector<int>& nums, int k) {\n    // Min-heap of the k largest seen so far. Top = smallest of those = kth largest.\n    priority_queue<int, vector<int>, greater<int>> heap;\n    for (int x : nums) {\n        heap.push(x);\n        if (heap.size() > k) heap.pop(); // drop anything smaller than the current kth\n    }\n    return heap.top();\n}\n// O(N log K). Quickselect is the O(N) average follow-up.\n"
             }
           ],
           "links": [
@@ -829,7 +829,7 @@
             {
               "lang": "cpp",
               "label": "C++",
-              "code": "class LRUCache {\n    int cap;\n    list<pair<int, int>> dll;   // front = most recent\n    unordered_map<int, list<pair<int, int>>::iterator> mp;\npublic:\n    LRUCache(int capacity) { cap = capacity; }\n\n    int get(int key) {\n        if (!mp.count(key)) return -1;\n        dll.splice(dll.begin(), dll, mp[key]);\n        return mp[key]->second;\n    }\n\n    void put(int key, int val) {\n        if (mp.count(key)) {\n            dll.erase(mp[key]);\n        } else if (dll.size() == cap) {\n            mp.erase(dll.back().first);\n            dll.pop_back();\n        }\n        dll.push_front({key, val});\n        mp[key] = dll.begin();\n    }\n};\n// List for order, map for O(1) lookup.\n"
+              "code": "class LRUCache {\n    int cap;\n    list<pair<int, int>> dll;   // front = most recent, back = eviction candidate\n    unordered_map<int, list<pair<int, int>>::iterator> mp;\npublic:\n    LRUCache(int capacity) { cap = capacity; }\n\n    int get(int key) {\n        if (!mp.count(key)) return -1;\n        // Move this node to the front (O(1) with list::splice)\n        dll.splice(dll.begin(), dll, mp[key]);\n        return mp[key]->second;\n    }\n\n    void put(int key, int val) {\n        if (mp.count(key)) {\n            dll.erase(mp[key]);        // update: remove old entry first\n        } else if (dll.size() == cap) {\n            mp.erase(dll.back().first); // evict least recently used\n            dll.pop_back();\n        }\n        dll.push_front({key, val});\n        mp[key] = dll.begin();\n    }\n};\n// get / put O(1) average. List for order + map for lookup.\n"
             }
           ],
           "links": [
@@ -854,7 +854,7 @@
             {
               "lang": "cpp",
               "label": "C++",
-              "code": "class MyStack {\n    queue<int> q;\npublic:\n    void push(int x) {\n        q.push(x);\n        for (int i = 0; i < (int)q.size() - 1; i++) {\n            q.push(q.front());\n            q.pop();\n        }\n    }\n    int pop() { int x = q.front(); q.pop(); return x; }\n    int top() { return q.front(); }\n    bool empty() { return q.empty(); }\n};\n\nclass MyQueue {\n    stack<int> in, out;\npublic:\n    void push(int x) { in.push(x); }\n\n    int pop() {\n        if (out.empty()) {\n            while (!in.empty()) {\n                out.push(in.top());\n                in.pop();\n            }\n        }\n        int x = out.top();\n        out.pop();\n        return x;\n    }\n    int peek() {\n        if (out.empty()) {\n            while (!in.empty()) {\n                out.push(in.top());\n                in.pop();\n            }\n        }\n        return out.top();\n    }\n    bool empty() { return in.empty() && out.empty(); }\n};\n// Stack: new element goes to the front of the queue. Queue: pour in -> out when out is empty.\n"
+              "code": "class MyStack {\n    queue<int> q;\npublic:\n    void push(int x) {\n        // Rotate so the new element sits at the front → pop/top stay O(1)\n        q.push(x);\n        for (int i = 0; i < (int)q.size() - 1; i++) {\n            q.push(q.front());\n            q.pop();\n        }\n    }\n    int pop() { int x = q.front(); q.pop(); return x; }\n    int top() { return q.front(); }\n    bool empty() { return q.empty(); }\n};\n\nclass MyQueue {\n    stack<int> in, out;\npublic:\n    void push(int x) { in.push(x); }   // always land in `in`\n\n    int pop() {\n        // Pour in → out only when out is empty (amortized O(1))\n        if (out.empty()) {\n            while (!in.empty()) {\n                out.push(in.top());\n                in.pop();\n            }\n        }\n        int x = out.top();\n        out.pop();\n        return x;\n    }\n    int peek() {\n        if (out.empty()) {\n            while (!in.empty()) {\n                out.push(in.top());\n                in.pop();\n            }\n        }\n        return out.top();\n    }\n    bool empty() { return in.empty() && out.empty(); }\n};\n// Stack-from-queue: push O(N). Queue-from-stacks: push O(1), pop amortized O(1).\n"
             }
           ],
           "links": [
@@ -884,7 +884,7 @@
             {
               "lang": "java",
               "label": "Java",
-              "code": "class MyHashMap {\n    static class Node {\n        int key, val;\n        Node next;\n        Node(int key, int val, Node next) {\n            this.key = key;\n            this.val = val;\n            this.next = next;\n        }\n    }\n\n    private Node[] buckets = new Node[16];\n    private int size = 0;\n\n    public synchronized void put(int key, int val) {\n        int i = index(key);\n        for (Node n = buckets[i]; n != null; n = n.next) {\n            if (n.key == key) {\n                n.val = val;\n                return;\n            }\n        }\n        buckets[i] = new Node(key, val, buckets[i]);\n        size++;\n        if (size > buckets.length * 0.75) resize();\n    }\n\n    public synchronized Integer get(int key) {\n        for (Node n = buckets[index(key)]; n != null; n = n.next) {\n            if (n.key == key) return n.val;\n        }\n        return null;\n    }\n\n    public synchronized void remove(int key) {\n        int i = index(key);\n        Node prev = null;\n        for (Node n = buckets[i]; n != null; n = n.next) {\n            if (n.key == key) {\n                if (prev == null) buckets[i] = n.next;\n                else prev.next = n.next;\n                size--;\n                return;\n            }\n            prev = n;\n        }\n    }\n\n    private void resize() {\n        Node[] old = buckets;\n        buckets = new Node[old.length * 2];\n        for (Node head : old) {\n            for (Node n = head; n != null; n = n.next) {\n                int i = index(n.key);\n                buckets[i] = new Node(n.key, n.val, buckets[i]);\n            }\n        }\n    }\n\n    // length stays a power of 2, so & (length - 1) is the bucket.\n    private int index(int key) {\n        return (key ^ (key >>> 16)) & (buckets.length - 1);\n    }\n}\n"
+              "code": "class MyHashMap {\n    static class Node {\n        int key, val;\n        Node next;\n        Node(int key, int val, Node next) {\n            this.key = key;\n            this.val = val;\n            this.next = next;\n        }\n    }\n\n    private Node[] buckets = new Node[16]; // power of 2 → index with bitmask\n    private int size = 0;\n\n    // synchronized = simple thread-safe put/get/remove (correct, a bit coarse)\n    public synchronized void put(int key, int val) {\n        int i = index(key);\n        for (Node n = buckets[i]; n != null; n = n.next) {\n            if (n.key == key) {\n                n.val = val;           // update existing key — do not grow size\n                return;\n            }\n        }\n        buckets[i] = new Node(key, val, buckets[i]); // insert at head of chain\n        size++;\n        if (size > buckets.length * 0.75) resize();  // load factor 0.75\n    }\n\n    public synchronized Integer get(int key) {\n        for (Node n = buckets[index(key)]; n != null; n = n.next) {\n            if (n.key == key) return n.val;\n        }\n        return null;\n    }\n\n    public synchronized void remove(int key) {\n        int i = index(key);\n        Node prev = null;\n        for (Node n = buckets[i]; n != null; n = n.next) {\n            if (n.key == key) {\n                if (prev == null) buckets[i] = n.next;\n                else prev.next = n.next;\n                size--;\n                return;\n            }\n            prev = n;\n        }\n    }\n\n    private void resize() {\n        Node[] old = buckets;\n        buckets = new Node[old.length * 2]; // stay a power of 2\n        for (Node head : old) {\n            for (Node n = head; n != null; n = n.next) {\n                int i = index(n.key);       // re-hash into the larger table\n                buckets[i] = new Node(n.key, n.val, buckets[i]);\n            }\n        }\n    }\n\n    // Bitmask instead of %. Negative hashes stay a valid non-negative index.\n    private int index(int key) {\n        return (key ^ (key >>> 16)) & (buckets.length - 1);\n    }\n}\n// Follow-up to discuss: per-bucket / striped locks instead of one global lock.\n"
             }
           ],
           "links": [],
@@ -905,7 +905,7 @@
             {
               "lang": "java",
               "label": "Java",
-              "code": "import java.io.IOException;\nimport java.util.ArrayList;\nimport java.util.List;\nimport java.util.concurrent.CompletableFuture;\nimport java.util.concurrent.ExecutorService;\nimport java.util.concurrent.Executors;\n\nclass HtmlWordCounter {\n    private final ExecutorService pool;\n\n    HtmlWordCounter(int threads) {\n        pool = Executors.newFixedThreadPool(threads);\n    }\n\n    List<Hit> countAll(List<String> urls, String keyword) {\n        List<CompletableFuture<Hit>> jobs = new ArrayList<>();\n        for (String url : urls) {\n            jobs.add(CompletableFuture.supplyAsync(() -> countOne(url, keyword), pool));\n        }\n        List<Hit> ans = new ArrayList<>();\n        for (CompletableFuture<Hit> job : jobs) ans.add(job.join());\n        return ans;\n    }\n\n    private Hit countOne(String url, String keyword) {\n        try {\n            String html = fetchHtml(url);\n            return new Hit(url, keyword, count(html, keyword));\n        } catch (Exception e) {\n            return new Hit(url, keyword, -1);\n        }\n    }\n\n    private long count(String text, String keyword) {\n        long n = 0;\n        int from = 0;\n        while (true) {\n            int at = text.indexOf(keyword, from);\n            if (at < 0) return n;\n            n++;\n            from = at + keyword.length();\n        }\n    }\n\n    private String fetchHtml(String url) throws Exception {\n        // HTTP GET. A throw here is caught above and stored as -1.\n        throw new IOException(url);\n    }\n\n    record Hit(String url, String keyword, long count) {}\n}\n"
+              "code": "import java.io.IOException;\nimport java.util.ArrayList;\nimport java.util.List;\nimport java.util.concurrent.CompletableFuture;\nimport java.util.concurrent.ExecutorService;\nimport java.util.concurrent.Executors;\n\nclass HtmlWordCounter {\n    private final ExecutorService pool;\n\n    HtmlWordCounter(int threads) {\n        // Own pool — do not block the common ForkJoinPool on network I/O\n        pool = Executors.newFixedThreadPool(threads);\n    }\n\n    List<Hit> countAll(List<String> urls, String keyword) {\n        List<CompletableFuture<Hit>> jobs = new ArrayList<>();\n        for (String url : urls) {\n            jobs.add(CompletableFuture.supplyAsync(() -> countOne(url, keyword), pool));\n        }\n        List<Hit> ans = new ArrayList<>();\n        for (CompletableFuture<Hit> job : jobs) ans.add(job.join());\n        return ans;\n    }\n\n    private Hit countOne(String url, String keyword) {\n        try {\n            String html = fetchHtml(url);\n            return new Hit(url, keyword, count(html, keyword));\n        } catch (Exception e) {\n            return new Hit(url, keyword, -1); // one bad URL must not fail the batch\n        }\n    }\n\n    private long count(String text, String keyword) {\n        long n = 0;\n        int from = 0;\n        while (true) {\n            int at = text.indexOf(keyword, from);\n            if (at < 0) return n;\n            n++;\n            from = at + keyword.length(); // non-overlapping matches\n        }\n    }\n\n    private String fetchHtml(String url) throws Exception {\n        // HTTP GET. A throw here is caught above and stored as count -1.\n        throw new IOException(url);\n    }\n\n    record Hit(String url, String keyword, long count) {}\n}\n"
             }
           ],
           "links": [],
@@ -926,7 +926,7 @@
             {
               "lang": "java",
               "label": "Java",
-              "code": "import java.util.concurrent.atomic.AtomicReference;\n\nclass ConfigBuilder {\n    static class Config {\n        final String name;\n        final String role;\n        Config(String name, String role) {\n            this.name = name;\n            this.role = role;\n        }\n    }\n\n    private final AtomicReference<Config> cur = new AtomicReference<>(new Config(null, null));\n\n    void setName(String name) {\n        while (true) {\n            Config old = cur.get();\n            Config next = new Config(name, old.role);\n            if (cur.compareAndSet(old, next)) return;\n        }\n    }\n\n    void setRole(String role) {\n        while (true) {\n            Config old = cur.get();\n            Config next = new Config(old.name, role);\n            if (cur.compareAndSet(old, next)) return;\n        }\n    }\n\n    Config build() {\n        return cur.get();\n    }\n}\n// Each setter copies the other field and swaps the whole object. If someone else wrote first, try again.\n"
+              "code": "import java.util.concurrent.atomic.AtomicReference;\n\nclass ConfigBuilder {\n    static class Config {\n        final String name;\n        final String role;\n        Config(String name, String role) {\n            this.name = name;\n            this.role = role;\n        }\n    }\n\n    // Shared immutable snapshot. CAS swaps the whole object — no torn fields.\n    private final AtomicReference<Config> cur =\n            new AtomicReference<>(new Config(null, null));\n\n    void setName(String name) {\n        while (true) {\n            Config old = cur.get();\n            Config next = new Config(name, old.role); // keep the other field\n            if (cur.compareAndSet(old, next)) return;\n            // Lost the race — retry against the latest snapshot\n        }\n    }\n\n    void setRole(String role) {\n        while (true) {\n            Config old = cur.get();\n            Config next = new Config(old.name, role);\n            if (cur.compareAndSet(old, next)) return;\n        }\n    }\n\n    Config build() {\n        return cur.get(); // immutable, safe to hand to the caller\n    }\n}\n// A setter that only returns a new builder to its own thread never publishes the write.\n"
             }
           ],
           "links": [],
@@ -952,7 +952,7 @@
             {
               "lang": "cpp",
               "label": "C++",
-              "code": "void hanoi(int n, char from, char to, char aux) {\n    if (n == 0) return;\n    hanoi(n - 1, from, aux, to);\n    cout << \"Move disk \" << n << \" from \" << from << \" to \" << to << \"\\n\";\n    hanoi(n - 1, aux, to, from);\n}\n// Move n-1 out of the way, move the biggest disk, then put n-1 on top.\n"
+              "code": "void hanoi(int n, char from, char to, char aux) {\n    if (n == 0) return;\n    hanoi(n - 1, from, aux, to);   // free the largest disk\n    cout << \"Move disk \" << n << \" from \" << from << \" to \" << to << \"\\n\";\n    hanoi(n - 1, aux, to, from);   // put the n-1 tower back on top\n}\n// 2^n - 1 moves\n"
             }
           ],
           "links": [],
@@ -973,7 +973,7 @@
             {
               "lang": "cpp",
               "label": "C++",
-              "code": "int findUnsortedSubarray(vector<int>& nums) {\n    int n = nums.size();\n    int right = -1, mx = INT_MIN;\n    for (int i = 0; i < n; i++) {\n        mx = max(mx, nums[i]);\n        if (nums[i] < mx) right = i;\n    }\n\n    int left = 0, mn = INT_MAX;\n    for (int i = n - 1; i >= 0; i--) {\n        mn = min(mn, nums[i]);\n        if (nums[i] > mn) left = i;\n    }\n    if (right == -1) return 0;\n    return right - left + 1;\n}\n// right = last index smaller than something on its left. left = first index bigger than something on its right.\n"
+              "code": "int findUnsortedSubarray(vector<int>& nums) {\n    int n = nums.size();\n    // right = last index that is smaller than something on its left\n    int right = -1, mx = INT_MIN;\n    for (int i = 0; i < n; i++) {\n        mx = max(mx, nums[i]);\n        if (nums[i] < mx) right = i;\n    }\n\n    // left = first index that is larger than something on its right\n    int left = 0, mn = INT_MAX;\n    for (int i = n - 1; i >= 0; i--) {\n        mn = min(mn, nums[i]);\n        if (nums[i] > mn) left = i;\n    }\n    if (right == -1) return 0;     // already sorted\n    return right - left + 1;\n}\n// O(N). Sorting a copy and comparing ends is the O(N log N) fallback.\n"
             }
           ],
           "links": [
@@ -998,7 +998,7 @@
             {
               "lang": "cpp",
               "label": "C++",
-              "code": "int josephus(int n, int k) {\n    int pos = 0;\n    for (int i = 2; i <= n; i++) {\n        pos = (pos + k) % i;\n    }\n    return pos + 1;\n}\n// After removing one person, the next start is k seats ahead in a circle of the remaining people.\n"
+              "code": "int josephus(int n, int k) {\n    // 0-based recurrence: f(1)=0, f(i)=(f(i-1)+k) % i\n    // After removing one person, the next start is k seats ahead in a smaller circle\n    int pos = 0;\n    for (int i = 2; i <= n; i++) {\n        pos = (pos + k) % i;\n    }\n    return pos + 1;                // prompt numbers people from 1\n}\n// O(N)\n"
             }
           ],
           "links": [],
@@ -1018,7 +1018,7 @@
             {
               "lang": "cpp",
               "label": "C++",
-              "code": "int totalJumps(vector<int>& walls, int H, int L) {\n    int jumps = 0;\n    for (int w : walls) {\n        if (w <= H) {\n            jumps++;\n            continue;\n        }\n        if (H <= L) return -1;\n\n        int height = 0;\n        while (height < w) {\n            height += H;\n            jumps++;\n            if (height >= w) break;\n            height -= L;\n        }\n    }\n    return jumps;\n}\n// Climb, and slip only if the wall is still above you. If a slip cancels the climb, a taller wall is impossible.\n"
+              "code": "int totalJumps(vector<int>& walls, int H, int L) {\n    int jumps = 0;\n    for (int w : walls) {\n        if (w <= H) {\n            jumps++;               // one jump clears this wall\n            continue;\n        }\n        // Slip cancels the climb → infinite loop on a taller wall\n        if (H <= L) return -1;\n\n        int height = 0;\n        while (height < w) {\n            height += H;\n            jumps++;\n            if (height >= w) break; // cleared — do not slip after a successful jump\n            height -= L;\n        }\n    }\n    return jumps;\n}\n// O(jumps). Closed form: ceil((w-H)/(H-L)) + 1 when w > H.\n"
             }
           ],
           "links": [],
@@ -1039,7 +1039,7 @@
             {
               "lang": "cpp",
               "label": "C++",
-              "code": "bool isOpen(vector<int>& open, vector<int>& close, int t) {\n    for (int i = 0; i < open.size(); i++) {\n        if (t >= open[i] && t < close[i]) return true;\n    }\n    return false;\n}\n// Half-open intervals. Any overlap counts as open, so just scan.\n"
+              "code": "bool isOpen(vector<int>& open, vector<int>& close, int t) {\n    // Half-open [open, close). Intervals may overlap / be unsorted, N <= 100 → scan.\n    for (int i = 0; i < open.size(); i++) {\n        if (t >= open[i] && t < close[i]) return true;\n    }\n    return false;\n}\n// Binary search on open[] alone is wrong when intervals overlap.\n"
             }
           ],
           "links": [],
