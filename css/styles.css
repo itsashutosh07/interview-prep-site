@@ -323,38 +323,47 @@ body.sidebar-open { overflow: hidden; }
 .company-shell { max-width: 1100px; margin: 0 auto; }
 
 .chip-tabs {
-  display: flex; align-items: center; gap: 8px;
-  padding: 8px 12px;
+  display: flex; align-items: center; gap: 2px;
+  padding: 6px 8px 6px 10px;
   border-bottom: 1px solid var(--border);
   background: transparent;
   position: relative;
   z-index: 1;
 }
 .chip-tabs-scroll {
-  display: flex; gap: 6px;
+  display: flex; align-items: center; gap: 2px;
   flex: 1; min-width: 0;
-  overflow-x: auto; scroll-snap-type: x mandatory;
+  overflow-x: auto; scroll-snap-type: x proximity;
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
+  /* Soft edge so chips dissolve into the search control instead of hard-clipping */
+  -webkit-mask-image: linear-gradient(to right, #000 0%, #000 calc(100% - 18px), transparent 100%);
+  mask-image: linear-gradient(to right, #000 0%, #000 calc(100% - 18px), transparent 100%);
+  padding-right: 6px;
 }
 .chip-tabs-scroll::-webkit-scrollbar { display: none; }
 
 .chip {
   flex-shrink: 0; scroll-snap-align: start;
-  min-height: 36px;
-  padding: 6px 14px;
-  border-radius: 20px;
-  border: 1px solid var(--border);
-  background: var(--surface);
+  min-height: 34px;
+  padding: 6px 12px;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  background: transparent;
   color: var(--muted);
   font-size: 13px; font-weight: 600;
   cursor: pointer;
   white-space: nowrap;
+  transition: color 0.15s ease, background 0.15s ease, border-color 0.15s ease;
+}
+.chip:hover {
+  color: var(--text);
+  background: rgba(230, 237, 243, 0.04);
 }
 .chip.active {
-  color: var(--text);
-  border-color: var(--accent);
-  background: rgba(247, 129, 102, 0.12);
+  border-color: transparent;
+  background: rgba(247, 129, 102, 0.14);
+  color: #ffb4a4;
 }
 .chip .chip-count {
   margin-left: 4px; font-size: 11px; opacity: 0.7;
@@ -380,66 +389,69 @@ body.sidebar-open { overflow: hidden; }
 .search-box:focus { border-color: var(--accent2); }
 .search-box::placeholder { color: var(--muted); }
 
-/* Collapsed search icon → expands R→L into a filter field */
+/* Search is the same quiet control family as the chips — not a separate boxed widget */
 .chip-search-wrap {
   position: relative;
   flex: 0 0 auto;
-  margin-left: auto;
+  margin-left: 0;
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  min-height: 36px;
+  min-height: 34px;
 }
 .chip-search-toggle {
   position: relative;
   flex-shrink: 0;
-  width: 36px;
-  height: 36px;
+  width: 34px;
+  height: 34px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border: 1px solid var(--border);
+  border: 1px solid transparent;
   border-radius: 8px;
-  background: var(--surface);
+  background: transparent;
   color: var(--muted);
   cursor: pointer;
-  transition: color 0.15s ease, border-color 0.15s ease, background 0.15s ease, opacity 0.15s ease, transform 0.2s ease;
+  transition: color 0.15s ease, background 0.15s ease, opacity 0.15s ease, transform 0.2s ease, width 0.2s ease;
 }
 .chip-search-toggle:hover {
   color: var(--text);
-  border-color: var(--accent2);
-  background: rgba(121, 192, 255, 0.08);
+  background: rgba(230, 237, 243, 0.04);
 }
 .chip-search-wrap.has-query:not(.open) .chip-search-toggle {
   color: var(--accent2);
-  border-color: rgba(121, 192, 255, 0.45);
+  background: rgba(121, 192, 255, 0.1);
 }
 .chip-search-wrap.has-query:not(.open) .chip-search-toggle::after {
   content: "";
   position: absolute;
-  top: 7px;
-  right: 7px;
-  width: 6px;
-  height: 6px;
+  top: 6px;
+  right: 6px;
+  width: 5px;
+  height: 5px;
   border-radius: 50%;
   background: var(--accent2);
 }
 .chip-search-panel {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 4px;
   width: 0;
   max-width: 0;
   opacity: 0;
   overflow: hidden;
   pointer-events: none;
-  transform: translateX(8px);
+  transform: translateX(6px);
   transform-origin: right center;
+  background: var(--surface);
+  border: 1px solid transparent;
+  border-radius: 8px;
   transition:
     max-width 0.28s cubic-bezier(0.22, 1, 0.36, 1),
     width 0.28s cubic-bezier(0.22, 1, 0.36, 1),
     opacity 0.18s ease,
-    transform 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+    transform 0.28s cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 0.18s ease;
 }
 .chip-search-wrap.open .chip-search-toggle {
   opacity: 0;
@@ -449,7 +461,7 @@ body.sidebar-open { overflow: hidden; }
   border-width: 0;
   margin: 0;
   pointer-events: none;
-  transform: scale(0.85);
+  transform: scale(0.9);
 }
 .chip-search-wrap.open .chip-search-panel {
   width: min(72vw, 280px);
@@ -457,40 +469,49 @@ body.sidebar-open { overflow: hidden; }
   opacity: 1;
   pointer-events: auto;
   transform: translateX(0);
+  border-color: var(--border);
 }
 .chip-search-leading {
   flex-shrink: 0;
   color: var(--muted);
-  margin-left: 2px;
+  margin-left: 8px;
 }
 .chip-search {
   flex: 1 1 auto;
   width: auto;
   min-width: 0;
-  min-height: 36px;
+  min-height: 32px;
   margin: 0;
-  padding: 6px 8px;
-  border-radius: 8px;
+  padding: 4px 6px;
+  border: none;
+  border-radius: 0;
+  background: transparent;
   font-size: 16px;
+  box-shadow: none;
+}
+.chip-search:focus {
+  border: none;
+  outline: none;
 }
 .chip-search-close {
   flex-shrink: 0;
-  width: 32px;
-  height: 32px;
+  width: 30px;
+  height: 30px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   border: none;
-  border-radius: 8px;
+  border-radius: 6px;
   background: transparent;
   color: var(--muted);
-  font-size: 20px;
+  font-size: 18px;
   line-height: 1;
   cursor: pointer;
+  margin-right: 2px;
 }
 .chip-search-close:hover {
   color: var(--text);
-  background: var(--surface2);
+  background: rgba(230, 237, 243, 0.06);
 }
 
 /* Mobile filter mode: give the field the row; park chips until closed */
@@ -501,6 +522,9 @@ body.sidebar-open { overflow: hidden; }
   opacity: 0;
   overflow: hidden;
   pointer-events: none;
+  padding-right: 0;
+  -webkit-mask-image: none;
+  mask-image: none;
   transition: opacity 0.18s ease, flex-basis 0.28s ease;
 }
 .chip-tabs.search-open .chip-search-wrap {
@@ -1182,17 +1206,26 @@ body.sidebar-open { overflow: hidden; }
   }
 
   .chip-tabs {
-    padding: 0 16px 0 8px;
-    gap: 12px;
+    padding: 0 12px 0 8px;
+    gap: 4px;
     border-bottom: 1px solid var(--border);
   }
-  .chip-tabs-scroll { gap: 0; }
+  .chip-tabs-scroll {
+    gap: 0;
+    padding-right: 8px;
+    -webkit-mask-image: linear-gradient(to right, #000 0%, #000 calc(100% - 24px), transparent 100%);
+    mask-image: linear-gradient(to right, #000 0%, #000 calc(100% - 24px), transparent 100%);
+  }
   .chip {
     border: none; border-radius: 0;
     background: transparent;
     min-height: 48px;
-    padding: 14px 18px;
+    padding: 14px 16px;
     border-bottom: 2px solid transparent;
+  }
+  .chip:hover {
+    background: transparent;
+    color: var(--text);
   }
   .chip.active {
     background: transparent;
@@ -1200,9 +1233,15 @@ body.sidebar-open { overflow: hidden; }
     color: var(--text);
   }
 
+  .chip-search-toggle {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+  }
   .chip-search-wrap.open .chip-search-panel {
     width: 240px;
     max-width: 240px;
+    min-height: 36px;
   }
   .chip-search {
     min-height: 32px;
@@ -1216,6 +1255,9 @@ body.sidebar-open { overflow: hidden; }
     opacity: 1;
     overflow-x: auto;
     pointer-events: auto;
+    padding-right: 8px;
+    -webkit-mask-image: linear-gradient(to right, #000 0%, #000 calc(100% - 24px), transparent 100%);
+    mask-image: linear-gradient(to right, #000 0%, #000 calc(100% - 24px), transparent 100%);
   }
   .chip-tabs.search-open .chip-search-wrap {
     flex: 0 0 auto;
